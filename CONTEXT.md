@@ -40,6 +40,15 @@ _Avoid_: config dir
 **Secret**:
 A credential or token. Never stored in git on any machine; lives in macOS Keychain and is read by chezmoi `keyring` templates at apply time (ADR 0002).
 
+**Drift**:
+A managed file in `$HOME` that differs from what its dotfiles source would produce. Detected with `chezmoi diff`; resolved by adopt (`chezmoi re-add`) or overwrite (`chezmoi apply`).
+
+**Save**:
+The UI action that writes one dotfiles source file and applies it. Never commits.
+
+**Commit**:
+The separate UI action that commits all dirty `dotfiles/**` files and pushes to the machine's remote.
+
 ### Repos
 
 **Main repo**:

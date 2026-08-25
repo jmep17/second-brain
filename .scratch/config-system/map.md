@@ -19,6 +19,7 @@ An architecture decision and written spec describing one system that holds the s
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [UI edit model](issues/06-ui-edit-model.md) — raw editor over `dotfiles/**` only; save = write + `chezmoi apply`; separate commit; drift via `chezmoi diff` + re-add/apply; skill toggle via `.chezmoidata` + ignore/remove templates; localhost only. ADR 0003.
 - [Secrets strategy](issues/05-secrets.md) — macOS Keychain on both Macs via chezmoi `{{ keyring }}`; env-var keys only, tool-owned auth files unmanaged; personal-only secrets hostname-gated; UI never renders templates. ADR 0002.
 - [Monorepo layout](issues/04-repo-layout.md) — keep name `second-brain`; `personal/` is a git submodule (private repo) holding `wiki/ raw/ memory/ log.md`; `dotfiles/` is the chezmoi source dir mirroring `$HOME`, with the Claude Code layer at `dotfiles/dot_claude/`; two logs.
 
@@ -30,23 +31,20 @@ An architecture decision and written spec describing one system that holds the s
 
 - Bootstrap: how a fresh machine goes from zero to fully configured (install script, tool installs via brew?). Depends on the dotfiles tool decision.
 - nvim: config dir is empty — is nvim actually used, and does an nvim config need authoring before it can be "managed"?
-- Per-tool documentation in the wiki (keybinding pages like `tmux-pane-keybindings`) — does the UI surface those next to each config? Depends on the UI edit model.
 - Task: create the `personal/` submodule repo, move personal-sensitive pages from `wiki/`/`raw/` into it, create `dotfiles/` from current `$HOME` files (`chezmoi add`). Layout decided in 04.
 - Claude Code specifics: which of settings.json / CLAUDE.md / skills / hooks / memory / plans live in the repo, and how they get to `~/.claude`. Depends on repo layout + dotfiles tool.
 - Task: create the private nested-repo remote for `wiki/personal/`, the read-only deploy key for the work laptop, and the work-account repo; confirm the work laptop can clone main and not the nested repo. Depends on repo layout (04).
 - Work Mac auto-memory tracking now ticket [09](issues/09-work-memory.md).
-- UI: per-machine skill enable/disable toggle (work starts with all off); site must render when `wiki/personal/` is absent. (from 02, goes into 06)
 
 - Bootstrap doc must list required Keychain secrets per host, entered before first `chezmoi apply`. (from 05, goes into 08)
-- UI must never render chezmoi templates or send rendered `$HOME` files to the browser. (from 05, goes into 06)
 
-- Does the work machine need the site at all, or only the personal Mac? Decides whether any static deploy target survives. (from 03)
-- UI file API runs unauthenticated as the user — localhost-only binding should be a spec requirement. (from 03)
+- Localhost-only binding + launchd start for the site server: into spec/bootstrap (08). (from 03, 06)
+- `tool:` frontmatter field on wiki pages (links docs to a tool in the UI): add convention to CLAUDE.md in 08. (from 06)
+- Verify `.chezmoiignore` leaves applied targets and `.chezmoiremove` deletes directories (07). (from 06)
 - Fumadocs `dynamicSource()` + watcher on Next 16/Turbopack is documented but unverified — check in ticket 07. (from 03)
 
 - Does "exclude from work" mean "not in `$HOME`" (chezmoiignore suffices) or "not on disk at all" (needs split private repo or encryption with key off work)? Applies to wiki content too, or only dotfiles? Feeds ticket 02. (from 01)
-- If a second private repo: submodule vs `.chezmoiexternal git-repo` vs plain separate clone — affects the UI edit model. (from 01)
-- UI needs source-path to target-path mapping (`chezmoi managed` / `chezmoi source-path`) and must run `chezmoi apply` after writes; who runs `chezmoi update` on the other machine (manual vs cron)? (from 01)
+- Who runs `chezmoi update`/`git pull` on the work Mac (manual vs cron)? Into 08. (from 01)
 
 ## Out of scope
 
