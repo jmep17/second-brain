@@ -40,28 +40,27 @@ conflicts).
 Plan 003 was written on 2026-08-25 against commit `2c95536` (`plan` variant —
 user-directed, no audit). It edits only `site/` and reads `wiki/index.md`.
 
-Plan 003 was executed on 2026-08-25 by a dispatched executor in an isolated
-worktree and approved on review. Branch `advisor/003-site-home-toc` (commit
-`9adf4c4`, based on `6f86e35`), worktree
-`.claude/worktrees/agent-a27ee6934b710c644`. All done criteria were re-run
-independently by the reviewer and pass (typecheck, build, prettier --check,
-and every grep gate on `out/index.html`). No revision rounds; the diff matches
-the plan exactly, four files, all in `site/`. Not merged into `main` yet —
-merging is the operator's call.
+Plan 003 was executed on 2026-08-25 and is merged. Two sessions dispatched an
+executor for it concurrently, unaware of each other; both produced the same
+four-file change in `site/`, and both passed review. The merged one is commit
+`98c9905`, merged into `main` as `74be1ba` (no conflicts); the build was
+re-run clean on `main` after the merge. It went through one revision round for
+two cosmetic issues the plan text itself introduced: `page.tsx` nested a
+`<main>` inside `HomeLayout`'s own `<main>` (now a `<div>`), and the
+`site/README.md` addition was a stranded bullet below a paragraph (now a
+paragraph above it). All done criteria were re-run independently by the
+reviewer at each stage — typecheck, build, `prettier --check`, and every grep
+gate on `site/out/index.html`.
 
-Plan 003 was executed on 2026-08-25 by a dispatched executor in an isolated
-worktree and approved on review. Branch `worktree-agent-ac7fa2374c5caf72e`
-(commit `0564278`, based on `6f86e35`), worktree
-`.claude/worktrees/agent-ac7fa2374c5caf72e`. All done criteria were re-run
-independently by the reviewer and pass (typecheck, build, prettier, and every
-grep gate on `site/out/index.html`). Diff is exactly the four in-scope site
-files. One revision round for two cosmetic issues the plan itself introduced:
-`page.tsx` nested a `<main>` inside `HomeLayout`'s own `<main>` (now a
-`<div>`), and the `site/README.md` addition was a stranded bullet below a
-paragraph (now a paragraph above it). Re-verified after the amend
-(commit `98c9905`) and merged into `main` on 2026-08-25 (merge commit
-`74be1ba`, no conflicts); the build was re-run clean on `main` after the
-merge.
+The duplicate run (branch `advisor/003-site-home-toc`, commit `9adf4c4`,
+worktree `.claude/worktrees/agent-a27ee6934b710c644`) held the same change
+without those two fixes. It was redundant once `74be1ba` landed; branch and
+worktree were deleted on 2026-08-25. Both worktrees for 003 are now gone.
+
+Lesson for future `execute` runs: check `git worktree list` and `git branch`
+for an in-flight branch matching the plan number before dispatching an
+executor. The index status column alone did not catch this — both sessions
+read `TODO` at the same time.
 
 Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
