@@ -1,14 +1,14 @@
 ---
-title: Running Qwen3.8 locally in Claude Code (MacBook Pro M4, 48 GB)
+title: Running Qwen3.8 locally in Claude Code (MacBook Pro M4 Pro, 48 GB)
 type: answer
 created: 2026-08-25
 updated: 2026-08-25
 sources: []
 ---
 
-# Running Qwen3.8 locally in Claude Code (MacBook Pro M4, 48 GB)
+# Running Qwen3.8 locally in Claude Code (MacBook Pro M4 Pro, 48 GB)
 
-Web research, 2026-08-25. No raw source saved; all claims cited by URL.
+Web research, 2026-08-25. No raw source saved; all claims cited by URL. Machine confirmed as **M4 Pro** (273 GB/s memory bandwidth), which sets the speed expectations below.
 
 ## What "Qwen3.8" is, and which variant fits
 
@@ -21,10 +21,10 @@ Qwen released the 3.8 generation in mid-August 2026 ([QwenLM/Qwen3.8](https://gi
 
 ## Realistic speed on this hardware
 
-A "MacBook Pro M4 48 GB" is either an M4 Pro (273 GB/s memory bandwidth) or an M4 Max (410–546 GB/s); generation speed on a dense 27B is bandwidth-bound, so the Max is roughly 2× the Pro.
+Generation speed on a dense 27B is memory-bandwidth-bound; the M4 Pro's 273 GB/s puts a hard ceiling on plain decoding, which is what makes the MTP and caching tricks below worth the setup.
 
-- Measured on **M4 Pro (20-core GPU, 48 GB), 4-bit with MTP**: ~125 tok/s prefill, ~24 tok/s generation ([oMLX benchmark](https://omlx.ai/benchmarks/performance/yd0ekfoi)).
-- Measured on **M4 Max with oMLX native MTP**: 48–65 tok/s generation ([Weschera A/B benchmark](https://github.com/Weschera/Qwen3.8-27B-oMLX-MTP-Mac)); MTPLX reports 2–3× over plain MLX decoding (32.4 vs 17.4 tok/s vs LM Studio on a 52k-token task) ([MTPLX](https://github.com/youssofal/MTPLX)).
+- Measured on **M4 Pro (20-core GPU, 48 GB), 4-bit with MTP**: ~125 tok/s prefill, ~24 tok/s generation ([oMLX benchmark](https://omlx.ai/benchmarks/performance/yd0ekfoi)) — the closest published match for this exact machine. Plain (non-MTP) decoding lands lower, roughly the mid-teens.
+- For reference, an M4 Max (about 2× the bandwidth) with oMLX native MTP measures 48–65 tok/s generation ([Weschera A/B benchmark](https://github.com/Weschera/Qwen3.8-27B-oMLX-MTP-Mac)); MTPLX reports 2–3× over plain MLX decoding (32.4 vs 17.4 tok/s vs LM Studio on a 52k-token task) ([MTPLX](https://github.com/youssofal/MTPLX)).
 
 For Claude Code specifically, **prefill speed and cache reuse matter more than generation speed** — its system prompt plus history means each request can reprocess tens of thousands of tokens ([jangwook.net analysis](https://jangwook.net/en/blog/en/claude-code-local-model-inefficiency/)).
 
@@ -52,7 +52,7 @@ LM Studio ≥ 0.4.1 exposes an Anthropic-compatible `/v1/messages` at `http://lo
 
 ### 3. oMLX / MTPLX — fastest (uses the model's native MTP head)
 
-Qwen3.8-27B ships its multi-token-prediction head, so an MTP-aware server drafts several tokens and verifies them in one pass — *exact* speculative decoding (identical output distribution), with measured draft-acceptance of 0.95/0.88/0.80 at depths 1–3 on coding tasks ([MTPLX](https://github.com/youssofal/MTPLX)). This is the 2–3× generation speedup, and it matters most on the M4 Pro, where baseline decode is only ~24 tok/s. [oMLX](https://omlx.ai/benchmarks/performance/yd0ekfoi) serves an `oQ4e-mtp` quant; [Rapid-MLX](https://github.com/raullenchai/Rapid-MLX) is a similar OpenAI-compatible MLX server with prompt caching (0.08s cached TTFT) and tool-call parsers that advertises Claude Code support. More setup than Ollama/LM Studio; worth it once the workflow sticks.
+Qwen3.8-27B ships its multi-token-prediction head, so an MTP-aware server drafts several tokens and verifies them in one pass — *exact* speculative decoding (identical output distribution), with measured draft-acceptance of 0.95/0.88/0.80 at depths 1–3 on coding tasks ([MTPLX](https://github.com/youssofal/MTPLX)). This is the 2–3× generation speedup, and on the M4 Pro it is the difference between mid-teens tok/s (sluggish for agentic loops) and ~24+ tok/s (usable) — on this machine it is less an optimization than the thing that makes the 27B pleasant. [oMLX](https://omlx.ai/benchmarks/performance/yd0ekfoi) serves an `oQ4e-mtp` quant; [Rapid-MLX](https://github.com/raullenchai/Rapid-MLX) is a similar OpenAI-compatible MLX server with prompt caching (0.08s cached TTFT) and tool-call parsers that advertises Claude Code support. More setup than Ollama/LM Studio; worth it once the workflow sticks.
 
 ## Efficiency settings that matter more than the runtime
 
@@ -64,10 +64,10 @@ Qwen3.8-27B ships its multi-token-prediction head, so an MTP-aware server drafts
 
 ## If generation speed trumps model quality
 
-Qwen3-Coder-30B-A3B (previous generation, MoE with only ~3B active parameters) decodes at ~55–100 tok/s on M4-class machines — 2–4× faster than dense Qwen3.8-27B — at the cost of the 3.8 generation's agentic reliability gains ([SiliconScore](https://siliconscore.com/models/qwen3-coder-30b-a3b/), [Unsloth](https://unsloth.ai/docs/models/tutorials/qwen3-coder-how-to-run-locally)). Reasonable fallback if 24 tok/s on an M4 Pro feels too slow and MTP serving is too much setup.
+Qwen3-Coder-30B-A3B (previous generation, MoE with only ~3B active parameters) decodes at ~55–100 tok/s on M4-class machines — 2–4× faster than dense Qwen3.8-27B, and the gap is widest on bandwidth-limited chips like the M4 Pro — at the cost of the 3.8 generation's agentic reliability gains ([SiliconScore](https://siliconscore.com/models/qwen3-coder-30b-a3b/), [Unsloth](https://unsloth.ai/docs/models/tutorials/qwen3-coder-how-to-run-locally)). Reasonable fallback if ~24 tok/s feels too slow and MTP serving is too much setup.
 
 ## Bottom line
 
-Start with **Ollama + `qwen3.8:27b-mlx` (4-bit) + 64k context + the attribution-header fix + a small haiku-tier model**. If decode speed on an M4 Pro disappoints, move to an MTP-aware server (oMLX/MTPLX) for 2–3×, or drop to Qwen3-Coder-30B-A3B for raw speed.
+On an M4 Pro: start with **Ollama + `qwen3.8:27b-mlx` (4-bit) + 64k context + the attribution-header fix + a small haiku-tier model** to validate the workflow, then move to an MTP-aware server (oMLX/MTPLX) — on this chip the 2–3× MTP speedup is what makes the 27B comfortable for agentic loops. Drop to Qwen3-Coder-30B-A3B if raw speed still wins.
 
 Related: [[claude-code-memory-plan-locations]], [[claude-auto-memory]] (Claude Code configuration surface).

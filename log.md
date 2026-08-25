@@ -59,3 +59,7 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Web research only (session's egress proxy blocked direct page fetches; findings assembled from search results). No raw source saved; all claims cited by URL.
 - Filed wiki/qwen38-claude-code-m4.md; updated wiki/index.md.
 - Findings: Qwen3.8-27B (dense 28B, Apache 2.0, Aug 2026) at 4-bit MLX is the fit for 48 GB; Ollama >=0.14 and LM Studio >=0.4.1 both speak the Anthropic Messages API natively so no proxy is needed; measured ~24 tok/s gen / ~125 tok/s prefill on M4 Pro 48 GB, 2-3x more via the model's native MTP head (oMLX/MTPLX); biggest wins are 64k context, KV-cache quantization, and disabling Claude Code's attribution header to stop per-turn prompt-cache invalidation.
+
+## [2026-08-25] maintenance | qwen38-claude-code-m4: machine confirmed as M4 Pro
+
+- Human confirmed the MacBook Pro is an M4 Pro (not Max); removed the Pro/Max ambiguity from wiki/qwen38-claude-code-m4.md and sharpened the recommendation: on 273 GB/s bandwidth, MTP speculative decoding is what makes the dense 27B comfortable (~24 tok/s with MTP vs mid-teens without).
