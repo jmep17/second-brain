@@ -12,7 +12,9 @@ export const vault = obsidian({
   // Only the knowledge base. Never node_modules/, .obsidian/, plans/, docs/,
   // site/. Only *.md (not *.json/*.yaml — those are validated as meta files)
   // plus everything under raw/assets (served as media).
-  include: ["wiki/**/*.md", "raw/**/*.md", "raw/assets/**/*"],
+  // wiki/index.md is not a page: the home page (app/page.tsx) replaces it
+  // and reads its summaries via lib/toc.ts.
+  include: ["wiki/**/*.md", "!wiki/index.md", "raw/**/*.md", "raw/assets/**/*"],
   // Media files are copied to public/vault by scripts/sync-assets.mjs, so a
   // vault path like raw/assets/x.png is served at /vault/raw/assets/x.png.
   url: (vaultPath) => `/vault/${vaultPath}`,
