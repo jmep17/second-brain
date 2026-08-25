@@ -3,12 +3,13 @@
   "private": true,
   "scripts": {
     "sync-assets": "node scripts/sync-assets.mjs",
-    "dev": "node scripts/sync-assets.mjs && next dev",
+    "dev": "node scripts/sync-assets.mjs && fumadocs-obsidian dev -- next dev",
     "build": "node scripts/sync-assets.mjs && next build",
     "start": "serve out",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@fumadocs/local-content": "0.2.1",
     "fumadocs-core": "16.15.1",
     "fumadocs-obsidian": "1.0.3",
     "fumadocs-ui": "16.15.1",
