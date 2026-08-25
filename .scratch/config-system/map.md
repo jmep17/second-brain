@@ -18,6 +18,7 @@ An architecture decision and written spec describing one system that holds the s
 ## Decisions so far
 
 <!-- one line per resolved ticket: gist + link -->
+
 - [Runtime for an editing web UI](issues/03-ui-runtime.md) — drop `output: export`, run `site/` as a localhost Next.js server with a file API + dynamic Fumadocs source; Hono/Tauri rejected as extra process/Rust for no gain.
 
 ## Not yet specified
@@ -28,6 +29,10 @@ An architecture decision and written spec describing one system that holds the s
 - Migrating the existing second-brain git history and directory layout into the monorepo shape. Depends on repo layout.
 - Claude Code specifics: which of settings.json / CLAUDE.md / skills / hooks / memory / plans live in the repo, and how they get to `~/.claude`. Depends on repo layout + dotfiles tool.
 - Task: create the private GitHub remote and confirm the work laptop can clone it. Depends on the exclusion decision.
+
+- Does the work machine need the site at all, or only the personal Mac? Decides whether any static deploy target survives. (from 03)
+- UI file API runs unauthenticated as the user — localhost-only binding should be a spec requirement. (from 03)
+- Fumadocs `dynamicSource()` + watcher on Next 16/Turbopack is documented but unverified — check in ticket 07. (from 03)
 
 ## Out of scope
 
