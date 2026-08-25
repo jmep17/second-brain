@@ -19,6 +19,8 @@ An architecture decision and written spec describing one system that holds the s
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [Dotfiles tool for two Macs...](issues/01-dotfiles-tool.md) — chezmoi (templated per-host config, `.chezmoiignore`, secrets via Keychain/1Password, UI saves then `chezmoi apply --source-path`); true work-disk exclusion needs a second private repo or encryption, not a tool feature.
+
 ## Not yet specified
 
 - Bootstrap: how a fresh machine goes from zero to fully configured (install script, tool installs via brew?). Depends on the dotfiles tool decision.
