@@ -1,0 +1,33 @@
+{
+  "name": "second-brain-site",
+  "private": true,
+  "scripts": {
+    "sync-assets": "node scripts/sync-assets.mjs",
+    "dev": "node scripts/sync-assets.mjs && next dev",
+    "build": "node scripts/sync-assets.mjs && next build",
+    "start": "serve out",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "fumadocs-core": "16.15.1",
+    "fumadocs-obsidian": "1.0.3",
+    "fumadocs-ui": "16.15.1",
+    "github-slugger": "^2.0.0",
+    "next": "16.3.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/mdast": "^4.0.4",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "postcss": "^8.5.0",
+    "serve": "^14.2.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^6.0.0"
+  }
+}
