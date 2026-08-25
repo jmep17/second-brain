@@ -20,3 +20,7 @@ Append-only record of wiki operations. Newest entries at the bottom.
 ## [2026-08-25] query | tmux pane keybindings
 
 - Researched `man tmux` (local 3.7b) + `tmux list-keys`; no raw source saved (man page is on-machine). Filed wiki/tmux-pane-keybindings.md; updated wiki/index.md
+
+## [2026-08-25] answer | mattpocock-skills plugin: skill list and workflow order
+
+- Researched primary sources in the installed plugin at `/Users/jorden/.claude/plugins/cache/claude-plugins-official/mattpocock-skills/1.2.3/` (plugin.json, top-level README.md, CONTEXT.md, .agents/invocation.md, all category READMEs, all 25 registered SKILL.md files). No raw source saved (files are on-machine, cited by path). Filed wiki/mattpocock-skills-workflow.md; updated wiki/index.md

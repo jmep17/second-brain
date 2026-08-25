@@ -26,3 +26,4 @@ _(none yet)_
 ## Answers
 
 - [[tmux-pane-keybindings]] — tmux pane bindings from the man page: split/resize/navigate, and which select-layout preset equalizes horizontal vs vertical splits, with a config snippet.
+- [[mattpocock-skills-workflow]] — full skill list, invocation model (user- vs model-invoked), and the ordering/branching flow for the mattpocock-skills Claude Code plugin.
