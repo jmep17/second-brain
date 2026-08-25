@@ -12,7 +12,7 @@ conditions, and update your row when done.
 | 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                                | P2       | M      | —          | DONE   |
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
 | 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
-| 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003        | TODO   |
+| 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003, 005   | DONE   |
 | 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
@@ -86,6 +86,53 @@ Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
 was proven with a throwaway script against a copy of the vault before writing.
 
+Plan 004 was reconciled on 2026-08-25 against commit `8a51011` before
+execution: plans 003 and 005 had merged in the meantime, and 005 had made
+`site/app/page.tsx` call `source.getPageTree()` itself — Step 6 covered only
+`buildToc()`, so the executor would have hit a broken import once Step 1 drops
+the `source` export. Step 6, the drift-check baseline, the `Current state`
+excerpts and Step 7.1's expected file counts (plans 5 to 6, ADRs 1 to 2,
+issues 8 to 9) were all refreshed. Commit `4cb8533`.
+
+Plan 004 was executed on 2026-08-25 by a dispatched executor in an isolated
+worktree and approved on review. Branch `advisor/004-site-all-docs-live-reload`
+(7 commits, `5b337a5`..`da764d2`, based on `8a51011`), worktree
+`.claude/worktrees/agent-a537f204790e69645`. The reviewer independently re-ran
+typecheck, a clean `bun run build`, `prettier --check`, every `ls`/`grep` gate,
+and a live-reload probe (a new `plans/*.md` returned 404 before the write and
+rendered ~3 s after it, with no restart). 27 previously unpublished docs are
+now on the site: 6 plans, 2 ADRs, 3 agent docs, 13 files under
+`.scratch/config-system/`, and `CLAUDE.md` / `CONTEXT.md` / `log.md`.
+
+One revision round, for a defect in the plan's own Step 1 code rather than
+anything the executor improvised: `watchWithDevServer(vault)` hands
+`vault.include` to the dev server, which filters with `picomatch(include)`.
+picomatch reads an array as an OR of patterns, so the `"!wiki/index.md"` entry
+matched every path that is not that file, and the watcher registered the whole
+repo — `site/node_modules/**` and `site/.next/**` included, with each
+Turbopack cache write broadcasting a change and refreshing the browser. The
+fix (`da764d2`) passes the watcher `{ ...vault, include: <negations stripped> }`.
+Content selection is unaffected: the vault is read with `tinyglobby`, which
+honors `!` correctly, and `wiki/index.md` is still absent from the build.
+After the fix, zero `.next` cache events reach the watcher.
+
+Deviations accepted on review:
+
+- `.scratch/` pages are served at `/docs/scratch/...`, not `/docs/.scratch/...`.
+  The plan's own `slugify` runs on every path segment and github-slugger strips
+  the leading dot. All 13 files render, and the `FOLDER_LABELS[".scratch"]`
+  sidebar label still applies (the page tree keys on the pre-slug directory
+  name). The dotless URL is the better outcome anyway — many static hosts will
+  not serve a dot-prefixed directory.
+- A one-time burst of ~15 `node_modules/.bin/*` and `.next/**/shiki-*` watcher
+  events still fires at startup. Every one is a symlink, and
+  `@fumadocs/local-content`'s dev server treats anything `lstat` reports as a
+  non-file as un-ignorable before the glob filter runs
+  (`dist/dev/ws/server.js`, `ignored()`). Vendor code, not reachable from
+  `obsidian()` or `watchWithDevServer()`; bounded and non-recurring.
+
+Not merged — the branch and worktree are waiting on the owner's decision.
+
 ## Dependency notes
 
 - 004 requires 003: both edit `site/lib/source.ts`, and 004 turns the
@@ -106,6 +153,7 @@ was proven with a throwaway script against a copy of the vault before writing.
   the destination. Both parse as links in CommonMark and Obsidian. Once
   adopted (and existing pages migrated by a lint pass), the plugin can go.
 - Live reload of new images in `raw/assets` during dev (plan 004 covers markdown only; `sync-assets.mjs` still runs once).
+- `next dev` (Next 16) regenerates `site/AGENTS.md` and `site/CLAUDE.md` on every start, leaving untracked files behind. Either gitignore them or set `agentRules: false` in `site/next.config.mjs`. Predates plan 004.
 - Deployment of `site/out/` (GitHub Pages / Vercel / Cloudflare Pages).
 - Sidebar grouping by frontmatter `type` (page-tree transformer).
 
