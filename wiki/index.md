@@ -9,20 +9,20 @@ Catalog of every wiki page. Updated on every ingest.
 
 ## Syntheses
 
-*(none yet)*
+_(none yet)_
 
 ## Concepts
 
-*(none yet)*
+- [[dotfiles-management]] — techniques for version-controlling dotfiles across machines; bare-repo method plus open questions on secrets.
 
 ## Entities
 
-*(none yet)*
+_(none yet)_
 
 ## Source summaries
 
-*(none yet)*
+- [[dotfiles-bare-git-repo]] — Atlassian tutorial on tracking dotfiles via a bare git repo + `config` alias, no symlinks.
 
 ## Answers
 
-*(none yet)*
+_(none yet)_
