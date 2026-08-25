@@ -20,6 +20,7 @@ An architecture decision and written spec describing one system that holds the s
 <!-- one line per resolved ticket: gist + link -->
 
 - [Runtime for an editing web UI](issues/03-ui-runtime.md) — drop `output: export`, run `site/` as a localhost Next.js server with a file API + dynamic Fumadocs source; Hono/Tauri rejected as extra process/Rust for no gain.
+- [Dotfiles tool for two Macs...](issues/01-dotfiles-tool.md) — chezmoi (templated per-host config, `.chezmoiignore`, secrets via Keychain/1Password, UI saves then `chezmoi apply --source-path`); true work-disk exclusion needs a second private repo or encryption, not a tool feature.
 
 ## Not yet specified
 
@@ -33,6 +34,10 @@ An architecture decision and written spec describing one system that holds the s
 - Does the work machine need the site at all, or only the personal Mac? Decides whether any static deploy target survives. (from 03)
 - UI file API runs unauthenticated as the user — localhost-only binding should be a spec requirement. (from 03)
 - Fumadocs `dynamicSource()` + watcher on Next 16/Turbopack is documented but unverified — check in ticket 07. (from 03)
+
+- Does "exclude from work" mean "not in `$HOME`" (chezmoiignore suffices) or "not on disk at all" (needs split private repo or encryption with key off work)? Applies to wiki content too, or only dotfiles? Feeds ticket 02. (from 01)
+- If a second private repo: submodule vs `.chezmoiexternal git-repo` vs plain separate clone — affects the UI edit model. (from 01)
+- UI needs source-path to target-path mapping (`chezmoi managed` / `chezmoi source-path`) and must run `chezmoi apply` after writes; who runs `chezmoi update` on the other machine (manual vs cron)? (from 01)
 
 ## Out of scope
 
