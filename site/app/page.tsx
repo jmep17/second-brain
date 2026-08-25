@@ -1,4 +1,5 @@
-import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { source } from "@/lib/source";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { baseOptions } from "@/lib/layout.shared";
@@ -12,8 +13,8 @@ export const metadata: Metadata = {
 export default function Home() {
   const groups = buildToc();
   return (
-    <HomeLayout {...baseOptions()}>
-      <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+    <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
         <h1 className="mb-2 text-3xl font-semibold">Table of contents</h1>
         <p className="text-fd-muted-foreground mb-8">
           Every page on this site, grouped by type.
@@ -46,7 +47,7 @@ export default function Home() {
             )}
           </section>
         ))}
-      </div>
-    </HomeLayout>
+      </main>
+    </DocsLayout>
   );
 }
