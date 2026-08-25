@@ -9,7 +9,7 @@ conditions, and update your row when done.
 
 | Plan | Title                                                                          | Priority | Effort | Depends on | Status |
 | ---- | ------------------------------------------------------------------------------ | -------- | ------ | ---------- | ------ |
-| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                   | P2       | M      | —          | TODO   |
+| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                   | P2       | M      | —          | DONE   |
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations | P2       | M      | —          | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
@@ -23,6 +23,17 @@ static-export file paths; stopped extending the frontmatter schema.
 Plan 002 was written on 2026-08-25 against commit `3b71e42` (`plan` variant —
 user-directed, no audit). It is independent of 001, but running 001 first is
 harmless and running 002 first means the site renders the better page.
+
+Plan 001 was executed on 2026-08-25 by a dispatched executor in an isolated
+worktree and approved on review. Branch `advisor/001-fumadocs-wiki-site`
+(commit `929f7a7`, based on `5628a4d`), worktree
+`.claude/worktrees/agent-a700342be7178f7be`. All done criteria were re-run
+independently by the reviewer and pass. One revision round: the executor's
+first commit tracked `site/tsconfig.tsbuildinfo` (a TypeScript incremental
+cache that re-dirties the tree on every typecheck); it is now gitignored and
+untracked, and `.gitignore` gained a fifth site line beyond the four the plan
+specified. Merged into `main` on 2026-08-25 (merge commit `aac4421`, no
+conflicts).
 
 ## Dependency notes
 
