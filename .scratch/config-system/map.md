@@ -31,6 +31,7 @@ An architecture decision and written spec describing one system that holds the s
 - Migrating the existing second-brain git history and directory layout into the monorepo shape. Depends on repo layout.
 - Claude Code specifics: which of settings.json / CLAUDE.md / skills / hooks / memory / plans live in the repo, and how they get to `~/.claude`. Depends on repo layout + dotfiles tool.
 - Task: create the private nested-repo remote for `wiki/personal/`, the read-only deploy key for the work laptop, and the work-account repo; confirm the work laptop can clone main and not the nested repo. Depends on repo layout (04).
+- Work Mac auto-memory tracking now ticket [09](issues/09-work-memory.md).
 - UI: per-machine skill enable/disable toggle (work starts with all off); site must render when `wiki/personal/` is absent. (from 02, goes into 06)
 
 - Does the work machine need the site at all, or only the personal Mac? Decides whether any static deploy target survives. (from 03)
