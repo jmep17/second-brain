@@ -18,6 +18,7 @@ An architecture decision and written spec describing one system that holds the s
 ## Decisions so far
 
 <!-- one line per resolved ticket: gist + link -->
+- [Runtime for an editing web UI](issues/03-ui-runtime.md) — drop `output: export`, run `site/` as a localhost Next.js server with a file API + dynamic Fumadocs source; Hono/Tauri rejected as extra process/Rust for no gain.
 
 ## Not yet specified
 
