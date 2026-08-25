@@ -10,3 +10,9 @@ Append-only record of wiki operations. Newest entries at the bottom.
 ## [2026-08-25] ingest | How to Store Dotfiles - A Bare Git Repository
 
 - Filed wiki/dotfiles-bare-git-repo.md; created wiki/dotfiles-management.md; updated wiki/index.md
+
+## [2026-08-25] query | Dotfiles open questions: secrets + alternatives
+
+- Researched web sources: chezmoi design FAQ, eshlox bare-git-repo secrets note. Saved raw/chezmoi-design-faq.md, raw/eshlox-dotfiles-bare-git-repo-secrets.md
+- Answer: bare-git-repo secrets handling is manual discipline only (never `config add` a secret file, no automated ignore). chezmoi offers built-in password-manager + encryption support as alternative if stronger guarantees wanted.
+- Updated wiki/dotfiles-management.md (resolved both open questions, added tool comparison table); updated wiki/dotfiles-bare-git-repo.md gaps section; updated wiki/index.md

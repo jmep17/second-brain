@@ -13,7 +13,7 @@ _(none yet)_
 
 ## Concepts
 
-- [[dotfiles-management]] — techniques for version-controlling dotfiles across machines; bare-repo method plus open questions on secrets.
+- [[dotfiles-management]] — techniques for version-controlling dotfiles across machines; bare-repo method, secrets handling, comparison vs Stow/chezmoi.
 
 ## Entities
 

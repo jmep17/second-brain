@@ -30,7 +30,7 @@ Atlassian tutorial (attributed to a technique by HN user `StreakyCobra`) on trac
 
 ## Gaps / not covered by source
 
-- No mention of secret handling (e.g. accidentally committing `.ssh/config`, API keys in shell rc files) — worth a separate concept note if this technique gets adopted.
+- No mention of secret handling (e.g. accidentally committing `.ssh/config`, API keys in shell rc files). Researched separately — see [[dotfiles-management]] (bare-git-repo secret handling is discipline-only, no automated exclusion).
 - No mention of multi-machine branching workflow in practice (source claims it's possible, doesn't demonstrate it).
 - `showUntrackedFiles no` is a local (per-clone) git config flag — must be re-set on every new machine, not carried by the repo itself.
 
