@@ -25,4 +25,4 @@ _(none yet)_
 
 ## Answers
 
-_(none yet)_
+- [[tmux-pane-keybindings]] — tmux pane bindings from the man page: split/resize/navigate, and which select-layout preset equalizes horizontal vs vertical splits, with a config snippet.
