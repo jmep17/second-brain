@@ -1,4 +1,4 @@
-import { source } from "@/lib/source";
+import { getSource } from "@/lib/source";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ImgHTMLAttributes } from "react";
@@ -19,6 +19,7 @@ function asString(value: unknown): string | undefined {
 }
 
 export default async function Page({ params }: Props) {
+  const source = await getSource();
   const page = source.getPage((await params).slug);
   if (!page) notFound();
 
@@ -61,11 +62,13 @@ export default async function Page({ params }: Props) {
   );
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const source = await getSource();
   return source.generateParams();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const source = await getSource();
   const page = source.getPage((await params).slug);
   if (!page) notFound();
   return { title: page.data.title, description: page.data.description };
