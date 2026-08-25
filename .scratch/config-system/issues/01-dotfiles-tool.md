@@ -1,7 +1,7 @@
 # Dotfiles tool for two Macs with per-machine differences and exclusions
 
 Type: research
-Status: open
+Status: claimed
 Blocked by: —
 
 ## Question

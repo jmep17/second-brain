@@ -1,7 +1,7 @@
 # Runtime for an editing web UI
 
 Type: research
-Status: open
+Status: claimed
 Blocked by: —
 
 ## Question
