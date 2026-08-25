@@ -21,7 +21,7 @@ The LLM builds and maintains the wiki. The human curates sources, asks questions
   ```yaml
   ---
   title: Attention Mechanisms
-  type: concept        # one of: source-summary | entity | concept | synthesis | answer
+  type: concept # one of: source-summary | entity | concept | synthesis | answer
   created: 2026-08-25
   updated: 2026-08-25
   sources: [raw/some-article.md]
@@ -66,6 +66,7 @@ Each entry starts with a consistent, grep-able prefix:
 
 ```markdown
 ## [2026-08-25] ingest | Article Title
+
 - Filed wiki/article-title.md; updated wiki/index.md, wiki/some-concept.md
 ```
 
@@ -78,3 +79,17 @@ Operation names: `ingest`, `query`, `lint`, `answer`, `maintenance`.
 - Never delete a wiki page without asking; prefer merging and leaving a redirect note.
 - Keep `index.md` complete — every wiki page appears in it exactly once.
 - Commit after each ingest or lint session with a short message, e.g. `ingest: article-title`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
