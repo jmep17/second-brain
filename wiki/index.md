@@ -28,3 +28,4 @@ _(none yet)_
 - [[tmux-pane-keybindings]] — tmux pane bindings from the man page: split/resize/navigate, and which select-layout preset equalizes horizontal vs vertical splits, with a config snippet.
 - [[mattpocock-skills-workflow]] — full skill list, invocation model (user- vs model-invoked), and the ordering/branching flow for the mattpocock-skills Claude Code plugin.
 - [[claude-code-memory-plan-locations]] — how to relocate Claude Code's auto-memory and plan-mode files; `autoMemoryDirectory` vs `plansDirectory`, the project-root constraint, and the worktree caveat.
+- [[claude-auto-memory]] — the four layers that make Claude write memories without being asked (auto memory, extraction subagent, auto-dream, hooks); which are deterministic, which are undocumented, and how to force writes.
