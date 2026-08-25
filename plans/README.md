@@ -7,9 +7,10 @@ conditions, and update your row when done.
 
 ## Execution order & status
 
-| Plan | Title                                                        | Priority | Effort | Depends on | Status |
-| ---- | ------------------------------------------------------------ | -------- | ------ | ---------- | ------ |
-| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/` | P2       | M      | —          | TODO   |
+| Plan | Title                                                                          | Priority | Effort | Depends on | Status |
+| ---- | ------------------------------------------------------------------------------ | -------- | ------ | ---------- | ------ |
+| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                   | P2       | M      | —          | TODO   |
+| 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations | P2       | M      | —          | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -19,9 +20,14 @@ packages; added repair of citation links whose destination contains spaces;
 disabled build-time image fetching; slugified URLs; corrected the expected
 static-export file paths; stopped extending the frontmatter schema.
 
+Plan 002 was written on 2026-08-25 against commit `3b71e42` (`plan` variant —
+user-directed, no audit). It is independent of 001, but running 001 first is
+harmless and running 002 first means the site renders the better page.
+
 ## Dependency notes
 
-- None yet.
+- None yet. 001 and 002 touch disjoint files (`site/` vs `wiki/`, `log.md`),
+  so they can run in either order or concurrently.
 
 ## Follow-ups (not planned yet)
 
@@ -45,3 +51,6 @@ static-export file paths; stopped extending the frontmatter schema.
 - **`redirect()` for the home page**: its behavior under `output: 'export'` is not documented; a `<meta http-equiv="refresh">` is guaranteed on any static host. Rejected.
 - **`trailingSlash: true`**: diverges from Fumadocs' verified `examples/next-static` and makes the static search route's output path ambiguous. Rejected.
 - **Renaming raw files to remove spaces**: `raw/` is immutable per `CLAUDE.md`, and Web Clipper will keep producing such names. Handled by slugified URLs and the loose-link plugin instead.
+- **Snapshotting the 25 `SKILL.md` files into `raw/`** (considered for plan 002): would make the mattpocock-skills page's citations fully self-contained, but `raw/` is for human-curated sources, 25 files is a large import, and pinning citations to an upstream commit already gives immutability. Revisit only if the upstream repo goes private.
+- **Splitting the mattpocock-skills examples onto a separate `concept` page**: the page stays readable at the planned length; a split costs cross-linking for no reader benefit yet. Revisit past ~400 lines.
+- **Editing the plugin's own docs** (`~/.claude/plugins/cache/.../mattpocock-skills/`): it is a read-only managed install outside this repository, replaced wholesale on update. Any edit there is lost on the next `/plugin update`.
