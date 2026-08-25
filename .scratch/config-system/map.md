@@ -19,6 +19,8 @@ An architecture decision and written spec describing one system that holds the s
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [Monorepo layout](issues/04-repo-layout.md) — keep name `second-brain`; `personal/` is a git submodule (private repo) holding `wiki/ raw/ memory/ log.md`; `dotfiles/` is the chezmoi source dir mirroring `$HOME`, with the Claude Code layer at `dotfiles/dot_claude/`; two logs.
+
 - [Runtime for an editing web UI](issues/03-ui-runtime.md) — drop `output: export`, run `site/` as a localhost Next.js server with a file API + dynamic Fumadocs source; Hono/Tauri rejected as extra process/Rust for no gain.
 - [What content must stay off the work machine](issues/02-work-exclusions.md) — only a _personal wiki_ class (`wiki/personal/`, `raw/personal/`, auto-memory) is excluded; it lives as a nested private repo so bytes never reach work disk. Work Mac is pull-only (read-only deploy key + no_push) and pushes its own edits to a repo under the work GitHub account. Skills shared, toggled per machine in the UI.
 - [Dotfiles tool for two Macs...](issues/01-dotfiles-tool.md) — chezmoi (templated per-host config, `.chezmoiignore`, secrets via Keychain/1Password, UI saves then `chezmoi apply --source-path`); true work-disk exclusion needs a second private repo or encryption, not a tool feature.
@@ -28,7 +30,7 @@ An architecture decision and written spec describing one system that holds the s
 - Bootstrap: how a fresh machine goes from zero to fully configured (install script, tool installs via brew?). Depends on the dotfiles tool decision.
 - nvim: config dir is empty — is nvim actually used, and does an nvim config need authoring before it can be "managed"?
 - Per-tool documentation in the wiki (keybinding pages like `tmux-pane-keybindings`) — does the UI surface those next to each config? Depends on the UI edit model.
-- Migrating the existing second-brain git history and directory layout into the monorepo shape. Depends on repo layout.
+- Task: create the `personal/` submodule repo, move personal-sensitive pages from `wiki/`/`raw/` into it, create `dotfiles/` from current `$HOME` files (`chezmoi add`). Layout decided in 04.
 - Claude Code specifics: which of settings.json / CLAUDE.md / skills / hooks / memory / plans live in the repo, and how they get to `~/.claude`. Depends on repo layout + dotfiles tool.
 - Task: create the private nested-repo remote for `wiki/personal/`, the read-only deploy key for the work laptop, and the work-account repo; confirm the work laptop can clone main and not the nested repo. Depends on repo layout (04).
 - Work Mac auto-memory tracking now ticket [09](issues/09-work-memory.md).

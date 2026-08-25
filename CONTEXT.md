@@ -24,14 +24,18 @@ Wiki pages and raw sources that may exist on both machines.
 _Avoid_: public wiki
 
 **Personal wiki**:
-Wiki pages and raw sources that must never reach the work Mac's disk. Identified by path (`wiki/personal/`, `raw/personal/`), never by a flag in the page.
+Wiki pages and raw sources that must never reach the work Mac's disk. Identified by path (`personal/wiki/`, `personal/raw/`), never by a flag in the page.
 _Avoid_: private wiki, sensitive notes
 
 **Claude Code layer**:
 Settings, CLAUDE.md, skills and hooks that configure Claude Code. Shared; auto-memory is not part of it.
 
 **Dotfiles**:
-Configuration for zsh, fish, nvim, tmux, ghostty, git and gh.
+Configuration for zsh, fish, nvim, tmux, ghostty, git and gh. Source lives in `dotfiles/` (the chezmoi source dir, mirroring `$HOME`); `chezmoi apply` copies it into `$HOME`.
+
+**Dotfiles source dir**:
+`dotfiles/` at the repo root. What chezmoi reads; not what tools read.
+_Avoid_: config dir
 
 **Secret**:
 A credential or token. Never stored in git on any machine.
@@ -42,7 +46,7 @@ A credential or token. Never stored in git on any machine.
 `second-brain` on the owner's personal GitHub. Holds everything except the personal wiki.
 
 **Personal repo**:
-The nested repo under `wiki/personal/` that holds the personal wiki. Cloned only on the personal Mac.
+The git submodule at `personal/` that holds the personal wiki, personal raw sources, the personal Mac's Claude auto-memory and `personal/log.md`. Initialised only on the personal Mac.
 _Avoid_: submodule (a mechanism, not the concept)
 
 **Work repo**:

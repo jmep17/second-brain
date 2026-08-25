@@ -1,7 +1,7 @@
 # Monorepo layout
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: 01, 02
 
 ## Question
@@ -21,3 +21,40 @@ Given the dotfiles tool and the exclusion classes, decide the directory layout o
 - Q7 keep name `second-brain`. Accepted.
 
 Pending: Q8 work-only content class (moved into 09), then resolve.
+
+## Answer
+
+Repo keeps the name `second-brain`. Layout:
+
+```
+second-brain/
+  personal/          # git submodule -> private repo (personal GitHub), initialised on the personal Mac only
+    wiki/            # personal pages + personal/wiki/index.md
+    raw/             # personal sources
+    memory/          # Claude auto-memory on the personal Mac (autoMemoryDirectory)
+    log.md           # log of personal ingests
+  wiki/              # shared wiki (unchanged)
+  raw/               # shared sources (unchanged)
+  dotfiles/          # chezmoi source dir, mirrors $HOME in chezmoi naming
+    dot_zshrc.tmpl
+    dot_config/fish/…  dot_config/tmux/…  dot_config/nvim/…  dot_config/ghostty/…
+    dot_gitconfig.tmpl  dot_config/gh/…
+    dot_claude/      # settings.json.tmpl, CLAUDE.md, skills/, hooks/
+  site/              # unchanged
+  docs/  plans/  .scratch/  log.md  CLAUDE.md  CONTEXT.md   # shared, unchanged
+```
+
+Decisions:
+
+- **Nesting mechanism: git submodule** at `personal/`. The gitlink is versioned in main; the work Mac's read-only deploy key cannot fetch the personal repo even if `git submodule update --init` is run (research 02 §C). Pointer bumps after personal commits are optional; the UI may automate them (ticket 06).
+- **One personal repo**, not two. Paths move from `wiki/personal/`, `raw/personal/` to `personal/wiki/`, `personal/raw/`. ADR 0001 and CONTEXT.md updated accordingly.
+- **chezmoi**: `sourceDir = ~/second-brain/dotfiles`, `workingTree = ~/second-brain` (research 01). `chezmoi apply` copies files into `$HOME`; UI save = write source file then apply. Edits made directly in `$HOME` are a two-way problem for ticket 06.
+- **Claude Code layer** lives in `dotfiles/dot_claude/` and reaches `~/.claude/` like any other tool. Only listed files are managed; `~/.claude` machine state (history, sessions, cache) is untouched.
+- **Auto-memory**: personal Mac sets `autoMemoryDirectory` to `~/second-brain/personal/memory/` via the templated settings.json. Work Mac: ticket 09.
+- **Two logs**: root `log.md` records shared operations only; `personal/log.md` records personal ones, so page titles never leak to work.
+
+Consequences for other tickets:
+
+- Site `include` globs must cover `personal/wiki/**` and `personal/raw/**` and tolerate the directory being empty (ticket 06/07).
+- Bootstrap must `git submodule update --init` on the personal Mac only.
+- Existing files under `wiki/` that are personal-sensitive must be moved into the submodule during migration (task, not yet ticketed).
