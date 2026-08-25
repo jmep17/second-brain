@@ -19,6 +19,7 @@ An architecture decision and written spec describing one system that holds the s
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [Secrets strategy](issues/05-secrets.md) — macOS Keychain on both Macs via chezmoi `{{ keyring }}`; env-var keys only, tool-owned auth files unmanaged; personal-only secrets hostname-gated; UI never renders templates. ADR 0002.
 - [Monorepo layout](issues/04-repo-layout.md) — keep name `second-brain`; `personal/` is a git submodule (private repo) holding `wiki/ raw/ memory/ log.md`; `dotfiles/` is the chezmoi source dir mirroring `$HOME`, with the Claude Code layer at `dotfiles/dot_claude/`; two logs.
 
 - [Runtime for an editing web UI](issues/03-ui-runtime.md) — drop `output: export`, run `site/` as a localhost Next.js server with a file API + dynamic Fumadocs source; Hono/Tauri rejected as extra process/Rust for no gain.
@@ -35,6 +36,9 @@ An architecture decision and written spec describing one system that holds the s
 - Task: create the private nested-repo remote for `wiki/personal/`, the read-only deploy key for the work laptop, and the work-account repo; confirm the work laptop can clone main and not the nested repo. Depends on repo layout (04).
 - Work Mac auto-memory tracking now ticket [09](issues/09-work-memory.md).
 - UI: per-machine skill enable/disable toggle (work starts with all off); site must render when `wiki/personal/` is absent. (from 02, goes into 06)
+
+- Bootstrap doc must list required Keychain secrets per host, entered before first `chezmoi apply`. (from 05, goes into 08)
+- UI must never render chezmoi templates or send rendered `$HOME` files to the browser. (from 05, goes into 06)
 
 - Does the work machine need the site at all, or only the personal Mac? Decides whether any static deploy target survives. (from 03)
 - UI file API runs unauthenticated as the user — localhost-only binding should be a spec requirement. (from 03)

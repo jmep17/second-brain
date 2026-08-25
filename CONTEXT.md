@@ -38,7 +38,7 @@ Configuration for zsh, fish, nvim, tmux, ghostty, git and gh. Source lives in `d
 _Avoid_: config dir
 
 **Secret**:
-A credential or token. Never stored in git on any machine.
+A credential or token. Never stored in git on any machine; lives in macOS Keychain and is read by chezmoi `keyring` templates at apply time (ADR 0002).
 
 ### Repos
 
