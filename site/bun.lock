@@ -5,6 +5,7 @@
     "": {
       "name": "second-brain-site",
       "dependencies": {
+        "@fumadocs/local-content": "0.2.1",
         "fumadocs-core": "16.15.1",
         "fumadocs-obsidian": "1.0.3",
         "fumadocs-ui": "16.15.1",

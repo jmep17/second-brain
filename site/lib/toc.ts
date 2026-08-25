@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { source } from "@/lib/source";
+import { getSource } from "@/lib/source";
 
 /** Group order and labels follow the page types listed in CLAUDE.md. */
 export const WIKI_GROUPS: { type: string; label: string }[] = [
@@ -47,11 +47,12 @@ export function readIndexSummaries(): Map<string, string> {
 }
 
 /** Build the grouped table of contents from the site's own page list. */
-export function buildToc(): TocGroup[] {
+export async function buildToc(): Promise<TocGroup[]> {
   const summaries = readIndexSummaries();
   const groups = new Map<string, TocEntry[]>();
   const wikiOther: TocEntry[] = [];
   const sources: TocEntry[] = [];
+  const source = await getSource();
 
   for (const page of source.getPages()) {
     const fm = page.data.frontmatter as Record<string, unknown>;

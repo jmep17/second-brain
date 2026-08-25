@@ -1,4 +1,4 @@
-import { source } from "@/lib/source";
+import { getSource } from "@/lib/source";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -10,8 +10,9 @@ export const metadata: Metadata = {
   description: "Table of contents for the wiki and its sources.",
 };
 
-export default function Home() {
-  const groups = buildToc();
+export default async function Home() {
+  const groups = await buildToc();
+  const source = await getSource();
   return (
     <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
