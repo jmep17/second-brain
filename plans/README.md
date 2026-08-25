@@ -13,12 +13,35 @@ conditions, and update your row when done.
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
+Plan 001 was revised on 2026-08-25 against commit `3b71e42` (first draft was
+against `17e982c`). Changes: verified every library API against the published
+packages; added repair of citation links whose destination contains spaces;
+disabled build-time image fetching; slugified URLs; corrected the expected
+static-export file paths; stopped extending the frontmatter schema.
+
 ## Dependency notes
 
 - None yet.
+
+## Follow-ups (not planned yet)
+
+- **Citation-link convention in `CLAUDE.md`.** The wiki cites sources as
+  `([source](../raw/File With Spaces.md))`. CommonMark drops links whose
+  destination contains spaces; plan 001 repairs them site-side with a remark
+  plugin. The durable fix is a workflow rule: write
+  `([source](<../raw/File With Spaces.md>))` (angle brackets) or `%20`-encode
+  the destination. Both parse as links in CommonMark and Obsidian. Once
+  adopted (and existing pages migrated by a lint pass), the plugin can go.
+- Live reload of vault edits in `bun run dev` (dynamic source + watcher).
+- Deployment of `site/out/` (GitHub Pages / Vercel / Cloudflare Pages).
+- Sidebar grouping by frontmatter `type` (page-tree transformer).
 
 ## Findings considered and rejected
 
 - **Quartz** as the docs UI: Obsidian-native and static, but it is a "digital garden" theme rather than a docs UI, and it is consumed by cloning its repo rather than as a dependency. Rejected in favor of Fumadocs + `fumadocs-obsidian`, which gives the requested docs look with native wikilink support.
 - **Astro Starlight**: good docs UI, but wikilinks require a third-party remark plugin and relative `../raw/*.md` citation links would need custom handling. Rejected for the same reason.
 - **Converting `wiki/` to MDX for `fumadocs-mdx`**: would require a build-time transform of LLM-owned content and break Obsidian reading. Rejected; the Obsidian source reads the vault as-is.
+- **Extending `fumadocs-obsidian`'s frontmatter schema with zod** (first draft of plan 001): frontmatter validation errors fail the whole build, and the wiki's frontmatter is LLM-written and loosely structured. The default loose schema already passes extra keys through untyped. Rejected.
+- **`redirect()` for the home page**: its behavior under `output: 'export'` is not documented; a `<meta http-equiv="refresh">` is guaranteed on any static host. Rejected.
+- **`trailingSlash: true`**: diverges from Fumadocs' verified `examples/next-static` and makes the static search route's output path ambiguous. Rejected.
+- **Renaming raw files to remove spaces**: `raw/` is immutable per `CLAUDE.md`, and Web Clipper will keep producing such names. Handled by slugified URLs and the loose-link plugin instead.
