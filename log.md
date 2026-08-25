@@ -52,3 +52,10 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Read primary sources: installed wayfinder SKILL.md + agents/openai.yaml, docs/engineering/wayfinder.md, engineering README, CHANGELOG, ask-matt, setup-matt-pocock-skills tracker docs, research/grilling/domain-modeling/to-tickets/implement SKILL.md; diffed installed 1.2.3 against upstream main; used .scratch/config-system as a worked example. No raw source saved (plugin cited by path, upstream by URL).
 - Filed wiki/mattpocock-wayfinder-skill.md; updated wiki/index.md.
 - Finding: upstream main differs from installed 1.2.3 only in wording plus two edits (Skill-tool invocation spelled out; "tell the user to run /setup-matt-pocock-skills").
+
+## [2026-08-25] answer | Qwen3.8 in Claude Code on an M4 48 GB MacBook Pro
+
+- Question: fast and efficient ways to use Qwen3.8 as a local Claude Code backend on a MacBook Pro M4 with 48 GB.
+- Web research only (session's egress proxy blocked direct page fetches; findings assembled from search results). No raw source saved; all claims cited by URL.
+- Filed wiki/qwen38-claude-code-m4.md; updated wiki/index.md.
+- Findings: Qwen3.8-27B (dense 28B, Apache 2.0, Aug 2026) at 4-bit MLX is the fit for 48 GB; Ollama >=0.14 and LM Studio >=0.4.1 both speak the Anthropic Messages API natively so no proxy is needed; measured ~24 tok/s gen / ~125 tok/s prefill on M4 Pro 48 GB, 2-3x more via the model's native MTP head (oMLX/MTPLX); biggest wins are 64k context, KV-cache quantization, and disabling Claude Code's attribution header to stop per-turn prompt-cache invalidation.
