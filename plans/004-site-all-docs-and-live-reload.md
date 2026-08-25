@@ -8,20 +8,18 @@
 > maintain the index.
 >
 > **Drift check (run first)**, from the repo root:
-> `git diff --stat bce0526..HEAD -- site/lib/source.ts site/app site/components/provider.tsx site/next.config.mjs site/package.json site/README.md site/lib/toc.ts .gitignore`
-> Expected: either no output, or changes only from plan 003
-> (`site/app/page.tsx`, `site/lib/toc.ts`, the `!wiki/index.md` line in
-> `site/lib/source.ts`, one line in `site/README.md`). Anything else that
-> differs from the "Current state" excerpts is a STOP condition.
+> `git diff --stat 8a51011..HEAD -- site/lib/source.ts site/app site/components/provider.tsx site/next.config.mjs site/package.json site/README.md site/lib/toc.ts .gitignore`
+> Expected: no output. Anything that differs from the "Current state"
+> excerpts below is a STOP condition.
 
 ## Status
 
 - **Priority**: P2
 - **Effort**: M
 - **Risk**: MED (changes the site's content-loading path and dev script; no file outside `site/` and `plans/README.md` changes)
-- **Depends on**: plans/003-site-home-table-of-contents.md — run 003 first. If 003 is still TODO when you start, do it first or STOP and report; Step 6 of this plan edits files 003 creates.
+- **Depends on**: plans/003-site-home-table-of-contents.md (DONE, merged) and plans/005-home-page-sidebar.md (DONE, merged). Step 6 edits the files those two produced.
 - **Category**: dx
-- **Planned at**: commit `bce0526`, 2026-08-25
+- **Planned at**: commit `bce0526`, 2026-08-25. **Reconciled at commit `8a51011`, 2026-08-25** — 003 and 005 have since merged, and the repo gained `plans/005-*.md`, `docs/adr/0002-*.md`, `.scratch/config-system/issues/09-*.md`. The "Current state" excerpts, Step 6 and Step 7.1 below reflect `8a51011`.
 
 ## Why this matters
 
@@ -51,7 +49,7 @@ After this plan lands:
 
 ## Current state
 
-Verified at commit `bce0526` on 2026-08-25.
+Verified at commit `8a51011` on 2026-08-25.
 
 ### Files
 
@@ -65,12 +63,14 @@ Verified at commit `bce0526` on 2026-08-25.
 - `site/package.json` — `dev` script and one new dependency. **Edited.**
 - `site/next.config.mjs` — **edited only if** the `ws` STOP condition in Step 3 fires.
 - `site/README.md` — **one line edited.**
-- `site/lib/toc.ts`, `site/app/page.tsx` — created/rewritten by plan 003; **edited** in Step 6 to use `getSource()`.
+- `site/lib/toc.ts` — created by plan 003; **edited** in Step 6 to use `getSource()`.
+- `site/app/page.tsx` — rewritten by plan 003, then by plan 005 (it now renders `DocsLayout` and calls `source.getPageTree()` itself); **edited** in Step 6 to use `getSource()` for both that call and `buildToc()`.
 - `site/scripts/sync-assets.mjs` — copies `raw/assets` to `public/`. **Unchanged.**
 
 ### Excerpts
 
-`site/lib/source.ts` at `bce0526` (entire file; plan 003 adds `"!wiki/index.md"` to `include` and two comment lines — that is the only expected difference):
+`site/lib/source.ts` at `8a51011` (entire file, including plan 003's
+`"!wiki/index.md"` line and its two comment lines):
 
 ```ts
 import path from "node:path";
@@ -87,7 +87,9 @@ export const vault = obsidian({
   // Only the knowledge base. Never node_modules/, .obsidian/, plans/, docs/,
   // site/. Only *.md (not *.json/*.yaml — those are validated as meta files)
   // plus everything under raw/assets (served as media).
-  include: ["wiki/**/*.md", "raw/**/*.md", "raw/assets/**/*"],
+  // wiki/index.md is not a page: the home page (app/page.tsx) replaces it
+  // and reads its summaries via lib/toc.ts.
+  include: ["wiki/**/*.md", "!wiki/index.md", "raw/**/*.md", "raw/assets/**/*"],
   // Media files are copied to public/vault by scripts/sync-assets.mjs, so a
   // vault path like raw/assets/x.png is served at /vault/raw/assets/x.png.
   url: (vaultPath) => `/vault/${vaultPath}`,
@@ -199,11 +201,35 @@ export default function Layout({ children }: { children: ReactNode }) {
 - `bun run dev` — local preview at http://localhost:3000 (restart to pick up new wiki pages)
 ```
 
+`site/app/page.tsx` — the three places that use `source`/`buildToc`
+(lines 1, 6, 14–16 at `8a51011`):
+
+```tsx
+import { source } from "@/lib/source";
+…
+import { buildToc } from "@/lib/toc";
+…
+export default function Home() {
+  const groups = buildToc();
+  return (
+    <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
+```
+
+`site/lib/toc.ts` — the two places that use `source` (lines 3 and 55):
+
+```ts
+import { source } from "@/lib/source";
+…
+export function buildToc(): TocGroup[] {
+  …
+  for (const page of source.getPages()) {
+```
+
 ### What the repo's docs look like (title derivation matters)
 
 Every file under `plans/`, `docs/agents/`, `.scratch/**` and `log.md`,
 `CLAUDE.md` has **no** `title:` frontmatter; most have no frontmatter at all.
-`docs/adr/0001-personal-wiki-is-a-nested-repo.md` has frontmatter with only
+Both files under `docs/adr/` have frontmatter with only
 `status: accepted`. Each starts with a single `# ` heading, e.g.
 `plans/README.md` → `# Implementation Plans`,
 `.scratch/config-system/issues/01-dotfiles-tool.md` →
@@ -211,10 +237,11 @@ Every file under `plans/`, `docs/agents/`, `.scratch/**` and `log.md`,
 Without Step 2, these pages would be titled by filename
 (`001-fumadocs-wiki-site`, `README`, …).
 
-Full list of files the new `include` adds at `bce0526` (from `tinyglobby`
-with the exact patterns in Step 1, run from `site/` with `cwd: ".."`):
-12 under `.scratch/config-system/`, 4 under `docs/`, 4 under `plans/`
-(README + 001–003), and `CLAUDE.md`, `CONTEXT.md`, `log.md`. **`tinyglobby`
+Files the new `include` adds at `8a51011` (from `tinyglobby` with the exact
+patterns in Step 1, run from `site/` with `cwd: ".."`): 13 under
+`.scratch/config-system/` (9 issues, 3 research notes, `map.md`), 5 under
+`docs/` (2 ADRs, 3 agent docs), 6 under `plans/` (README + 001–005), and
+`CLAUDE.md`, `CONTEXT.md`, `log.md` — 27 files. **`tinyglobby`
 matches `.scratch/**` when the pattern names the dot-directory explicitly**
 (verified); a bare `**/*.md` would not, and is not used.
 
@@ -464,7 +491,7 @@ export const titleFromHeading: LoaderPlugin = {
 
 If `LoaderPlugin` is not exported from `fumadocs-core/source` under that
 name, run `grep -n "LoaderPlugin" site/node_modules/fumadocs-core/dist/source/index.d.ts`
-and use the exported alias; at `bce0526` it is exported as `LoaderPlugin`.
+and use the exported alias; at `8a51011` it is exported as `LoaderPlugin`.
 
 **Verify**: `bunx tsc --noEmit -p . 2>&1 | grep -v "app/"` → no errors
 mentioning `lib/source.ts` or `lib/title-from-heading.ts` (errors in `app/`
@@ -557,23 +584,38 @@ export const { staticGET: GET } = createFromSource(getSource, {
 **Verify**: `bun run typecheck` → exit 0 (first full green typecheck; if
 `site/lib/toc.ts` errors, that is Step 6).
 
-### Step 6: Adapt plan 003's TOC to the async source
+### Step 6: Adapt the TOC and home page to the async source
 
 In `site/lib/toc.ts`: replace `import { source } from "@/lib/source"` with
-`import { getSource } from "@/lib/source"`, make `buildToc` async, and add
-`const source = await getSource();` before the `for (const page of source.getPages())`
-loop. In `site/app/page.tsx`: make `Home` an `async function` and
-`const toc = await buildToc();` (match however 003 named the variable).
-Change nothing else in either file.
+`import { getSource } from "@/lib/source"`, change the signature to
+`export async function buildToc(): Promise<TocGroup[]>`, and add
+`const source = await getSource();` before the
+`for (const page of source.getPages())` loop.
+
+In `site/app/page.tsx`: replace `import { source } from "@/lib/source"` with
+`import { getSource } from "@/lib/source"`, make `Home` an
+`async function`, and add both awaits at the top of it:
+
+```tsx
+export default async function Home() {
+  const source = await getSource();
+  const groups = await buildToc();
+```
+
+`<DocsLayout tree={source.getPageTree()} …>` then keeps working unchanged.
+Change nothing else in either file — in particular leave the `DocsLayout`
+wrapper and its `<main>` alone (plan 005 put them there deliberately).
 
 **Verify**: `bun run typecheck` → exit 0; `bunx prettier --check app lib components` → clean.
 
 ### Step 7: Build and dev checks
 
 1. `bun run build` → exit 0. Then:
-   - `ls out/docs/plans/` → `001-fumadocs-wiki-site.html 002-mattpocock-skills-page-examples.html 003-site-home-table-of-contents.html 004-site-all-docs-and-live-reload.html readme.html`
-   - `ls out/docs/docs/adr/` → `0001-personal-wiki-is-a-nested-repo.html`
-   - `ls out/docs/.scratch/config-system/issues/ | wc -l` → `8`
+   - `ls out/docs/plans/ | wc -l` → `6` (001–005 plus `readme.html`; the
+     exact names are the plan filenames slugified, e.g.
+     `001-fumadocs-wiki-site.html`)
+   - `ls out/docs/docs/adr/ | wc -l` → `2` (`0001-…`, `0002-…`)
+   - `ls out/docs/.scratch/config-system/issues/ | wc -l` → `9`
    - `ls out/docs/` shows `claude.html`, `context.html`, `log.html`
    - `grep -o '<title>[^<]*</title>' out/docs/plans/readme.html` → `<title>Implementation Plans</title>` (heading title, not "README")
    - `grep -c 'Scratch (issues &amp; research)' out/docs/plans/readme.html` → `1` or more (sidebar label)
@@ -623,7 +665,7 @@ ALL must hold:
 Stop and report (do not improvise) if:
 
 - Step 0: `site/lib/toc.ts` is missing (plan 003 not done) or the tree is dirty.
-- The drift check shows changes to `site/lib/source.ts` beyond plan 003's `!wiki/index.md` line.
+- The drift check against `8a51011` shows any change to the files it lists.
 - `fumadocs-obsidian/dev/ws` or `@fumadocs/local-content/dev/ws/react` fails to resolve after `bun add` (check `ls site/node_modules/@fumadocs/local-content/dist/dev/ws/react.js`).
 - `next dev` errors at startup mentioning `ws`, `bufferutil` or `utf-8-validate` (Step 3 note).
 - In Step 7.2 the console shows `dev server URL could not be found` — the env var did not reach Next; report the exact `dev` script and how you launched it.
