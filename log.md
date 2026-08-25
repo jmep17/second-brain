@@ -40,3 +40,8 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Findings: four layers — auto memory (in-turn, model-judged), an undocumented memory-extraction subagent that forks after turns, an undocumented auto-dream consolidation pass, and hooks (the only deterministic writer). Extraction hard-skips when there is no new user prose since the last run, so tool-only turns produce nothing.
 - Contradictions flagged: `autoDreamEnabled` exists in the bundle settings schema and `/memory` UI but is absent from settings-reference.md; the extraction subagent and the `#` memory-input prefix are both undocumented; `/remember` is referenced in bundle strings but registers no command in v2.1.245.
 - Open: both background layers are gated on server-side feature flags (`tengu_passport_quail`, `tengu_onyx_plover`) that default off in code; active state not determinable from disk.
+
+## [2026-08-25] maintenance | wayfinder config-system: resolved 02 work exclusions
+
+- Resolved .scratch/config-system/issues/02-work-exclusions.md; research filed at .scratch/config-system/research/02-work-exclusions.md
+- Created CONTEXT.md glossary and docs/adr/0001-personal-wiki-is-a-nested-repo.md; updated map Decisions-so-far and fog
