@@ -70,12 +70,10 @@ title: mattpocock-skills Plugin Workflow
 type: answer
 created: 2026-08-25
 updated: 2026-08-25
-sources:
-  [
+sources: [
     "/Users/jorden/.claude/plugins/cache/claude-plugins-official/mattpocock-skills/1.2.3/.claude-plugin/plugin.json",
     "/Users/jorden/.claude/plugins/cache/claude-plugins-official/mattpocock-skills/1.2.3/README.md",
-    ... 31 more entries,
-    all under the same 1.2.3 cache directory ...,
+    # ... 31 more entries, all under the same 1.2.3 cache directory ...
   ]
 ---
 ```
