@@ -54,11 +54,14 @@ worktree and approved on review. Branch `worktree-agent-ac7fa2374c5caf72e`
 (commit `0564278`, based on `6f86e35`), worktree
 `.claude/worktrees/agent-ac7fa2374c5caf72e`. All done criteria were re-run
 independently by the reviewer and pass (typecheck, build, prettier, and every
-grep gate on `site/out/index.html`). No revision rounds; diff is exactly the
-four in-scope site files. Two cosmetic notes carried to follow-ups: the plan's
-`page.tsx` renders a `<main>` inside `HomeLayout`'s own `<main>`, and the new
-`site/README.md` bullet sits after a paragraph rather than in the list above
-it. Not merged — merging is the owner's call.
+grep gate on `site/out/index.html`). Diff is exactly the four in-scope site
+files. One revision round for two cosmetic issues the plan itself introduced:
+`page.tsx` nested a `<main>` inside `HomeLayout`'s own `<main>` (now a
+`<div>`), and the `site/README.md` addition was a stranded bullet below a
+paragraph (now a paragraph above it). Re-verified after the amend
+(commit `98c9905`) and merged into `main` on 2026-08-25 (merge commit
+`74be1ba`, no conflicts); the build was re-run clean on `main` after the
+merge.
 
 Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
@@ -86,11 +89,6 @@ was proven with a throwaway script against a copy of the vault before writing.
 - Live reload of new images in `raw/assets` during dev (plan 004 covers markdown only; `sync-assets.mjs` still runs once).
 - Deployment of `site/out/` (GitHub Pages / Vercel / Cloudflare Pages).
 - Sidebar grouping by frontmatter `type` (page-tree transformer).
-- Nested `<main>` on the home page: `HomeLayout` renders its own `<main>`, and
-  `app/page.tsx` (plan 003) nests another inside it. Invalid HTML; swap the
-  inner one for a `<div>` when next touching that file.
-- The home-page bullet added to `site/README.md` by plan 003 sits below the
-  "Images in ../raw/assets" paragraph instead of in the bullet list above it.
 
 ## Findings considered and rejected
 
