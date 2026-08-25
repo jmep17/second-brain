@@ -11,7 +11,7 @@ conditions, and update your row when done.
 | ---- | ------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
 | 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                                | P2       | M      | —          | DONE   |
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
-| 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | TODO   |
+| 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
 | 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003        | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
@@ -39,6 +39,15 @@ conflicts).
 
 Plan 003 was written on 2026-08-25 against commit `2c95536` (`plan` variant —
 user-directed, no audit). It edits only `site/` and reads `wiki/index.md`.
+
+Plan 003 was executed on 2026-08-25 by a dispatched executor in an isolated
+worktree and approved on review. Branch `advisor/003-site-home-toc` (commit
+`9adf4c4`, based on `6f86e35`), worktree
+`.claude/worktrees/agent-a27ee6934b710c644`. All done criteria were re-run
+independently by the reviewer and pass (typecheck, build, prettier --check,
+and every grep gate on `out/index.html`). No revision rounds; the diff matches
+the plan exactly, four files, all in `site/`. Not merged into `main` yet —
+merging is the operator's call.
 
 Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
