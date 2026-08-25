@@ -1,4 +1,9 @@
 .DS_Store
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
+.obsidian/
+.claude/worktrees/
 node_modules/
+site/.next/
+site/out/
+site/public/vault/
+site/next-env.d.ts
+site/tsconfig.tsbuildinfo
