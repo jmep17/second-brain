@@ -11,6 +11,7 @@ conditions, and update your row when done.
 | ---- | ------------------------------------------------------------------------------ | -------- | ------ | ---------- | ------ |
 | 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                   | P2       | M      | —          | DONE   |
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations | P2       | M      | —          | TODO   |
+| 003  | Site home page becomes a generated table of contents, replacing the Index page | P2       | S      | 001 (DONE) | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -35,9 +36,13 @@ untracked, and `.gitignore` gained a fifth site line beyond the four the plan
 specified. Merged into `main` on 2026-08-25 (merge commit `aac4421`, no
 conflicts).
 
+Plan 003 was written on 2026-08-25 against commit `2c95536` (`plan` variant —
+user-directed, no audit). It edits only `site/` and reads `wiki/index.md`.
+
 ## Dependency notes
 
-- None yet. 001 and 002 touch disjoint files (`site/` vs `wiki/`, `log.md`),
+- 003 requires 001 (already merged): it edits `site/lib/source.ts` and `site/app/page.tsx`, which 001 created.
+- 001 and 002 touch disjoint files (`site/` vs `wiki/`, `log.md`),
   so they can run in either order or concurrently.
 
 ## Follow-ups (not planned yet)
@@ -55,6 +60,8 @@ conflicts).
 
 ## Findings considered and rejected
 
+- **A `description:` frontmatter field for TOC summaries** (considered for plan 003): `CLAUDE.md` already mandates a one-line summary per page in `wiki/index.md` on every ingest; a second field would be maintained twice. The site reads `index.md` instead.
+- **Keeping `/docs/wiki` (index.md) as a page alongside the home TOC** (plan 003): the user asked for the TOC to replace the index page; two catalogs would drift. Excluded via a `!wiki/index.md` glob.
 - **Quartz** as the docs UI: Obsidian-native and static, but it is a "digital garden" theme rather than a docs UI, and it is consumed by cloning its repo rather than as a dependency. Rejected in favor of Fumadocs + `fumadocs-obsidian`, which gives the requested docs look with native wikilink support.
 - **Astro Starlight**: good docs UI, but wikilinks require a third-party remark plugin and relative `../raw/*.md` citation links would need custom handling. Rejected for the same reason.
 - **Converting `wiki/` to MDX for `fumadocs-mdx`**: would require a build-time transform of LLM-owned content and break Obsidian reading. Rejected; the Obsidian source reads the vault as-is.
