@@ -41,7 +41,15 @@ export const vault = obsidian({
 // re-reads it. Outside dev the env var is unset and this is a no-op.
 if (process.env.NODE_ENV === "development") {
   const { watchWithDevServer } = await import("fumadocs-obsidian/dev/ws");
-  await watchWithDevServer(vault);
+  // The dev server filters watched files with picomatch, which treats an
+  // array as an OR of patterns — a "!foo" entry matches everything that
+  // is not foo, so the whole repo (node_modules, .next) gets watched.
+  // Strip negations: they only narrow the page list, which tinyglobby
+  // already handles when the vault is read.
+  await watchWithDevServer({
+    ...vault,
+    include: vault.include.filter((pattern) => !pattern.startsWith("!")),
+  });
 }
 
 /** `How to Store Dotfiles - A Bare Git Repository` → `how-to-store-dotfiles-a-bare-git-repository` */
