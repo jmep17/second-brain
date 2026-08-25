@@ -13,7 +13,7 @@ conditions, and update your row when done.
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
 | 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
 | 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003        | TODO   |
-| 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | TODO   |
+| 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -67,6 +67,20 @@ Plan 005 was written on 2026-08-25 against commit `e858c3b` (`plan` variant —
 user-directed, no audit). It exists because plan 003 moved `/` from a redirect
 into `/docs/wiki` (which had the sidebar) to a `HomeLayout` page (which does
 not). One file: `site/app/page.tsx`.
+
+Plan 005 was executed on 2026-08-25 and is on `main` as commit `7d3d00e`.
+All done criteria were re-run independently by the reviewer and pass
+(typecheck, build, `prettier --check`, `fd-sidebar` present on `/`, exactly
+one `<main>`, 11 unique `/docs/` links on `/`, 9 on a doc page). The diff is
+six lines in `site/app/page.tsx` and nothing else.
+
+Process note: the executor committed **directly to `main`**, not to an
+isolated worktree. Its first dispatch stopped without making changes (the plan
+file was uncommitted, so it was absent from the worktree), and a worktree with
+no changes is auto-removed; the resumed agent therefore ran in the primary
+working tree. The change was reviewed and passes, so it was kept. For future
+`execute` runs: commit the plan file _before_ dispatching, and after resuming
+a stopped executor, confirm `git worktree list` still shows its worktree.
 
 Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
