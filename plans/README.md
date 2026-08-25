@@ -7,11 +7,12 @@ conditions, and update your row when done.
 
 ## Execution order & status
 
-| Plan | Title                                                                          | Priority | Effort | Depends on | Status |
-| ---- | ------------------------------------------------------------------------------ | -------- | ------ | ---------- | ------ |
-| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                   | P2       | M      | —          | DONE   |
-| 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations | P2       | M      | —          | TODO   |
-| 003  | Site home page becomes a generated table of contents, replacing the Index page | P2       | S      | 001 (DONE) | TODO   |
+| Plan | Title                                                                                       | Priority | Effort | Depends on | Status |
+| ---- | ------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                                | P2       | M      | —          | DONE   |
+| 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
+| 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | TODO   |
+| 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003        | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -39,7 +40,15 @@ conflicts).
 Plan 003 was written on 2026-08-25 against commit `2c95536` (`plan` variant —
 user-directed, no audit). It edits only `site/` and reads `wiki/index.md`.
 
+Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
+user-directed, no audit). It edits only `site/`. The dynamic-loader approach
+was proven with a throwaway script against a copy of the vault before writing.
+
 ## Dependency notes
+
+- 004 requires 003: both edit `site/lib/source.ts`, and 004 turns the
+  synchronous `source` export 003's `lib/toc.ts` uses into `await getSource()`.
+  Running 004 first would leave 003's plan text wrong.
 
 - 003 requires 001 (already merged): it edits `site/lib/source.ts` and `site/app/page.tsx`, which 001 created.
 - 001 and 002 touch disjoint files (`site/` vs `wiki/`, `log.md`),
@@ -54,11 +63,16 @@ user-directed, no audit). It edits only `site/` and reads `wiki/index.md`.
   `([source](<../raw/File With Spaces.md>))` (angle brackets) or `%20`-encode
   the destination. Both parse as links in CommonMark and Obsidian. Once
   adopted (and existing pages migrated by a lint pass), the plugin can go.
-- Live reload of vault edits in `bun run dev` (dynamic source + watcher).
+- Live reload of new images in `raw/assets` during dev (plan 004 covers markdown only; `sync-assets.mjs` still runs once).
 - Deployment of `site/out/` (GitHub Pages / Vercel / Cloudflare Pages).
 - Sidebar grouping by frontmatter `type` (page-tree transformer).
 
 ## Findings considered and rejected
+
+- **Keeping the static loader and adding a `staleTime`/`revalidate` timer** (plan 004): time-based refresh still misses new files (the vault snapshot is only rebuilt on `invalidateFile`) and adds latency; the shipped watcher is the supported path.
+- **Adding `title:` frontmatter to plans/ADRs/issues so the site titles them** (plan 004): those files are owned by other workflows (plans by this skill, issues by the tracker); a site-side loader plugin reading the first `# ` heading is zero-touch.
+- **A root `meta.json` to rename `.scratch` in the sidebar** (plan 004): would put a site artifact in the repo root and in the Obsidian vault; a page-tree transformer does the same inside `site/`.
+- **Including `.claude/`, `.obsidian/`, `site/README.md`, `node_modules`** (plan 004): tool state and the site's own docs, not repo documentation.
 
 - **A `description:` frontmatter field for TOC summaries** (considered for plan 003): `CLAUDE.md` already mandates a one-line summary per page in `wiki/index.md` on every ingest; a second field would be maintained twice. The site reads `index.md` instead.
 - **Keeping `/docs/wiki` (index.md) as a page alongside the home TOC** (plan 003): the user asked for the TOC to replace the index page; two catalogs would drift. Excluded via a `!wiki/index.md` glob.
