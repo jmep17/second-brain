@@ -45,3 +45,10 @@ Append-only record of wiki operations. Newest entries at the bottom.
 
 - Resolved .scratch/config-system/issues/02-work-exclusions.md; research filed at .scratch/config-system/research/02-work-exclusions.md
 - Created CONTEXT.md glossary and docs/adr/0001-personal-wiki-is-a-nested-repo.md; updated map Decisions-so-far and fog
+
+## [2026-08-25] answer | Wayfinder skill
+
+- Question: how Matt Pocock's `/wayfinder` skill works and how to use it.
+- Read primary sources: installed wayfinder SKILL.md + agents/openai.yaml, docs/engineering/wayfinder.md, engineering README, CHANGELOG, ask-matt, setup-matt-pocock-skills tracker docs, research/grilling/domain-modeling/to-tickets/implement SKILL.md; diffed installed 1.2.3 against upstream main; used .scratch/config-system as a worked example. No raw source saved (plugin cited by path, upstream by URL).
+- Filed wiki/mattpocock-wayfinder-skill.md; updated wiki/index.md.
+- Finding: upstream main differs from installed 1.2.3 only in wording plus two edits (Skill-tool invocation spelled out; "tell the user to run /setup-matt-pocock-skills").
