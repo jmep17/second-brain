@@ -13,6 +13,7 @@ conditions, and update your row when done.
 | 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
 | 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
 | 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003        | TODO   |
+| 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -61,6 +62,11 @@ Lesson for future `execute` runs: check `git worktree list` and `git branch`
 for an in-flight branch matching the plan number before dispatching an
 executor. The index status column alone did not catch this — both sessions
 read `TODO` at the same time.
+
+Plan 005 was written on 2026-08-25 against commit `e858c3b` (`plan` variant —
+user-directed, no audit). It exists because plan 003 moved `/` from a redirect
+into `/docs/wiki` (which had the sidebar) to a `HomeLayout` page (which does
+not). One file: `site/app/page.tsx`.
 
 Plan 004 was written on 2026-08-25 against commit `bce0526` (`plan` variant —
 user-directed, no audit). It edits only `site/`. The dynamic-loader approach
