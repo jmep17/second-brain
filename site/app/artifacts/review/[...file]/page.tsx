@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { notFound } from "next/navigation";
 import { ArtifactReviewer } from "@/components/artifact-reviewer";
 import { resolveArtifact } from "@/lib/artifacts";
+import { docsLayoutProps } from "@/lib/layout.shared";
 
 export default async function ArtifactReviewPage({
   params,
@@ -25,9 +27,11 @@ export default async function ArtifactReviewPage({
   if (!exists) notFound();
 
   return (
-    <ArtifactReviewer
-      artifact={`artifacts/${rel}`}
-      src={`/artifacts/view/${rel}`}
-    />
+    <DocsLayout {...await docsLayoutProps()}>
+      <ArtifactReviewer
+        artifact={`artifacts/${rel}`}
+        src={`/artifacts/view/${rel}`}
+      />
+    </DocsLayout>
   );
 }

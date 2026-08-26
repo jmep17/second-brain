@@ -3,7 +3,7 @@
   "private": true,
   "description": "Tooling for the diagrams plugin, part of the second-brain marketplace. Not published; the plugin itself has no runtime dependencies.",
   "scripts": {
-    "test": "bash tools/check.sh",
+    "test": "bash tools/check.sh && bash test/ready-feedback-nudge.sh",
     "format": "prettier --ignore-unknown --write ."
   },
   "devDependencies": {

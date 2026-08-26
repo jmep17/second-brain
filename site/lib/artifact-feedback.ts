@@ -2,12 +2,15 @@ export const FEEDBACK_KINDS = ["feedback", "rfc"] as const;
 
 export type FeedbackKind = (typeof FEEDBACK_KINDS)[number];
 
-export interface ReviewTarget {
+export interface ArtifactReviewSelection {
   id: string;
   kind: string;
   label: string;
   selector: string;
   excerpt: string;
+}
+
+export interface ReviewTarget extends ArtifactReviewSelection {
   comment: string;
 }
 
@@ -99,6 +102,9 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
   const isBatch = "targets" in value || "readyForAgent" in value;
   const title = requiredString(value.title, "title", isBatch ? 120 : undefined);
   if (typeof title !== "string") return { ok: false, error: title.error };
+  if (/[\r\n]/.test(title)) {
+    return { ok: false, error: "title must be one line" };
+  }
   const body = requiredString(value.body, "body", isBatch ? 10_000 : undefined);
   if (typeof body !== "string") return { ok: false, error: body.error };
 

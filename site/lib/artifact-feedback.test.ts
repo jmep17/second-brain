@@ -101,6 +101,27 @@ Legacy body
     expect(parseBatch({ targets: [{ ...target, excerpt: "" }] }).ok).toBe(true);
   });
 
+  test.each(["line one\nline two", "line one\rline two"])(
+    "rejects legacy title line breaks in %j",
+    (title) => {
+      expect(
+        parseFeedbackPayload({
+          artifact: "artifacts/diagrams/example.html",
+          kind: "feedback",
+          title,
+          body: "Legacy body",
+        }).ok
+      ).toBe(false);
+    }
+  );
+
+  test.each(["line one\nline two", "line one\rline two"])(
+    "rejects batch title line breaks in %j",
+    (title) => {
+      expect(parseBatch({ title }).ok).toBe(false);
+    }
+  );
+
   test.each([
     ["ready without targets", { targets: undefined }],
     ["zero targets", { targets: [] }],

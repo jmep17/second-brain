@@ -1,14 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-interface ReviewTarget {
-  id: string;
-  kind: string;
-  label: string;
-  selector: string;
-  excerpt: string;
-}
+import type { ArtifactReviewSelection } from "@/lib/artifact-feedback";
 
 interface DecoratedState {
   tabIndex: string | null;
@@ -118,8 +111,12 @@ function isExcluded(
 
 function discoverTargets(
   doc: Document,
-  decorated: WeakMap<Element, DecoratedState>
-): Array<{ element: HTMLElement | SVGElement; target: ReviewTarget }> {
+  decorated: WeakMap<Element, DecoratedState>,
+  idForElement: (element: Element, kind: string) => string
+): Array<{
+  element: HTMLElement | SVGElement;
+  target: ArtifactReviewSelection;
+}> {
   const explicit = Array.from(doc.querySelectorAll("[data-review-id]"));
   const special: Array<{ element: Element; kind: string }> = [];
   for (const [selector, kind] of SPECIAL_TARGETS) {
@@ -150,11 +147,9 @@ function discoverTargets(
   }
 
   const seenElements = new Set<Element>();
-  const seenIds = new Map<string, number>();
-  const kindCounts = new Map<string, number>();
   const result: Array<{
     element: HTMLElement | SVGElement;
-    target: ReviewTarget;
+    target: ArtifactReviewSelection;
   }> = [];
 
   for (const { element, inferredKind } of candidates) {
@@ -169,17 +164,7 @@ function discoverTargets(
     const kind = (
       element.getAttribute("data-review-kind") || inferredKind
     ).slice(0, 200);
-    const index = (kindCounts.get(kind) ?? 0) + 1;
-    kindCounts.set(kind, index);
-    const baseId = (
-      element.getAttribute("data-review-id") ||
-      element.getAttribute("id") ||
-      `${kind}-${index}`
-    ).slice(0, 200);
-    const duplicate = seenIds.get(baseId) ?? 0;
-    seenIds.set(baseId, duplicate + 1);
-    const id =
-      duplicate === 0 ? baseId : `${baseId}-${duplicate + 1}`.slice(0, 200);
+    const id = idForElement(element, kind);
     const excerpt = textExcerpt(element);
     result.push({
       element: element as HTMLElement | SVGElement,
@@ -213,10 +198,14 @@ export function ArtifactReviewer({
   src: string;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const selectedRef = useRef<Record<string, ReviewTarget>>({});
+  const iframeDocumentRef = useRef<Document | null>(null);
+  const selectedRef = useRef<Record<string, ArtifactReviewSelection>>({});
+  const ownedElementsRef = useRef<Set<HTMLElement | SVGElement>>(new Set());
   const [loadCount, setLoadCount] = useState(0);
   const [reviewMode, setReviewMode] = useState(false);
-  const [selected, setSelected] = useState<Record<string, ReviewTarget>>({});
+  const [selected, setSelected] = useState<
+    Record<string, ArtifactReviewSelection>
+  >({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -229,7 +218,7 @@ export function ArtifactReviewer({
     selectedRef.current = selected;
   }, [selected]);
 
-  const toggleTarget = useCallback((target: ReviewTarget) => {
+  const toggleTarget = useCallback((target: ArtifactReviewSelection) => {
     setSelected((current) => {
       if (current[target.id]) {
         const next = { ...current };
@@ -242,16 +231,68 @@ export function ArtifactReviewer({
     setError(null);
   }, []);
 
+  const recordIframeLoad = useCallback(() => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc || doc === iframeDocumentRef.current) return;
+    iframeDocumentRef.current = doc;
+    setLoadCount((count) => count + 1);
+  }, []);
+
   useEffect(() => {
     if (!reviewMode) return;
     const iframe = iframeRef.current;
     const doc = iframe?.contentDocument;
     if (!doc?.documentElement) return;
+    iframeDocumentRef.current = doc;
 
     const decorated = new WeakMap<Element, DecoratedState>();
     const decoratedElements = new Set<HTMLElement | SVGElement>();
-    let byElement = new Map<Element, ReviewTarget>();
+    const idsByElement = new WeakMap<Element, string>();
+    const assignedIds = new Set<string>();
+    const fallbackCounters = new Map<string, number>();
+    for (const element of doc.querySelectorAll(
+      "[data-artifact-review-target]"
+    )) {
+      const foreignId = element.getAttribute("data-artifact-review-target");
+      if (foreignId) assignedIds.add(foreignId);
+    }
+    ownedElementsRef.current = decoratedElements;
+    let byElement = new Map<Element, ArtifactReviewSelection>();
     let frame = 0;
+
+    const claimUniqueId = (base: string) => {
+      const normalized = base.slice(0, 200) || "target";
+      if (!assignedIds.has(normalized)) {
+        assignedIds.add(normalized);
+        return normalized;
+      }
+      let duplicate = 2;
+      while (true) {
+        const suffix = `-${duplicate}`;
+        const candidate = `${normalized.slice(0, 200 - suffix.length)}${suffix}`;
+        if (!assignedIds.has(candidate)) {
+          assignedIds.add(candidate);
+          return candidate;
+        }
+        duplicate += 1;
+      }
+    };
+
+    const idForElement = (element: Element, kind: string) => {
+      const existing = idsByElement.get(element);
+      if (existing) return existing;
+      const declaredId =
+        element.getAttribute("data-review-id") || element.getAttribute("id");
+      let base = declaredId;
+      if (!base) {
+        const next = (fallbackCounters.get(kind) ?? 0) + 1;
+        fallbackCounters.set(kind, next);
+        base = `${kind}-${next}`;
+      }
+      const id = claimUniqueId(base);
+      idsByElement.set(element, id);
+      return id;
+    };
 
     const restoreElement = (element: HTMLElement | SVGElement) => {
       const original = decorated.get(element);
@@ -287,7 +328,7 @@ export function ArtifactReviewer({
     };
 
     const refresh = () => {
-      const discovered = discoverTargets(doc, decorated);
+      const discovered = discoverTargets(doc, decorated, idForElement);
       const nextElements = new Set(discovered.map(({ element }) => element));
       for (const element of Array.from(decoratedElements)) {
         if (!nextElements.has(element)) restoreElement(element);
@@ -295,6 +336,24 @@ export function ArtifactReviewer({
       byElement = new Map(
         discovered.map(({ element, target }) => [element, target])
       );
+      setSelected((current) => {
+        let next = current;
+        for (const { target } of discovered) {
+          const active = current[target.id];
+          if (
+            !active ||
+            (active.kind === target.kind &&
+              active.label === target.label &&
+              active.selector === target.selector &&
+              active.excerpt === target.excerpt)
+          ) {
+            continue;
+          }
+          if (next === current) next = { ...current };
+          next[target.id] = target;
+        }
+        return next;
+      });
       for (const { element, target } of discovered) {
         if (!decorated.has(element)) {
           decorated.set(element, {
@@ -327,10 +386,10 @@ export function ArtifactReviewer({
     };
 
     const onClick = (event: Event) => {
-      const element = eventTarget(event);
-      if (!element) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      const element = eventTarget(event);
+      if (!element) return;
       const target = byElement.get(element);
       if (target) toggleTarget(target);
     };
@@ -344,7 +403,7 @@ export function ArtifactReviewer({
       if (target) toggleTarget(target);
     };
     const stopArtifactInteraction = (event: Event) => {
-      if (eventTarget(event)) event.stopImmediatePropagation();
+      event.stopImmediatePropagation();
     };
     const onHighlight = (event: Event) => {
       const element = eventTarget(event);
@@ -367,8 +426,11 @@ export function ArtifactReviewer({
     doc.addEventListener("click", onClick, true);
     doc.addEventListener("keydown", onKeyDown, true);
     doc.addEventListener("pointerdown", stopArtifactInteraction, true);
+    doc.addEventListener("pointermove", stopArtifactInteraction, true);
     doc.addEventListener("pointerup", stopArtifactInteraction, true);
+    doc.addEventListener("pointercancel", stopArtifactInteraction, true);
     doc.addEventListener("dblclick", stopArtifactInteraction, true);
+    doc.addEventListener("dragstart", stopArtifactInteraction, true);
     doc.addEventListener("wheel", stopArtifactInteraction, true);
     doc.addEventListener("mouseover", onHighlight, true);
     doc.addEventListener("mouseout", onUnhighlight, true);
@@ -381,8 +443,11 @@ export function ArtifactReviewer({
       doc.removeEventListener("click", onClick, true);
       doc.removeEventListener("keydown", onKeyDown, true);
       doc.removeEventListener("pointerdown", stopArtifactInteraction, true);
+      doc.removeEventListener("pointermove", stopArtifactInteraction, true);
       doc.removeEventListener("pointerup", stopArtifactInteraction, true);
+      doc.removeEventListener("pointercancel", stopArtifactInteraction, true);
       doc.removeEventListener("dblclick", stopArtifactInteraction, true);
+      doc.removeEventListener("dragstart", stopArtifactInteraction, true);
       doc.removeEventListener("wheel", stopArtifactInteraction, true);
       doc.removeEventListener("mouseover", onHighlight, true);
       doc.removeEventListener("mouseout", onUnhighlight, true);
@@ -393,15 +458,14 @@ export function ArtifactReviewer({
       feedback.forEach((element, index) => {
         element.style.display = feedbackDisplays[index];
       });
+      if (ownedElementsRef.current === decoratedElements) {
+        ownedElementsRef.current = new Set();
+      }
     };
   }, [loadCount, reviewMode, toggleTarget]);
 
   useEffect(() => {
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) return;
-    for (const element of doc.querySelectorAll<HTMLElement | SVGElement>(
-      "[data-artifact-review-target]"
-    )) {
+    for (const element of ownedElementsRef.current) {
       const id = element.getAttribute("data-artifact-review-target");
       if (!id) continue;
       const isSelected = Boolean(selected[id]);
@@ -459,7 +523,7 @@ export function ArtifactReviewer({
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-fd-background lg:h-screen lg:flex-row">
+    <main className="flex min-h-[calc(100dvh-4rem)] flex-col bg-fd-background lg:h-[calc(100dvh-4rem)] lg:flex-row">
       <section className="flex min-h-[65vh] min-w-0 flex-1 flex-col lg:min-h-0">
         <header className="flex items-center gap-3 border-b bg-fd-card px-4 py-3">
           <button
@@ -480,7 +544,7 @@ export function ArtifactReviewer({
           ref={iframeRef}
           src={src}
           title="Artifact under review"
-          onLoad={() => setLoadCount((count) => count + 1)}
+          onLoad={recordIframeLoad}
           className="min-h-0 w-full flex-1 border-0 bg-white"
         />
       </section>

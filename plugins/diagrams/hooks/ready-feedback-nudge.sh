@@ -13,8 +13,16 @@ paths=()
 while IFS= read -r filename; do
   [[ "$filename" =~ ^[0-9]+-[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]] || continue
   issue="$queue_dir/$filename"
-  if grep -Fqx -- "Status: ready-for-agent" "$issue" 2>/dev/null \
-    && grep -Fqx -- "Execution: queued" "$issue" 2>/dev/null; then
+  metadata=()
+  mapfile -t metadata < <(head -n 8 -- "$issue" 2>/dev/null)
+  if [[ "${metadata[0]-}" == \#\ * ]] \
+    && [ -z "${metadata[1]-}" ] \
+    && [ "${metadata[2]-}" = "Status: ready-for-agent" ] \
+    && [ "${metadata[3]-}" = "Execution: queued" ] \
+    && [[ "${metadata[4]-}" =~ ^Kind:\ (feedback|rfc)$ ]] \
+    && [[ "${metadata[5]-}" =~ ^Artifact:\ artifacts/.+\.html$ ]] \
+    && [[ "${metadata[6]-}" =~ ^Date:\ [0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] \
+    && [ -z "${metadata[7]-}" ]; then
     count=$((count + 1))
     if [ "${#paths[@]}" -lt 5 ]; then
       paths+=(".scratch/artifact-feedback/issues/$filename")
