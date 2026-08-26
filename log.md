@@ -137,3 +137,32 @@ Append-only record of wiki operations. Newest entries at the bottom.
 ## [2026-08-26] maintenance | Documented the claude-diagrams plugin
 
 - Filed wiki/claude-diagrams-plugin.md (entity) for the `diagram-plans` Claude Code plugin built today at ~/src/claude-diagrams: skill + UserPromptSubmit hook, Geist-styled standalone HTML with Mermaid, `DIAGRAM_PLANS_DIR` / `DIAGRAM_PLANS_OPEN` config, browser opener. Recorded the Artifact→standalone-file pivot and the output-style deprecation rationale. Updated wiki/index.md (first Entities entry).
+
+## [2026-08-26] answer | Terminal emulators for Ubuntu on WSL2 (agent coding)
+
+- Filed wiki/wsl-terminal-emulators.md; updated wiki/index.md.
+- Primary-source survey of 13 terminals plus tmux/zellij, framed around the ConPTY vs WSLg split. Recommendation: Windows Terminal + tmux; runner-up WezTerm nightly; kitty/Ghostty under WSLg if inline images and desktop notifications matter more.
+- Notable findings: Windows Terminal has no desktop notifications by maintainer decision (PR #14425 closed unmerged 2025-04-25), so Claude Code toasts do not work there; WezTerm has had no tagged release since 2024-02-03; GNOME Terminal silently ignores OSC 52; zellij 0.45 renders kitty-protocol images while tmux does not; tmux `allow-passthrough` defaults to `off` and the man page does not say so.
+- Konsole was verified separately against invent.kde.org master (ad4528a0, 2026-08-25, 26.11.70) and folded in: all three image protocols, OSC 133 documented, OSC 8 off by default, OSC 52 writes gated by nothing at all, and no GPU rendering path. Its handbook is ~2 years stale and contradicts the source on splits and on Wayland; flagged on the page.
+- Contradiction flagged: WezTerm's features page and its escape-sequence reference disagree on sixel and kitty-graphics support.
+- No neutral throughput benchmark exists; every performance number on the page is labelled vendor-published.
+- No raw source was saved and no commit was created.
+
+## [2026-08-26] answer | Alternatives to Windows Terminal and WSL for Ubuntu development
+
+- Researched primary sources from Canonical, Microsoft, Broadcom, Oracle, Docker, the Dev Container specification, GitHub, VS Code, Cygwin, and MSYS2.
+- Filed wiki/ubuntu-development-environment-alternatives.md; updated wiki/index.md; cross-linked wiki/wsl-terminal-emulators.md.
+- Recommendation: when Windows must remain the host but WSL is excluded, use a full Ubuntu VM via Hyper-V Quick Create and keep repositories on the guest filesystem. Prefer native Ubuntu for kernel, GPU, and I/O fidelity; Multipass for disposable Ubuntu shells; remote Ubuntu for constrained local hardware; dev containers for project-level reproducibility.
+- Clarified that an Ubuntu container supplies Ubuntu userspace but shares its backend Linux kernel, while Cygwin, MSYS2, and Git Bash are Windows POSIX/toolchain layers rather than Ubuntu.
+- No raw source was saved and no commit was created.
+
+## [2026-08-26] maintenance | claude-diagrams v0.2.0 — document/canvas page, ELK, and the version-cache fix
+
+- Updated wiki/claude-diagrams-plugin.md and wiki/index.md for the day's second session on ~/src/claude-diagrams.
+- **Distribution bug found and fixed**: Claude Code keys its plugin cache on the version in `.claude-plugin/marketplace.json`, which had stayed `0.1.0` across all three commits — so the install was pinned to the *first* commit (`cc5b0de`), had no `scripts/` directory, and still ran the pre-Geist Artifact template. The plugin in use was not the plugin in the repo. Both manifests bumped to 0.2.0; `tools/check-version-sync.sh` added to guard the pair; opener moved `scripts/open-url.sh` → `bin/diagram-open` (on the Bash tool's PATH). Verified end to end: install now reports 0.2.0 at sha `de20c32` with the binary present.
+- **Page rebuilt as document + canvas** from a throwaway UI prototype (4 variants of the same content on one file). B (themed document) and C (canvas) both won, on different diagram sizes, and shipped as one page with a toggle rather than an authoring-time choice. Prototype preserved on branch `prototype/diagram-page-variants` as a primary source; `main` keeps only the decision.
+- Prototype surfaced two defects invisible on paper: the canvas fit hardcoded a 340 px rail gutter, giving a 375 px phone a 20 px canvas (a geometry bug, not a CSS one); and dragging the canvas sweep-selected the diagram labels.
+- **Contradictions with this page's first draft, recorded on the page rather than overwritten**: `#f5a623` as the warning colour was not merely dated but *wrong* — 2.03:1 on white, failing WCAG AA; `mindmap` has been dropped entirely (ignores `themeVariables`, cannot use ELK, self-collides past ~12 nodes); and the earlier "template not yet visually verified in a browser" is now resolved — that first look produced most of v0.2.0.
+- **Flagged as unverified**: nothing has ever measured a real rendered diagram. The geometry was checked against simulated CSS boxes only. The repo's plan 002 (render harness + CI) was skipped to get here and is now the next piece of work. Fonts are still fetched from Google Fonts rather than inlined, so plan 004 is partial.
+- The prompt hook still fires on non-planning prompts — confirmed live when it fired on a bug report during this session. Repo plan 008 is still outstanding.
+- Work sits unmerged on `advisor/001-and-diagram-treatment`; nothing pushed.
