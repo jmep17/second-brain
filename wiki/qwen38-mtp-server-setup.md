@@ -12,9 +12,11 @@ Follow-up to [[qwen38-claude-code-m4]]. Researched 2026-08-25 by reading both pr
 
 Both servers run Qwen3.8-27B's **native MTP head** for exact speculative decoding (2–3× decode on an M4 Pro), and both expose an **Anthropic-compatible `/v1/messages`**, so Claude Code connects without a proxy. Both are Apache-2.0.
 
-**Recommendation: start with oMLX** — its `omlx launch claude` command wires every Claude Code env var correctly (including fixes you'd otherwise have to discover the hard way), and its SSD-tiered KV cache survives restarts, which suits Claude Code's giant recurring prompts. MTPLX is the reference MTP implementation with per-machine auto-tuning and the official quant catalog; keep it as the speed benchmark.
+**Recommendation: MTPLX is the verified turnkey path** — its recommended quant (`Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed`) is pinned as the default model ID inside MTPLX's own source, so the download cannot dangle. oMLX has the best Claude Code wiring (`omlx launch claude` sets every env var, including fixes you'd otherwise discover the hard way) and an SSD-tiered KV cache that survives restarts — but you must source or build its MTP-preserving quant yourself (see A.2).
 
-## Configuration A — oMLX (recommended)
+> **Correction (2026-08-26):** this page originally told you to `hf download Jundot/Qwen3.8-27B-oQ4e-mtp`. That repo does not exist — the name came from a web-search summary; oMLX's source only ever references Qwen **3.6** oQ quants (`Jundot/Qwen3.6-27B-oQ4e-mtp`, `tests/integration/test_specprefill_static_prefix_real_model.py`), and the human confirmed the 3.8 download 404s. Section A.2 now gives verifiable routes only. Treat any specific community `…-oQ4e-mtp` repo name as unverified until you have opened its page.
+
+## Configuration A — oMLX (best Claude Code wiring; bring your own quant)
 
 ### 1. Install and start
 
@@ -26,21 +28,27 @@ omlx start          # background server on http://localhost:8000, auto-restarts
 
 Or download the signed DMG from [Releases](https://github.com/jundot/omlx/releases) — the app adds a menu-bar controller and installs the same `omlx` CLI shim. Requires macOS 15+, Apple Silicon. (The "custom kernel" build warning in the README concerns GLM/MiniMax/Qwen3.5 families, not dense Qwen3.8 — brew/DMG installs are fine here.)
 
-### 2. Get the MTP-preserving quant
+### 2. Get an MTP-preserving quant
 
-The quant made for this exact setup is **`Jundot/Qwen3.8-27B-oQ4e-mtp`** (~16 GB, ~4.9 bpw effective oQ4e with the MTP head bit-protected — from the oMLX author; [HF card](https://huggingface.co/Jundot/Qwen3.8-27B-oQ4e-mtp)). Easiest: open `http://localhost:8000/admin` → Downloader → search `Qwen3.8-27B-oQ4e-mtp` → download. Or by hand:
+The MTP speedup needs a quant whose `mtp.*` tensors were kept. Two routes:
+
+**Route 1 — search live, verify before downloading.** Open `http://localhost:8000/admin` → Downloader → search `Qwen3.8 mtp`, or browse [huggingface.co/models?search=Qwen3.8-27B+mtp](https://huggingface.co/models?search=Qwen3.8-27B+mtp). Pick a ~4-bit MLX quant whose card says the MTP head is preserved (oQ4e-mtp naming, or an `mlx-community` `-MTP-4bit` build), and only trust a repo whose page you have actually opened — specific names previously listed here turned out not to exist.
+
+**Route 2 — build it yourself (cannot 404).** oMLX ships the oQ quantizer with a **Preserve MTP** option (`preserve_mtp` in `omlx/admin/oq_manager.py`; MTP tensors are bit-protected, `omlx/oq.py`). Download the official release and quantize locally:
 
 ```bash
 pip install -U "huggingface_hub[cli]"
-hf download Jundot/Qwen3.8-27B-oQ4e-mtp \
-  --local-dir ~/.omlx/models/Jundot/Qwen3.8-27B-oQ4e-mtp
+hf download Qwen/Qwen3.8-27B \
+  --local-dir ~/.omlx/models/Qwen/Qwen3.8-27B
 ```
+
+Then in `http://localhost:8000/admin` → the model → **Quantize (oQ)** → level `oQ4e`, **Preserve MTP** enabled. The full checkpoint is a ~56 GB download, but the streaming quantizer processes tensors via mmap without loading the whole model, so it runs within 48 GB (`docs/oQ_Quantization.md`); the output is a ~16 GB `Qwen3.8-27B-oQ4e-mtp` directory you can delete the source for afterwards.
 
 ### 3. Configure the model (admin panel → model → settings)
 
 In `http://localhost:8000/admin`, on the model's per-model settings (persisted to `~/.omlx/settings.json`; changes apply without restart — `omlx/model_settings.py`):
 
-- **`mtp_enabled: true`** — Lightning MTP draft+verify; `qwen3_8` is in the supported gate (`omlx/engine_pool.py:109`). Leave `mtp_num_draft_tokens` unset — an adaptive controller picks depth 1–3 from rolling acceptance ([model card](https://huggingface.co/Jundot/Qwen3.8-27B-oQ4e-mtp) reports 81% draft acceptance at depth 3).
+- **`mtp_enabled: true`** — Lightning MTP draft+verify; `qwen3_8` is in the supported gate (`omlx/engine_pool.py:109`). Leave `mtp_num_draft_tokens` unset — an adaptive controller picks depth 1–3 from rolling acceptance (`omlx/model_settings.py`; coding-task acceptance around 80% at depth 3 per the project's published benchmarks).
 - **`max_context_window: 65536`** — Claude Code needs ≥ 48k or the launcher refuses to start (`CLAUDE_CODE_MIN_CONTEXT_WINDOW`, `omlx/integrations/claude.py:12`); 64k is the comfort floor and the 4-bit weights leave room for it in 48 GB.
 - **Pin the model** (`is_pinned`) so LRU eviction never unloads it mid-session.
 
@@ -77,7 +85,7 @@ omlx launch claude --model Qwen3.8-27B-oQ4e-mtp --haiku Qwen3.5-9B-4bit
 
 M4 Pro (20-core GPU, 48 GB), this quant, MTP on: **~125 tok/s prefill, ~24 tok/s decode** ([oMLX benchmark](https://omlx.ai/benchmarks/performance/yd0ekfoi)); the model card's ~54 tok/s figure is a higher-bandwidth chip. Watch live cache hits and speed at `/admin`.
 
-## Configuration B — MTPLX
+## Configuration B — MTPLX (verified turnkey path)
 
 ### 1. Install
 
@@ -136,7 +144,7 @@ claude --disallowedTools LSP
 | KV/prompt cache | tiered RAM+SSD, survives restarts, prefix sharing | warm-prefix session bank + SSD session cache |
 | MTP tuning | adaptive depth 1–3 at runtime | measured per-machine `tune`, saved depth |
 | Extras | menu-bar app, admin panel, multi-model (embeddings/rerankers for RAG), VLM | honest benchmarking tools, Forge (build your own MTP quants), fan control |
-| Best quant here | `Jundot/Qwen3.8-27B-oQ4e-mtp` (~16 GB) | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` (4-bit) |
+| Best quant here | self-built `oQ4e-mtp` (~16 GB) or a verified community upload — see A.2 | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` (4-bit; **verified**: default model ID in MTPLX source) |
 
 They coexist fine on different ports if you want to A/B them. Interesting footnote: oMLX's Lightning-MTP verify kernels are credited to MTPLX (omlx README acknowledgments), so the speed core is shared lineage.
 

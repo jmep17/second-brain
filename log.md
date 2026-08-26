@@ -70,3 +70,9 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Read primary sources: shallow clones of jundot/omlx and youssofal/MTPLX (README, docs/, cli.py, integrations/claude.py, model_settings.py, engine_pool.py); web search for the HF quant cards. No raw source saved (repos cited by path, cards by URL).
 - Filed wiki/qwen38-mtp-server-setup.md; updated wiki/index.md, wiki/qwen38-claude-code-m4.md (cross-link).
 - Findings: oMLX ships an `omlx launch claude` command that sets every Claude Code env var (tier maps, attribution-header fix, auto-compact window, LSP tool exclusion) — recommended path; its quant is Jundot/Qwen3.8-27B-oQ4e-mtp (~16 GB, MTP head preserved, qwen3_8 in the MTP gate). MTPLX path: pull Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed, `mtplx tune --retune` (per-machine depth saved in mtplx_runtime.json), Turbo profile auto-selected, manual env block with base URL WITHOUT /v1. oMLX's Lightning-MTP kernels are credited to MTPLX.
+
+## [2026-08-26] maintenance | qwen38-mtp-server-setup: nonexistent model repo corrected
+
+- Human reported the recommended download `Jundot/Qwen3.8-27B-oQ4e-mtp` does not exist (404). Root cause: the repo name came from a web-search summary; search results still list such pages, but oMLX's own source at HEAD only references Qwen 3.6 oQ quants, corroborating the human.
+- Rewrote A.2 with verifiable routes only: search-and-verify on HF, or build the quant locally with oMLX's oQ quantizer (preserve_mtp option confirmed in omlx/admin/oq_manager.py; streaming path fits 48 GB). Flipped the top recommendation to MTPLX as the verified turnkey path — its quant `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` is the DEFAULT_HF_MODEL_ID in MTPLX's source (mtplx/profiles.py:155), so that download cannot dangle.
+- Correction noted on the page per the contradiction rule. Lesson: treat search-result repo names as unverified until the page is opened; source-code references are ground truth.
