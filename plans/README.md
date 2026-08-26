@@ -14,8 +14,19 @@ conditions, and update your row when done.
 | 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
 | 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003, 005   | DONE   |
 | 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | DONE   |
+| 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                            | P1       | L      | —          | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
+
+Plan 007 was revised on 2026-08-26 after the owner corrected the machine map
+and required that neither device depend on the other. The personal Windows
+workstation (24 GB RAM) runs its own native Ollama backend, exposed only to its
+local WSL client through mirrored localhost. The employer-issued M4 Pro Mac
+(48 GB unified memory) independently runs MTPLX plus a localhost-only LiteLLM
+Codex bridge. Both clones install the same `qwen-backend`, `qwen-claude`, and
+`qwen-codex` interface, but the selected mode is untracked per-device state.
+There is no SSH, remote inference, shared address, or cross-device fallback.
+The plan remains independent of plans 001–006.
 
 Plan 001 was revised on 2026-08-25 against commit `3b71e42` (first draft was
 against `17e982c`). Changes: verified every library API against the published
