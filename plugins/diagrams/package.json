@@ -1,0 +1,13 @@
+{
+  "name": "diagrams",
+  "private": true,
+  "description": "Tooling for the diagrams plugin, part of the second-brain marketplace. Not published; the plugin itself has no runtime dependencies.",
+  "scripts": {
+    "test": "bash tools/check.sh",
+    "format": "prettier --ignore-unknown --write ."
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1",
+    "prettier": "^3.9.6"
+  }
+}

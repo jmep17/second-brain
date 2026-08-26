@@ -190,3 +190,10 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Added `export CAVEMAN_OFFLINE=1` to `~/.zshrc` so the proxy never makes entitlement/sync calls.
 - Recovery MCP registered for Claude Code; Codex's `~/.codex/config.toml` already had a `[mcp_servers.caveman]` block pointing at the right binary but not caveman-journaled, so the installer refused to touch it — left as-is (cosmetic gap, only affects streaming/Pro-Max session recovery).
 - `caveman status` confirms: compress on, telemetry off, both `claude` and `codex` show `provider_proxy` among installed native integrations.
+
+## [2026-08-26] maintenance | Plan 009 — claude-diagrams moved into plugins/diagrams
+
+- git subtree of ~/src/claude-diagrams (42fe966) into plugins/diagrams with history; flattened; marketplace is now the repo root (.claude-plugin/marketplace.json, name second-brain)
+- Plugin renamed diagram-plans → diagrams (v0.3.0); env vars DIAGRAM_PLANS_* → DIAGRAMS_*; default output artifacts/diagrams/
+- Updated wiki/claude-diagrams-plugin.md, wiki/index.md; root pre-commit now runs plugins/diagrams/tools/check.sh
+- Owner follow-up: re-add the marketplace and reinstall (see plan 009 step 10)
