@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "sync-assets": "node scripts/sync-assets.mjs",
-    "dev": "node scripts/sync-assets.mjs && fumadocs-obsidian dev -- next dev",
+    "dev": "node scripts/sync-assets.mjs && fumadocs-obsidian dev -- next dev -H 127.0.0.1",
     "build": "node scripts/sync-assets.mjs && next build",
-    "start": "serve out",
+    "start": "next start -H 127.0.0.1",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -27,7 +27,6 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "postcss": "^8.5.0",
-    "serve": "^14.2.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^6.0.0"
   }

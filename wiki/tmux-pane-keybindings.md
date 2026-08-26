@@ -1,8 +1,9 @@
 ---
 title: tmux Pane Keybindings
 type: answer
+tool: tmux
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-26
 sources:
   [
     "man tmux (local, tmux 3.7b)",

@@ -19,6 +19,7 @@ An architecture decision and written spec describing one system that holds the s
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [UI prototype](issues/07-ui-prototype.md) — tmux editor built and exercised end to end; edit model feels right. Skill toggle via ignore+remove is broken (ignore suppresses remove; remove+managed errors) — verified fix is ignore + `run_after` prune script (ADR 0003 addendum). Applies need `--no-tty --force --parent-dirs`. `dynamicSource()` on Next 16 confirmed.
 - [UI edit model](issues/06-ui-edit-model.md) — raw editor over `dotfiles/**` only; save = write + `chezmoi apply`; separate commit; drift via `chezmoi diff` + re-add/apply; skill toggle via `.chezmoidata` + ignore/remove templates; localhost only. ADR 0003.
 - [Secrets strategy](issues/05-secrets.md) — macOS Keychain on both Macs via chezmoi `{{ keyring }}`; env-var keys only, tool-owned auth files unmanaged; personal-only secrets hostname-gated; UI never renders templates. ADR 0002.
 - [Monorepo layout](issues/04-repo-layout.md) — keep name `second-brain`; `personal/` is a git submodule (private repo) holding `wiki/ raw/ memory/ log.md`; `dotfiles/` is the chezmoi source dir mirroring `$HOME`, with the Claude Code layer at `dotfiles/dot_claude/`; two logs.
@@ -40,8 +41,7 @@ An architecture decision and written spec describing one system that holds the s
 
 - Localhost-only binding + launchd start for the site server: into spec/bootstrap (08). (from 03, 06)
 - `tool:` frontmatter field on wiki pages (links docs to a tool in the UI): add convention to CLAUDE.md in 08. (from 06)
-- Verify `.chezmoiignore` leaves applied targets and `.chezmoiremove` deletes directories (07). (from 06)
-- Fumadocs `dynamicSource()` + watcher on Next 16/Turbopack is documented but unverified — check in ticket 07. (from 03)
+- Skill toggle must be specced as `.chezmoiignore.tmpl` + `run_after` prune script, not ignore+remove; saves are refused while the target is drifted (re-checked server-side at save time — spec this rule); UI applies run `--no-tty --force --parent-dirs`; adopt is refused for templates; chezmoi/git exit codes always checked. Into 08. (from 07)
 
 - Does "exclude from work" mean "not in `$HOME`" (chezmoiignore suffices) or "not on disk at all" (needs split private repo or encryption with key off work)? Applies to wiki content too, or only dotfiles? Feeds ticket 02. (from 01)
 - Who runs `chezmoi update`/`git pull` on the work Mac (manual vs cron)? Into 08. (from 01)

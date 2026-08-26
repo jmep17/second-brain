@@ -53,7 +53,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 /** `How to Store Dotfiles - A Bare Git Repository` → `how-to-store-dotfiles-a-bare-git-repository` */
-function slugify(segment: string): string {
+export function slugify(segment: string): string {
   return slug(segment).replace(/-+/g, "-");
 }
 

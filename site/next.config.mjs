@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const config = {
-  output: "export",
+  // Prototype (ticket 07): static export dropped per the runtime decision in
+  // .scratch/config-system/issues/03-ui-runtime.md — the config editor needs
+  // request-driven route handlers, which `output: "export"` forbids.
   reactStrictMode: true,
-  // Static export has no image optimizer. Content images are rendered as
+  // Keep Next 16 from writing its own AGENTS.md/CLAUDE.md into site/ —
+  // the repo root owns those files.
+  agentRules: false,
+  // No image optimizer dependency (sharp). Content images are rendered as
   // plain <img> (see app/docs/[[...slug]]/page.tsx); this is a safety net
   // for any next/image usage inside fumadocs-ui.
   images: { unoptimized: true },
