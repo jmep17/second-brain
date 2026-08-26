@@ -8,7 +8,7 @@ When you ask Claude Code to plan, brainstorm, compare options, sketch an archite
 
 Two parts:
 
-- `skills/diagram-plans/` — the skill: picks the diagram type, writes the HTML file, publishes it, keeps the chat reply to a few lines.
+- `skills/diagram-plans/` — the skill: picks the diagram type, writes the HTML file, publishes it, opens it in your browser, keeps the chat reply to a few lines.
 - `hooks/nudge.sh` — a `UserPromptSubmit` hook that detects plan/brainstorm-shaped prompts and reminds the model to use the skill, so it fires reliably rather than by chance.
 
 ### Install
@@ -37,6 +37,7 @@ Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (p
 |---|---|---|
 | `DIAGRAM_PLANS_DIR` | `.claude/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
 | `DIAGRAM_PLANS_PUBLISH` | `1` | `0` writes the file without publishing an Artifact. |
+| `DIAGRAM_PLANS_OPEN` | `1` | Open the artifact in your default browser when first published (WSL, Linux, macOS). `0` disables. |
 
 Files are named `YYYY-MM-DD-<topic-slug>.html`. Each is self-contained (Mermaid is rendered natively by the Artifact viewer; opening the raw file in a browser shows the Mermaid source in a `<pre>` block).
 
@@ -52,6 +53,7 @@ plugins/diagram-plans/
   .claude-plugin/plugin.json
   hooks/hooks.json
   hooks/nudge.sh
+  scripts/open-url.sh
   skills/diagram-plans/SKILL.md
   skills/diagram-plans/MERMAID.md
 ```

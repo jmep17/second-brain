@@ -20,9 +20,10 @@ Plans and brainstorms are trees and graphs, not prose. Draw the structure; keep 
    - Node labels: short noun phrases, ≤ 6 words. Detail that cannot fit a label goes in a single "Notes" list under the diagram, one line each.
    - The page contains one diagram (two only when a mindmap needs a companion flowchart for sequencing).
 4. **Publish** with the Artifact tool (`file_path` = the file you wrote; favicon `🗺️`; stable title = the topic). Skip publishing only when `DIAGRAM_PLANS_PUBLISH=0`.
-5. **Reply in ≤ 5 lines**: the artifact link, the saved path, and the one decision or open question the user must answer. Every other word belongs inside the diagram.
+5. **Open it in the browser**: run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/open-url.sh" <artifact-url>`. Republishes reuse the same URL, so open only on the first publish of a file. When publishing was disabled, open the local file path instead. `DIAGRAM_PLANS_OPEN=0` skips this step.
+6. **Reply in ≤ 5 lines**: the artifact link, the saved path, and the one decision or open question the user must answer. Every other word belongs inside the diagram.
 
-Done when: the file exists at the configured path, the Artifact call returned a URL (or publishing was disabled), and the chat reply is under five lines.
+Done when: the file exists at the configured path, the Artifact call returned a URL (or publishing was disabled), the opener script reported `opened` (or was disabled), and the chat reply is under five lines.
 
 ## Rules
 
