@@ -1,0 +1,15 @@
+{
+  "name": "claude-diagrams",
+  "private": true,
+  "description": "Tooling for the claude-diagrams plugin marketplace. Not published; the plugin itself has no runtime dependencies.",
+  "scripts": {
+    "prepare": "husky",
+    "test": "bash tools/check.sh",
+    "format": "prettier --ignore-unknown --write ."
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6"
+  }
+}
