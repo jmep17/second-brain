@@ -1,0 +1,9 @@
+{
+  "name": "plans",
+  "version": "0.1.0",
+  "description": "Plans and specifications become standalone Geist-styled HTML pages saved under artifacts/plans/ and opened in the browser.",
+  "author": {
+    "name": "Jorden Parker"
+  },
+  "keywords": ["plan", "specification", "tickets", "artifact", "geist"]
+}

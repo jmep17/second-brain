@@ -24,6 +24,6 @@ if re.search(r"(^|/)(plans|\.scratch|specs?|tickets?)/[^\0]*\.md$", p):
 ' 2>/dev/null || true)"
 
 if [ -n "${path:-}" ]; then
-  echo "diagram-plans: a plan/spec document was just written (${path}). Render its structure as a diagram artifact too — invoke the diagram-plans skill on that document and open the page in the browser. The markdown stays the source of truth; the diagram is the review surface. Skip only if the user explicitly asked for prose or the document was itself generated from a diagram."
+  echo "diagram-plans: a plan/spec document was just written (${path}). Present it as an artifact — invoke the plan-pages skill (decision/RFC documents: decision-pages; if neither plugin is installed, diagram-plans) on that document and open the page in the browser. The markdown stays the source of truth. Reply per the artifact reply contract: path + at most one open question. Skip only if the user explicitly asked for prose."
 fi
 exit 0

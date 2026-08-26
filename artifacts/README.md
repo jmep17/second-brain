@@ -2,11 +2,11 @@
 
 Generated output, one folder per artifact type, tracked in git.
 
-| Type         | Status  | What it holds                                     | Plugin     |
-| ------------ | ------- | ------------------------------------------------- | ---------- |
-| `diagrams/`  | shipped | Brainstorms, architectures, roadmaps, option maps | `diagrams` |
-| `plans/`     | planned | Plan/spec documents as pages                      | plan 013   |
-| `decisions/` | planned | Decision/RFC pages                                | plan 013   |
+| Type         | Status  | What it holds                                     | Plugin      |
+| ------------ | ------- | ------------------------------------------------- | ----------- |
+| `diagrams/`  | shipped | Brainstorms, architectures, roadmaps, option maps | `diagrams`  |
+| `plans/`     | shipped | Plan/spec documents as pages                      | `plans`     |
+| `decisions/` | shipped | Decision/RFC pages                                | `decisions` |
 
 All types follow `plugins/DESIGN.md`. Feedback on any artifact is filed in
 the issue tracker (plan 012).
