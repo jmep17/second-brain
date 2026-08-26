@@ -14,7 +14,9 @@ conditions, and update your row when done.
 | 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
 | 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003, 005   | DONE   |
 | 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | DONE   |
+| 006  | Sidebar on every page (config + 404s); Config joins the page tree                           | P2       | S      | 005 (DONE) | DONE   |
 | 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                            | P1       | L      | —          | TODO   |
+| 008  | Restyle the config editor onto Fumadocs theme tokens                                        | P3       | M      | 006 (DONE) | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -144,7 +146,132 @@ Deviations accepted on review:
 
 Not merged — the branch and worktree are waiting on the owner's decision.
 
+Plan 006 was written on 2026-08-26 against commit `e573964` (`plan` variant —
+user-directed, no audit). It finishes what 005 started: 005 gave `/` the
+sidebar, but `/config/[tool]` and every 404 still render with no navigation at
+all. The owner also asked that config be "a standard part of the larger site",
+so 006 injects a `Config` folder into the page tree rather than only wrapping
+the route.
+
+The approach was proven end-to-end before the plan was written, on a throwaway
+copy of the repo in a scratch directory (never in the working tree). Three
+findings came out of that prototype and are baked into the plan:
+
+- `defaultOpen: true` is **required** on the synthetic `Config` folder. A
+  collapsed Fumadocs folder does not render its children into the HTML at all,
+  so without it the tool links are invisible until clicked.
+- A `notFound()` call inside a route segment does **not** reach the root
+  `app/not-found.tsx`. `/config/not-a-tool` and `/docs/no/such/page` stayed
+  bare 404s until `app/config/not-found.tsx` and `app/docs/not-found.tsx` were
+  added — hence three not-found files, not one.
+- Segment 404s stream their content as an RSC payload, so `curl` sees an empty
+  body and `grep fd-sidebar` returns 0 even when the change is working. The
+  plan gives flight-payload and dev-mode checks for those two URLs instead, so
+  the executor does not chase a non-problem.
+
+Plan 008 was written on 2026-08-26 against commit `e573964` (`plan` variant —
+user-directed, no audit). It exists because plan 006 deferred the config
+editor's colours, and deferring without an owner is how work quietly
+disappears; the owner asked for the restyle to be planned rather than left as
+a follow-up bullet.
+
+Like 006, the whole change was applied to a throwaway copy of the repo (on top
+of 006) and built and served before the plan was written. Two findings shaped
+it:
+
+- **The Fumadocs semantic tokens fail WCAG as text colours in light mode.**
+  Converting the OKLCH values in `default-colors.css` to sRGB and computing
+  contrast against `--color-fd-background` gives `fd-warning` 1.96:1,
+  `fd-success` 2.04:1, `fd-info` 3.44:1 and `fd-error` 3.50:1. So the plan
+  forbids `text-fd-{success,warning,error,info}` outright and uses the tokens
+  only as background tints, rails and icon fills — which is exactly what
+  `fumadocs-obsidian`'s own `ObsidianCallout` does. At `/20` over `fd-card`
+  the same tokens give 10–15:1 text contrast, which is what the status badges
+  use.
+- **`buttonVariants` classes originate in `node_modules`**, where Tailwind does
+  not scan, so there was a real risk they would never be generated into the
+  stylesheet. Verified against the compiled CSS that `bg-fd-primary`,
+  `hover:bg-fd-primary/80`, `disabled:bg-fd-secondary` and
+  `focus-visible:ring-fd-ring` are all present. Step 8 of the plan makes the
+  executor re-check this, because a missing utility renders as an unstyled
+  element rather than as an error.
+
+The plan reuses `ObsidianCallout` for the editor's five alert banners instead
+of restyling them, so the editor's alerts become literally the same component
+the wiki's callouts use. That changes them from full-bleed strips to inset
+cards — intended, and called out in the plan as a visual change for the
+reviewer to eyeball.
+
+Plans 006 and 008 were executed on 2026-08-26 by one dispatched executor and
+approved on review. Both are **stacked on a single branch**,
+`worktree-agent-a462e31b70a14ab53` (worktree
+`.claude/worktrees/agent-a462e31b70a14ab53`), based on `e573964`: 006 is commit
+`f1c9983`, 008 is `9a6de51` on top of it. **Not merged** — the branch is
+waiting on the owner's decision, and `log.md` has no entry for either plan yet
+because the work is not on `main`.
+
+They ran in the same worktree deliberately. 008's Step 0 refuses to run until
+006 has landed, and a second executor would have received a fresh worktree
+branched from `main` — without 006, and so blocked again. Continuing the same
+executor in place is what let 008 stack correctly. **Lesson for future
+`execute` runs on a dependent plan: resume the dependency's executor rather
+than dispatching a new one, or the dependency gate fails a second time.**
+
+The reviewer re-ran every done criterion independently at each stage rather
+than trusting the executor's report: typecheck, clean `bun run build` (42 doc
+paths, unchanged throughout), `prettier --check` (with `components` added for
+008), all four URL probes, both segment-404 flight payloads, every grep gate,
+and 008's Step 8a/8b CSS-and-bundle checks (all nine utilities present, all six
+bundle strings present). The out-of-scope diff was empty at both stages, and
+the primary working tree was never touched — it is still at `e573964` with only
+the owner's own pre-existing edits.
+
+Two defects were found **in plan 006's own text**, not in the execution:
+
+- **`site/app/page.tsx` has no numbered step.** It is named in the Scope list
+  ("edit — imports and the wrapper only") and is required by the done criterion
+  `grep -c 'docsLayoutProps' app/page.tsx` → `2`, but Steps 0–9 never give its
+  after-state. The executor correctly applied Step 3's transformation pattern
+  and flagged the gap. Fix the plan before any re-run.
+- **The done criterion miscounts its own Scope list**, saying "ten in-scope
+  files (nine under `site/`...)" when the Scope section names ten under `site/`
+  plus `plans/README.md` — eleven. Ten under `site/` is correct and is what
+  landed.
+
+Plan 008's steps, by contrast, were complete and unambiguous: no deviations, no
+STOP conditions, and `prettier --write` made zero changes to the class strings
+copied verbatim from the plan — confirming the plan's claim that they were
+taken from Prettier's own output.
+
+One verification note, stated plainly: the executor's first Step 0 probe of 006
+returned a **false pass** (`fd-sidebar=7` on `/config/tmux` before any edit),
+caused by a stale unrelated `next-server` still listening on port 3100 from an
+earlier session. The executor detected it via a clean `git status`/`git diff`,
+killed the process and re-ran to get the correct `0`. Reviewer probes used a
+freshly-checked-free port for this reason. Anyone re-running these plans should
+confirm the probe port is actually free — a stale server silently validates a
+no-op.
+
+Not independently re-verified by the reviewer: plan 006's Step 8 _attribution_
+of which not-found boundary fires for each segment 404 (it needs a dev server).
+The user-visible outcome — sidebar present on both segment 404s — was verified
+directly via the flight-payload probe. The manual browser checks in 008's test
+plan (light/dark mode across the drifted / stale-save / chezmoi-error states)
+are **still outstanding**; they need a real drifted chezmoi setup and are the
+owner's to run.
+
 ## Dependency notes
+
+- 008 requires 006: both edit `site/app/config/[tool]/page.tsx`. 006 deletes
+  the breadcrumb `<p>` from that file's `<header>`; 008's "Current state"
+  excerpt for it assumes that deletion has already happened, and 008's Step 0
+  refuses to run until it has. 008 also only makes sense after 006, since it
+  is 006 that puts the editor inside the docs chrome where the mismatch shows.
+
+- 006 requires 005 (already merged): 005 established the `DocsLayout`-on-`/`
+  pattern that 006 extracts into a shared `docsLayoutProps()` helper, and 005's
+  own maintenance note called for exactly that extraction once there was more
+  than one prop and more than two call sites. There are now four.
 
 - 004 requires 003: both edit `site/lib/source.ts`, and 004 turns the
   synchronous `source` export 003's `lib/toc.ts` uses into `await getSource()`.
@@ -166,9 +293,52 @@ Not merged — the branch and worktree are waiting on the owner's decision.
 - Live reload of new images in `raw/assets` during dev (plan 004 covers markdown only; `sync-assets.mjs` still runs once).
 - `next dev` (Next 16) regenerates `site/AGENTS.md` and `site/CLAUDE.md` on every start, leaving untracked files behind. Either gitignore them or set `agentRules: false` in `site/next.config.mjs`. Predates plan 004.
 - Deployment of `site/out/` (GitHub Pages / Vercel / Cloudflare Pages).
-- Sidebar grouping by frontmatter `type` (page-tree transformer).
+- Sidebar grouping by frontmatter `type` (page-tree transformer). Note that
+  after plan 006 this must be applied via `docsLayoutProps()` in
+  `site/lib/layout.shared.tsx`, which all four `DocsLayout` call sites share.
+- Config editor visual consistency — **now planned as 008**, no longer an
+  unowned follow-up.
+- **Syntax highlighting in the config editor** (deferred out of plan 008): the
+  `<textarea>` is plain monospace, so tmux/shell config gets no highlighting
+  even though the site already renders highlighted code on wiki pages via
+  Shiki (`fumadocs-core/highlight`). A read-mode highlighted view with an edit
+  toggle is the natural shape. Deferred because it is a behaviour change
+  (cursor handling, scroll sync), not a presentational one.
+- **`CommitBox` polls `/api/config/git` every 5 seconds** regardless of whether
+  the panel is on screen (`site/components/commit-box.tsx`, the `setInterval`
+  in its `useEffect`). Each tick shells out to `git status`. Noticed while
+  planning 008; out of scope there because 008 changes no logic.
+- `site/README.md` still says the site is a "static export to `out/`". That
+  stopped being true when config-system ticket 07 dropped `output: "export"`
+  from `site/next.config.mjs` (the config editor needs request-driven route
+  handlers). Plan 006 deliberately does not fix it — a separate README pass
+  should.
+- Config pages are absent from the search index: `createFromSource(getSource)`
+  builds it from vault pages, and after 006 the `Config` sidebar entry is a
+  page-tree node with no backing file.
 
 ## Findings considered and rejected
+
+- **Wrapping `/config/*` in `DocsLayout` without adding Config to the page
+  tree** (plan 006): would have put the sidebar on the config route while
+  leaving the config editor unreachable from it — the sidebar would list every
+  wiki page but not the page you were standing on. The owner asked for config
+  to be "a standard part of the larger site", which settles it.
+- **A root `not-found.tsx` alone** (plan 006): does not cover `notFound()`
+  thrown inside a route segment. Verified empirically in Next 16.3.2 — the
+  nested calls bypass it entirely. Three files are required.
+- **Flattening `Config` to a single page item instead of a folder** (plan 006):
+  works while `TOOLS` has one entry and breaks the moment it has two. The
+  folder plus `defaultOpen: true` reads identically today and scales.
+- **A `meta.json` or a vault markdown stub to get Config into the sidebar**
+  (plan 006): would put a site artifact into the Obsidian vault and into the
+  wiki the human reads. The `root` page-tree transformer does the same job
+  entirely inside `site/`, consistent with how `.scratch` was relabelled in
+  plan 004.
+- **Restyling the config editor to Fumadocs theme tokens as part of 006**:
+  real and worth doing, but it spans three files and is a visual change with no
+  machine-checkable done criteria, unlike the rest of 006. Moved to follow-ups
+  so 006 stays a structural diff a reviewer can verify by command.
 
 - **Keeping the static loader and adding a `staleTime`/`revalidate` timer** (plan 004): time-based refresh still misses new files (the vault snapshot is only rebuilt on `invalidateFile`) and adds latency; the shipped watcher is the supported path.
 - **Adding `title:` frontmatter to plans/ADRs/issues so the site titles them** (plan 004): those files are owned by other workflows (plans by this skill, issues by the tracker); a site-side loader plugin reading the first `# ` heading is zero-touch.
