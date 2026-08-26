@@ -179,3 +179,14 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - **Contradiction with plan 008's contrast table, recorded not overwritten**: the plan forbids `text-fd-{success,warning,error,info}` on measured WCAG grounds (1.96–3.50:1 in light mode). That constraint held through execution — zero occurrences in all three files — and is now a standing review rule in the plan's maintenance notes.
 - **Flagged as unverified**: the manual browser pass in 008's test plan was skipped at the owner's direction. Light/dark rendering of the drifted, stale-save and chezmoi-error states has never been eyeballed; those states need a real drifted chezmoi setup. On this machine the tmux file reports `not-applied` (no `~/.config/tmux/tmux.conf`), so only that badge state was seen live. 008 also changes the alert banners from full-bleed strips to inset cards — intended, still un-eyeballed.
 - Deferred and recorded as follow-ups, not lost: syntax highlighting in the config editor (a behaviour change, out of scope for a presentational plan) and `CommitBox` polling `/api/config/git` every 5 s regardless of visibility.
+
+## [2026-08-26] answer | Caveman: local install & token-cost reduction
+
+- Filed wiki/caveman-local-install.md; updated wiki/index.md
+
+## [2026-08-26] maintenance | Installed caveman's local proxy for Claude Code and Codex
+
+- Acted on wiki/caveman-local-install.md's recommendation: installed `@caveman-ai/cli` globally (npm), `caveman setup --install` (all six local binaries, checksums verified), `caveman telemetry off`, `caveman claude` and `caveman codex` (both natively hooked to the local proxy at `127.0.0.1:8787`).
+- Added `export CAVEMAN_OFFLINE=1` to `~/.zshrc` so the proxy never makes entitlement/sync calls.
+- Recovery MCP registered for Claude Code; Codex's `~/.codex/config.toml` already had a `[mcp_servers.caveman]` block pointing at the right binary but not caveman-journaled, so the installer refused to touch it — left as-is (cosmetic gap, only affects streaming/Pro-Max session recovery).
+- `caveman status` confirms: compress on, telemetry off, both `claude` and `codex` show `provider_proxy` among installed native integrations.
