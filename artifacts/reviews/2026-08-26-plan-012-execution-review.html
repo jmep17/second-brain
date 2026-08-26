@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review: plan 012 execution — APPROVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --geist-bg: #ffffff; --geist-fg: #171717;
+    --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
+    --text-warning: #8a4b00; --text-info: #0057b7; --text-success: #0f7b3a;
+    --radius: 10px;
+    --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --geist-bg: #000000; --geist-fg: #ededed;
+      --accents-1: #111111; --accents-2: #333333; --accents-3: #888888; --accents-5: #a1a1a1;
+      --text-warning: #f5a623; --text-info: #52a8ff; --text-success: #3dd68c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--geist-bg); color: var(--geist-fg); font-family: var(--font-sans); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+  header { margin-bottom: 28px; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accents-3); margin-bottom: 10px; }
+  h1 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 600; letter-spacing: -.03em; margin: 0 0 8px; }
+  .sub { color: var(--accents-5); max-width: 62ch; margin: 0; }
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; margin: 32px 0 12px; }
+  .card { border: 1px solid var(--accents-2); border-radius: var(--radius); background: var(--accents-1); padding: 16px 18px; }
+  .verdict { display: flex; align-items: center; gap: 14px; border-color: color-mix(in srgb, var(--text-success) 45%, var(--accents-2)); }
+  .verdict .chip { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; font-weight: 500; color: var(--text-success); border: 1px solid color-mix(in srgb, var(--text-success) 55%, var(--accents-2)); border-radius: 6px; padding: 4px 10px; background: var(--geist-bg); }
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 0; }
+  .stat { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 12px 14px; background: var(--geist-bg); }
+  .stat .n { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+  .stat .l { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tablewrap { border: 1px solid var(--accents-2); border-radius: var(--radius); overflow-x: auto; background: var(--geist-bg); }
+  th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); text-align: left; font-weight: 500; padding: 10px 14px; border-bottom: 1px solid var(--accents-2); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--accents-2); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .pass { font-family: var(--font-mono); font-size: 11px; color: var(--text-success); white-space: nowrap; }
+  .fixed { font-family: var(--font-mono); font-size: 11px; color: var(--text-warning); white-space: nowrap; }
+  code, .mono { font-family: var(--font-mono); font-size: 12px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  td .out { color: var(--accents-5); font-family: var(--font-mono); font-size: 11.5px; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
+  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; }
+  .note .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 6px; color: var(--accents-3); }
+  .note.info { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
+  .note.info .tag { color: var(--text-info); }
+  .note.risk { border-color: color-mix(in srgb, var(--text-warning) 40%, var(--accents-2)); }
+  .note.risk .tag { color: var(--text-warning); }
+  @media (max-width: 640px) { main { padding: 36px 16px 72px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Review · 2026-08-26 · plan 012 execution</div>
+    <h1>Plan 012 executed — reviewer verdict: approve</h1>
+    <p class="sub">Artifacts are now interactive: the site serves them, and every page's feedback widget files RFC/feedback issues into the tracker. One revision round — for a defect in the plan, not the execution.</p>
+  </header>
+
+  <section class="card verdict">
+    <span class="chip">APPROVE</span>
+    <span>Ready to merge. Three commits (<code>a8ba566</code>, <code>1c526c0</code>, <code>0ae7062</code>) on <code>advisor/012-interactive-artifacts</code>, based on current <code>main</code>. Test-merge: <strong>clean</strong>.</span>
+  </section>
+
+  <div class="strip">
+    <div class="stat"><div class="n">8 / 8</div><div class="l">criteria pass</div></div>
+    <div class="stat"><div class="n">11</div><div class="l">live probes re-run</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">files, +442 −6</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">revision (plan defect)</div></div>
+    <div class="stat"><div class="n">0.6.0</div><div class="l">plugin version</div></div>
+  </div>
+
+  <h2>Done criteria — reviewer re-runs</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Criterion</th><th>Result</th><th>Evidence (re-run by reviewer, dev server on port 3141)</th></tr>
+    <tr><td>Serve: existing artifact via <code>/artifacts/view/…</code></td><td class="pass">PASS</td><td class="out">title-serve → 1; page keeps its own chrome</td></tr>
+    <tr><td>Traversal guards (GET)</td><td class="pass">PASS</td><td class="out">normalized + --path-as-is → 404 / 404</td></tr>
+    <tr><td>Index + sidebar</td><td class="pass">PASS</td><td class="out">/artifacts in docs chrome (fd-sidebar=1); "Artifacts" on /; /config/tmux sidebar intact — transformer change is purely additive</td></tr>
+    <tr><td>Feedback POST: happy paths, both payload shapes</td><td class="fixed">PASS after fix</td><td class="out">api-shape 200; widget-shape (repo-relative) was 404 → now 200 with single-prefix Artifact: line (commit 0ae7062)</td></tr>
+    <tr><td>Feedback POST: rejections</td><td class="pass">PASS</td><td class="out">malformed 400 · kind "praise" 400 · ../../ 403 · artifacts/../ 403 · missing file 404 (both shapes)</td></tr>
+    <tr><td>Issue format + residue hygiene</td><td class="pass">PASS</td><td class="out">Filed file matches tracker format (Status: needs-triage, Kind, Artifact, Date, ## Comments); all smoke residue deleted; worktree clean</td></tr>
+    <tr><td>DESIGN.md contract + template widget block</td><td class="pass">PASS</td><td class="out">Snippet bodies line-identical between DESIGN.md and MERMAID.md (fences vs tags is packaging); MERMAID diff entirely inside the delimiters; reconciliation paragraph for plans 006/007 present</td></tr>
+    <tr><td>Gates: typecheck, build, prettier, plugin checks, versions</td><td class="pass">PASS</td><td class="out">tsc clean; build 67 pages incl. ○ /artifacts, ƒ view, ƒ feedback; prettier clean; bun run test passed; manifests 0.6.0 in sync</td></tr>
+  </table></div>
+
+  <h2>The revision — a plan defect, caught in review</h2>
+  <div class="card">The plan's Step 3 examples used artifacts-relative paths (<code>diagrams/…</code>) while Step 4a specified the widget carries the repo-relative path (<code>artifacts/diagrams/…</code>). The executor implemented both faithfully — so a real widget submit 404'd. Reproduced live, fixed by one server-side normalization in the feedback route (<code>0ae7062</code>): accept both shapes, write a single-prefix <code>Artifact:</code> line. Re-verified live on both shapes plus a new <code>artifacts/../</code> traversal case.</div>
+
+  <h2>Notes</h2>
+  <section class="notes">
+    <div class="note"><span class="tag">Deviation — accepted</span>Dual-mode file:// check ran against a mocked DOM (no headless browser in the sandbox) — and the widget on THIS page is the real check: opened from disk it reads "copy as issue"; served by the site it files an issue.</div>
+    <div class="note"><span class="tag">Deviation — accepted</span>Dev-server wrapper bypassed (its fixed ws port 8000 is held by the pre-existing server on the main checkout); routes under test don't depend on the watcher.</div>
+    <div class="note risk"><span class="tag">Watch</span>Feedback issues auto-render on the site (vault includes .scratch/**) — triage by editing the Status: line. NN collisions accepted by design (single owner, localhost).</div>
+    <div class="note open info"><span class="tag">Your decision</span>Merge <code>0ae7062</code> (3 commits)? After merge: refresh both agents to 0.6.0, and this loop goes live — try the widget below once the page is served at <code>/artifacts/view/reviews/…</code>.</div>
+  </section>
+
+  <!-- feedback-widget:start -->
+  <section class="feedback" id="feedback" data-artifact="artifacts/reviews/2026-08-26-plan-012-execution-review.html">
+    <div class="fbhead">
+      <span class="tag">Feedback</span>
+      <span class="fbstatus" id="fbstatus"></span>
+    </div>
+    <div class="fbrow">
+      <label><input type="radio" name="fbkind" value="feedback" checked> Feedback</label>
+      <label><input type="radio" name="fbkind" value="rfc"> RFC</label>
+    </div>
+    <input class="fbtitle" id="fbtitle" type="text" placeholder="One-line title" maxlength="120">
+    <textarea class="fbbody" id="fbbody" rows="4" placeholder="What would you change, and why?"></textarea>
+    <div class="fbrow">
+      <button class="fbsubmit" id="fbsubmit" type="button">Submit</button>
+    </div>
+  </section>
+  <style>
+    .feedback { margin-top: 20px; border: 1px solid var(--accents-2); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+    .feedback .fbhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .feedback .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+    .feedback .fbstatus { font-family: var(--font-mono); font-size: 11px; color: var(--accents-5); }
+    .feedback .fbrow { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .feedback input[type="text"], .feedback textarea { font: inherit; font-size: 13px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 6px; padding: 8px 10px; width: 100%; resize: vertical; box-sizing: border-box; }
+    .feedback button { font-family: var(--font-mono); font-size: 12px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+    .feedback button:hover { border-color: var(--accents-3); }
+  </style>
+  <script>
+    (() => {
+      const section = document.getElementById("feedback");
+      const status = document.getElementById("fbstatus");
+      const submit = document.getElementById("fbsubmit");
+      const isFile = location.protocol === "file:";
+      if (isFile) submit.textContent = "copy as issue";
+      submit.addEventListener("click", async () => {
+        const kind = document.querySelector('input[name="fbkind"]:checked').value;
+        const title = document.getElementById("fbtitle").value.trim();
+        const body = document.getElementById("fbbody").value.trim();
+        if (!title || !body) { status.textContent = "title and body required"; return; }
+        const artifact = section.dataset.artifact;
+        if (isFile) {
+          const date = new Date().toISOString().slice(0, 10);
+          const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
+          try {
+            await navigator.clipboard.writeText(md);
+            status.textContent = "copied — paste into .scratch/artifact-feedback/issues/";
+          } catch (e) {
+            status.textContent = `copy failed: ${e?.message ?? e}`;
+          }
+          return;
+        }
+        try {
+          const res = await fetch("/api/artifacts/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact, kind, title, body }),
+          });
+          const data = await res.json();
+          status.textContent = res.ok ? `filed: ${data.filed}` : `error: ${data.error ?? res.status}`;
+        } catch (e) {
+          status.textContent = `request failed: ${e?.message ?? e}`;
+        }
+      });
+    })();
+  </script>
+  <!-- feedback-widget:end -->
+</main>
+</body>
+</html>
