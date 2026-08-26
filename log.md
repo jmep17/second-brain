@@ -179,3 +179,10 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - **Contradiction with plan 008's contrast table, recorded not overwritten**: the plan forbids `text-fd-{success,warning,error,info}` on measured WCAG grounds (1.96–3.50:1 in light mode). That constraint held through execution — zero occurrences in all three files — and is now a standing review rule in the plan's maintenance notes.
 - **Flagged as unverified**: the manual browser pass in 008's test plan was skipped at the owner's direction. Light/dark rendering of the drifted, stale-save and chezmoi-error states has never been eyeballed; those states need a real drifted chezmoi setup. On this machine the tmux file reports `not-applied` (no `~/.config/tmux/tmux.conf`), so only that badge state was seen live. 008 also changes the alert banners from full-bleed strips to inset cards — intended, still un-eyeballed.
 - Deferred and recorded as follow-ups, not lost: syntax highlighting in the config editor (a behaviour change, out of scope for a presentational plan) and `CommitBox` polling `/api/config/git` every 5 s regardless of visibility.
+
+## [2026-08-26] maintenance | Plan 009 — claude-diagrams moved into plugins/diagrams
+
+- git subtree of ~/src/claude-diagrams (42fe966) into plugins/diagrams with history; flattened; marketplace is now the repo root (.claude-plugin/marketplace.json, name second-brain)
+- Plugin renamed diagram-plans → diagrams (v0.3.0); env vars DIAGRAM_PLANS_* → DIAGRAMS_*; default output artifacts/diagrams/
+- Updated wiki/claude-diagrams-plugin.md, wiki/index.md; root pre-commit now runs plugins/diagrams/tools/check.sh
+- Owner follow-up: re-add the marketplace and reinstall (see plan 009 step 10)

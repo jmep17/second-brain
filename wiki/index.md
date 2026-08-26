@@ -17,7 +17,7 @@ Catalog of every wiki page. Updated on every ingest.
 
 ## Entities
 
-- [[claude-diagrams-plugin]] — the local `diagram-plans` Claude Code plugin (skill + prompt hook) that turns plans/brainstorms into Mermaid diagrams in Geist-styled HTML pages saved to a configurable dir and opened in the browser; v0.2.0 adds document/canvas reading modes, Geist tokens on the diagram itself, ELK layout, and the fix for the version-cache bug that made every earlier change invisible to the install.
+- [[claude-diagrams-plugin]] — the `diagrams` Claude Code plugin (formerly claude-diagrams), now vendored at `plugins/diagrams` with second-brain as its marketplace; writes Mermaid/Geist HTML pages to `artifacts/diagrams/`; v0.3.0.
 
 ## Source summaries
 

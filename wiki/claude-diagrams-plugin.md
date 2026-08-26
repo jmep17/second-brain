@@ -1,12 +1,45 @@
 ---
-title: claude-diagrams (diagram-plans plugin)
+title: diagrams plugin (formerly claude-diagrams)
 type: entity
 created: 2026-08-26
 updated: 2026-08-26
 sources: [~/src/claude-diagrams]
 ---
 
+# diagrams plugin (formerly claude-diagrams)
+
+## Moved into second-brain (2026-08-26, v0.3.0)
+
+The plugin's repo, `~/src/claude-diagrams` (GitHub `jmep17/claude-diagrams`),
+is now vendored into this repo with full git history via `git subtree`, at
+`plugins/diagrams/`. `~/src/claude-diagrams` is frozen history as of commit
+`42fe966ab8ef508854b5d6b6f15696eb3a5c7636` — no further changes land there;
+this repo is the plugin's home going forward.
+
+- Marketplace: this repo (`second-brain`), root manifest
+  `.claude-plugin/marketplace.json`.
+- Plugin name: `diagram-plans` → **`diagrams`** (the skill invocation is now
+  `diagrams:diagram-plans`; the skill file itself keeps the name
+  `diagram-plans` since it describes what the skill does).
+- Version: **0.3.0**.
+- Env vars renamed, no fallback to the old names: `DIAGRAM_PLANS_DIR` →
+  **`DIAGRAMS_DIR`**, `DIAGRAM_PLANS_OPEN` → **`DIAGRAMS_OPEN`**.
+- Default output directory: `.claude/diagrams/` → **`artifacts/diagrams/`**
+  (repo-relative, tracked in git).
+- Install: `/plugin marketplace add ~/src/second-brain` then
+  `/plugin install diagrams@second-brain`. Update:
+  `/plugin marketplace update second-brain` +
+  `/plugin update diagrams@second-brain`.
+- Layout is now one-folder-per-artifact-type
+  (`plugins/diagrams/`, `artifacts/diagrams/`) so later plugins and artifact
+  types can slot in beside it.
+
+See plan `plans/009-move-diagrams-plugin-into-repo.md` for the full migration
+record.
+
 # claude-diagrams — the `diagram-plans` Claude Code plugin
+
+_Superseded 2026-08-26 by the move into second-brain; see the top section._
 
 A local Claude Code plugin marketplace at `~/src/claude-diagrams` (git; **v0.2.0**, 5 commits as of 2026-08-26). Its one plugin, **diagram-plans**, makes Claude Code answer planning, brainstorming, option-comparison, roadmap, and architecture prompts with a **Mermaid diagram in a standalone Geist-styled HTML page**, saved to a configurable directory and opened in the browser, instead of paragraphs of prose.
 
@@ -18,18 +51,20 @@ Plans and brainstorms are trees/graphs; prose flattens them. Also, reading long 
 
 ## Design decisions
 
-| Decision | Choice | Reason |
-|---|---|---|
-| Mechanism | Skill + `UserPromptSubmit` hook, not an output style | Output styles are deprecated in Claude Code (v2.1.246 at build time). The hook makes the skill fire *deterministically* on plan-shaped prompts rather than relying on the model to notice the skill description. |
-| Rendering | Standalone HTML, Mermaid 11 from jsDelivr, fonts from Google Fonts | Originally published as a Claude Code Artifact (Mermaid renders natively there); switched to a plain file so it opens in any browser, lives on disk, and follows a real design system. Needs network on first view. |
-| Design system | Vercel Geist | Geist Sans/Mono, neutral gray tokens, 10 px radii, auto light/dark via `prefers-color-scheme`. **Since v0.2.0 the tokens drive the diagram itself**, not only the page chrome: Mermaid runs `theme: "base"` with `themeVariables` read from the CSS custom properties at render time, so a scheme flip restyles the nodes. |
-| Configuration | Env vars via `settings.json` `env` | Plugins cannot ship settings; env is the one channel both the hook (bash) and the skill (model reads the nudge) can see. |
-| Diagram choice | Table mapping request shape → diagram type | flowchart TD with a subgraph per branch (brainstorm), flowchart TD (plan/decision), flowchart LR subgraphs or quadrantChart (options/trade-offs), timeline/gantt (roadmap), sequenceDiagram (call flow), stateDiagram-v2 (lifecycle). |
-| Layout engine | ELK, `look: "neo"` | Registered from jsDelivr alongside Mermaid; **degrades to dagre rather than failing the page** if the loader does not load. |
-| Reading modes | One page, document + canvas | Document by default (diagram in a figure, notes underneath); a `⛶ canvas` control takes it full-bleed with pan/zoom, `Esc` back. Settled by prototype rather than argument — see "How v0.2.0 was decided". |
-| Distribution | `bin/diagram-open` on `PATH` | Claude Code adds `<plugin>/bin` to the Bash tool's `PATH`. More robust than `${CLAUDE_PLUGIN_ROOT}`, which is substituted inline in skill text but is *not* exported into the Bash tool's environment. |
+| Decision       | Choice                                                             | Reason                                                                                                                                                                                                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mechanism      | Skill + `UserPromptSubmit` hook, not an output style               | Output styles are deprecated in Claude Code (v2.1.246 at build time). The hook makes the skill fire _deterministically_ on plan-shaped prompts rather than relying on the model to notice the skill description.                                                                                                           |
+| Rendering      | Standalone HTML, Mermaid 11 from jsDelivr, fonts from Google Fonts | Originally published as a Claude Code Artifact (Mermaid renders natively there); switched to a plain file so it opens in any browser, lives on disk, and follows a real design system. Needs network on first view.                                                                                                        |
+| Design system  | Vercel Geist                                                       | Geist Sans/Mono, neutral gray tokens, 10 px radii, auto light/dark via `prefers-color-scheme`. **Since v0.2.0 the tokens drive the diagram itself**, not only the page chrome: Mermaid runs `theme: "base"` with `themeVariables` read from the CSS custom properties at render time, so a scheme flip restyles the nodes. |
+| Configuration  | Env vars via `settings.json` `env`                                 | Plugins cannot ship settings; env is the one channel both the hook (bash) and the skill (model reads the nudge) can see.                                                                                                                                                                                                   |
+| Diagram choice | Table mapping request shape → diagram type                         | flowchart TD with a subgraph per branch (brainstorm), flowchart TD (plan/decision), flowchart LR subgraphs or quadrantChart (options/trade-offs), timeline/gantt (roadmap), sequenceDiagram (call flow), stateDiagram-v2 (lifecycle).                                                                                      |
+| Layout engine  | ELK, `look: "neo"`                                                 | Registered from jsDelivr alongside Mermaid; **degrades to dagre rather than failing the page** if the loader does not load.                                                                                                                                                                                                |
+| Reading modes  | One page, document + canvas                                        | Document by default (diagram in a figure, notes underneath); a `⛶ canvas` control takes it full-bleed with pan/zoom, `Esc` back. Settled by prototype rather than argument — see "How v0.2.0 was decided".                                                                                                                 |
+| Distribution   | `bin/diagram-open` on `PATH`                                       | Claude Code adds `<plugin>/bin` to the Bash tool's `PATH`. More robust than `${CLAUDE_PLUGIN_ROOT}`, which is substituted inline in skill text but is _not_ exported into the Bash tool's environment.                                                                                                                     |
 
 ## Layout
+
+_Superseded 2026-08-26 by the move into second-brain; see the top section._
 
 ```
 .claude-plugin/marketplace.json          # marketplace "claude-diagrams"
@@ -57,18 +92,24 @@ Opt-out per request: "write it up" / "in paragraphs" / "as a doc".
 
 ## Configuration
 
+_Superseded 2026-08-26 by the move into second-brain; see the top section._
+
 ```json
-{ "env": { "DIAGRAM_PLANS_DIR": "~/notes/diagrams", "DIAGRAM_PLANS_OPEN": "1" } }
+{
+  "env": { "DIAGRAM_PLANS_DIR": "~/notes/diagrams", "DIAGRAM_PLANS_OPEN": "1" }
+}
 ```
 
-| Var | Default | Meaning |
-|---|---|---|
-| `DIAGRAM_PLANS_DIR` | `.claude/diagrams` | Output directory, absolute or project-relative; created on demand |
-| `DIAGRAM_PLANS_OPEN` | `1` | `0` skips opening the browser |
+| Var                  | Default            | Meaning                                                           |
+| -------------------- | ------------------ | ----------------------------------------------------------------- |
+| `DIAGRAM_PLANS_DIR`  | `.claude/diagrams` | Output directory, absolute or project-relative; created on demand |
+| `DIAGRAM_PLANS_OPEN` | `1`                | `0` skips opening the browser                                     |
 
 (`DIAGRAM_PLANS_PUBLISH` existed briefly in the Artifact-based version and was removed.)
 
 ## Install
+
+_Superseded 2026-08-26 by the move into second-brain; see the top section._
 
 ```
 /plugin marketplace add ~/src/claude-diagrams     # or jordenparker/claude-diagrams once pushed
@@ -79,17 +120,17 @@ Opt-out per request: "write it up" / "in paragraphs" / "as a doc".
 ## How v0.2.0 was decided
 
 The three plans that governed the page's appearance (render harness, Geist
-tokens, ELK) were all guessing at one question: *what should the page actually
-look like?* Rather than execute them in sequence, a throwaway UI prototype put
+tokens, ELK) were all guessing at one question: _what should the page actually
+look like?_ Rather than execute them in sequence, a throwaway UI prototype put
 four treatments of the **same content** on one file, switchable by `?variant=`
 and a floating bar:
 
-| Variant | Treatment | Outcome |
-|---|---|---|
-| A | Baseline — what shipped, bugs intact (the control) | superseded |
-| B | Themed document — Geist tokens in the diagram, ELK, neo, fonts awaited | **won** |
-| C | Canvas — full-bleed diagram, pan/zoom, notes rail | **won** |
-| D | Editorial authored SVG, no Mermaid | deferred |
+| Variant | Treatment                                                              | Outcome    |
+| ------- | ---------------------------------------------------------------------- | ---------- |
+| A       | Baseline — what shipped, bugs intact (the control)                     | superseded |
+| B       | Themed document — Geist tokens in the diagram, ELK, neo, fonts awaited | **won**    |
+| C       | Canvas — full-bleed diagram, pan/zoom, notes rail                      | **won**    |
+| D       | Editorial authored SVG, no Mermaid                                     | deferred   |
 
 B and C both won because they are not really rivals: B is right when the
 diagram fits, C when it does not. They shipped as one page with a canvas
@@ -127,7 +168,7 @@ Fixed by bumping both manifests to `0.2.0` and adding
 the installed copy is now `0.2.0` at sha `de20c32` with `bin/diagram-open`
 present.
 
-**Rule for any future change**: bump the version in *both*
+**Rule for any future change**: bump the version in _both_
 `plugins/diagram-plans/.claude-plugin/plugin.json` and
 `.claude-plugin/marketplace.json`, then
 `/plugin marketplace update claude-diagrams` and
@@ -155,7 +196,7 @@ Recorded rather than overwritten, per the wiki's contradiction rule:
 - **Verified**: the template renders in a real browser; canvas geometry fits at
   eight viewports from 320×480 to 2560×1080; the installed plugin is on
   `0.2.0`/`de20c32`.
-- **Not verified**: nothing has ever measured a *real rendered diagram*. The
+- **Not verified**: nothing has ever measured a _real rendered diagram_. The
   geometry checks run the real functions against simulated CSS boxes. The
   repo's plan 002 (a render harness + CI) was skipped to get here and is now
   the next piece of work — its allowances should be set against the current
