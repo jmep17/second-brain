@@ -84,6 +84,28 @@ function configFolder(): PageTree.Folder {
 }
 
 /**
+ * Sidebar entry for the artifacts browser: a single link to the index page,
+ * which lists every generated artifact. Same shape as configFolder() above —
+ * `defaultOpen` matters for the same reason.
+ */
+function artifactsFolder(): PageTree.Folder {
+  return {
+    type: "folder",
+    name: "Artifacts",
+    $id: "artifacts",
+    defaultOpen: true,
+    children: [
+      {
+        type: "page" as const,
+        name: "Browse artifacts",
+        url: "/artifacts",
+        $id: "artifacts/index",
+      },
+    ],
+  };
+}
+
+/**
  * Re-reads the vault on every `get()` (cheap: only invalidated files are
  * re-parsed), so dev picks up new and edited pages. `bun run build` calls it
  * once per render with nothing invalidated — same output as a static loader.
@@ -111,7 +133,7 @@ const loader = dynamicLoader(vault.dynamicSource(), {
         root(node) {
           return {
             ...node,
-            children: [...node.children, configFolder()],
+            children: [...node.children, configFolder(), artifactsFolder()],
           };
         },
       },
