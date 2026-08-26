@@ -2,6 +2,7 @@
 .obsidian/
 .claude/worktrees/
 node_modules/
+plugins/*/node_modules/
 site/.next/
 site/out/
 site/public/vault/

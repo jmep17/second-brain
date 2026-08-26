@@ -1,82 +1,57 @@
-# claude-diagrams
+# diagrams
 
-A Claude Code plugin marketplace. Currently one plugin:
+A Claude Code plugin: plans, brainstorms, and design discussions become a
+Mermaid diagram in a Geist-styled HTML page, opened in the browser, instead
+of paragraphs. Part of the `second-brain` marketplace — its output lands in
+`artifacts/diagrams/` in that repo.
 
-## diagram-plans
-
-When you ask Claude Code to plan, brainstorm, compare options, sketch an architecture, or lay out a roadmap, it answers with a **Mermaid diagram** in a standalone HTML page styled on [Vercel's Geist design system](https://vercel.com/geist) instead of paragraphs. The file is saved to a directory you choose and opened in your browser.
-
-The page reads two ways: a **document** by default — diagram in a figure, notes underneath — and a **canvas** one click away, taking the diagram full-bleed with pan and zoom for when it is too big to read in place. Geist tokens drive the diagram itself, not just the page around it, and the layout engine is [ELK](https://github.com/kieler/elkjs).
-
-Two parts:
-
-- `skills/diagram-plans/` — the skill: picks the diagram type, writes the Geist-styled HTML file, opens it in your browser, keeps the chat reply to a few lines.
-- `hooks/nudge.sh` — a `UserPromptSubmit` hook that detects plan/brainstorm-shaped prompts and reminds the model to use the skill, so it fires reliably rather than by chance.
-
-### Install
+## Install
 
 ```
-/plugin marketplace add jmep17/claude-diagrams   # or a local path: /plugin marketplace add ~/src/claude-diagrams
-/plugin install diagram-plans@claude-diagrams
+/plugin marketplace add ~/src/second-brain
+/plugin install diagrams@second-brain
 ```
 
-Restart Claude Code (or `/reload-plugins`) after installing.
-
-### Updating
-
-Plugin installs are cached and keyed on the version in
-`.claude-plugin/marketplace.json`. After pulling new commits:
+## Update
 
 ```
-/plugin marketplace update claude-diagrams
-/plugin update diagram-plans@claude-diagrams
+/plugin marketplace update second-brain
+/plugin update diagrams@second-brain
 ```
 
-If a change does not appear, check what your install is actually pinned to:
+## Configuration
 
-```
-python3 -c 'import json;print(json.load(open("$HOME/.claude/plugins/installed_plugins.json")))'
-```
-
-**When contributing**: any change to the plugin's files must bump the version in
-_both_ `plugins/diagram-plans/.claude-plugin/plugin.json` and
-`.claude-plugin/marketplace.json`. Run `bash tools/check-version-sync.sh`
-to confirm they agree. Without a bump, existing installs keep serving the old
-cached copy.
-
-### Configure the save path
-
-Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (per project):
+Set env vars in your Claude Code settings (`env` block):
 
 ```json
 {
   "env": {
-    "DIAGRAM_PLANS_DIR": "~/notes/diagrams",
-    "DIAGRAM_PLANS_OPEN": "1"
+    "DIAGRAMS_DIR": "artifacts/diagrams",
+    "DIAGRAMS_OPEN": "1"
   }
 }
 ```
 
-| Variable             | Default            | Meaning                                                                                     |
-| -------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| `DIAGRAM_PLANS_DIR`  | `.claude/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
-| `DIAGRAM_PLANS_OPEN` | `1`                | Open the file in your default browser when created (WSL, Linux, macOS). `0` disables.       |
+| Var             | Default              | Meaning                                                                                     |
+| --------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `DIAGRAMS_DIR`  | `artifacts/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
+| `DIAGRAMS_OPEN` | `1`                  | Open the file in your default browser when created (WSL, Linux, macOS). `0` disables.       |
 
-Files are named `YYYY-MM-DD-<topic-slug>.html`. Each page loads Mermaid from jsDelivr and the Geist fonts from Google Fonts, follows your OS light/dark scheme, and otherwise has no dependencies.
+## Version bumps
 
-### Opt out for one request
+Any change under `plugins/diagrams/` must bump the version in **both**
+`plugins/diagrams/.claude-plugin/plugin.json` and the root
+`.claude-plugin/marketplace.json` — Claude Code keys its plugin cache on this
+value, and `tools/check-version-sync.sh` fails the pre-commit check if they
+disagree.
 
-Say "write it up" / "in paragraphs" / "as a doc" and the skill stands down.
-
-### Layout
+## Layout
 
 ```
-.claude-plugin/marketplace.json
-plugins/diagram-plans/
-  .claude-plugin/plugin.json
-  hooks/hooks.json
-  hooks/nudge.sh
-  bin/diagram-open
-  skills/diagram-plans/SKILL.md
-  skills/diagram-plans/MERMAID.md
+.claude-plugin/plugin.json
+hooks/hooks.json  hooks/nudge.sh
+bin/diagram-open
+skills/diagram-plans/SKILL.md  MERMAID.md
+tools/check.sh  tools/check-version-sync.sh
+test/  plans/  package.json  bun.lock
 ```

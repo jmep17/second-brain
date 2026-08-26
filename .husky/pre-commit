@@ -1,1 +1,2 @@
 bunx lint-staged
+bash plugins/diagrams/tools/check.sh

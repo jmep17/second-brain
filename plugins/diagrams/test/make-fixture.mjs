@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const TEMPLATE = "plugins/diagram-plans/skills/diagram-plans/MERMAID.md";
+const TEMPLATE = "skills/diagram-plans/MERMAID.md";
 const out = process.argv[2] ?? "test/fixtures/sample-plan.html";
 
 const md = fs.readFileSync(TEMPLATE, "utf8");

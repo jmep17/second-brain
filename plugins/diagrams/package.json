@@ -1,15 +1,12 @@
 {
-  "name": "claude-diagrams",
+  "name": "diagrams",
   "private": true,
-  "description": "Tooling for the claude-diagrams plugin marketplace. Not published; the plugin itself has no runtime dependencies.",
+  "description": "Tooling for the diagrams plugin, part of the second-brain marketplace. Not published; the plugin itself has no runtime dependencies.",
   "scripts": {
-    "prepare": "husky",
     "test": "bash tools/check.sh",
     "format": "prettier --ignore-unknown --write ."
   },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^17.3.0",
     "playwright": "^1.62.1",
     "prettier": "^3.9.6"
   }

@@ -10,7 +10,7 @@ prompt="$(cat | sed -n 's/.*"prompt"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*
 pattern='\b(plan|planning|brainstorm|ideate|ideas? for|options?|approach(es)?|architect(ure)?|design|trade-?offs?|roadmap|strategy|compare|pros and cons|how (should|would|could) (we|i)|what are the ways|outline|break(down| down)|mind ?map|diagram)\b'
 
 if printf '%s' "$prompt" | grep -qiE "$pattern"; then
-  dir="${DIAGRAM_PLANS_DIR:-.claude/diagrams}"
-  echo "diagram-plans: this prompt is a plan/brainstorm/design request. Answer with a diagram artifact, not paragraphs — invoke the diagram-plans skill. Save dir: ${dir}."
+  dir="${DIAGRAMS_DIR:-artifacts/diagrams}"
+  echo "diagram-plans: this prompt is a plan/brainstorm/design request. Answer with a diagram artifact, not paragraphs — invoke the diagrams:diagram-plans skill. Save dir: ${dir}."
 fi
 exit 0

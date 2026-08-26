@@ -1,0 +1,18 @@
+{
+  "name": "second-brain",
+  "owner": {
+    "name": "Jorden Parker"
+  },
+  "metadata": {
+    "description": "Claude Code plugins that produce artifacts stored in the second-brain repo — one plugin per artifact type."
+  },
+  "plugins": [
+    {
+      "name": "diagrams",
+      "source": "./plugins/diagrams",
+      "description": "Plans, brainstorms, and design discussions become a Mermaid diagram in a Geist-styled HTML page saved under artifacts/diagrams/ and opened in the browser.",
+      "version": "0.3.0",
+      "category": "productivity"
+    }
+  ]
+}

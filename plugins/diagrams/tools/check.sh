@@ -9,9 +9,9 @@ note() { printf '%-34s %s\n' "$1" "$2"; }
 
 bash tools/check-version-sync.sh || fail=1
 
-for f in plugins/diagram-plans/.claude-plugin/plugin.json \
-         .claude-plugin/marketplace.json \
-         plugins/diagram-plans/hooks/hooks.json; do
+for f in .claude-plugin/plugin.json \
+         ../../.claude-plugin/marketplace.json \
+         hooks/hooks.json; do
   if python3 -m json.tool "$f" > /dev/null 2>&1; then
     note "$(basename "$f")" "valid json"
   else
@@ -25,10 +25,10 @@ while IFS= read -r f; do
   else
     note "$(basename "$f")" "SHELL SYNTAX ERROR"; fail=1
   fi
-done < <(git ls-files '*.sh' plugins/diagram-plans/bin/)
+done < <(git ls-files '*.sh' bin/)
 
 # The opener is invoked as a bare command; losing the bit breaks the skill.
-if [ -x plugins/diagram-plans/bin/diagram-open ]; then
+if [ -x bin/diagram-open ]; then
   note "bin/diagram-open" "executable"
 else
   note "bin/diagram-open" "NOT EXECUTABLE"; fail=1

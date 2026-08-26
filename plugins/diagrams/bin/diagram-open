@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Open a URL or local HTML file in the user's default browser. Works on WSL, Linux, and macOS.
-# On PATH as `diagram-open` while the diagram-plans plugin is enabled.
+# On PATH as `diagram-open` while the diagrams plugin is enabled.
 # Usage: diagram-open <url-or-file>
 set -euo pipefail
 url="${1:?usage: diagram-open <url-or-file>}"
@@ -13,8 +13,8 @@ if [ -e "$url" ]; then
   fi
 fi
 
-if [ "${DIAGRAM_PLANS_OPEN:-1}" = "0" ]; then
-  echo "DIAGRAM_PLANS_OPEN=0; not opening $url"
+if [ "${DIAGRAMS_OPEN:-1}" = "0" ]; then
+  echo "DIAGRAMS_OPEN=0; not opening $url"
   exit 0
 fi
 
