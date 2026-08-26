@@ -29,7 +29,7 @@ export default async function ArtifactsPage() {
                 {byType[type].map((a) => (
                   <li key={a.file}>
                     <Link
-                      href={`/artifacts/view/${type}/${a.file}`}
+                      href={`/artifacts/review/${type}/${a.file}`}
                       className="font-medium underline"
                     >
                       {a.name}
