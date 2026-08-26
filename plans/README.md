@@ -18,7 +18,7 @@ conditions, and update your row when done.
 | 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                                               | P1       | L      | —          | TODO   |
 | 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
 | 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
-| 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE (0–5; merge + steps 6–8 pending) |
+| 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE   |
 | 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | TODO   |
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | TODO   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
@@ -484,3 +484,20 @@ copy-the-folder path is documented instead. Test-merge against current
 `artifacts/reviews/2026-08-26-plan-010-execution-review.html`. Steps 6–8
 (Codex marketplace switch, Claude Code refresh, Codex hook smoke test) run
 post-merge on the machine; Step 8's `codex exec` needs operator consent.
+
+Plan 010 completed on 2026-08-26: merged into `main` as `c9212d1` (owner
+approved off the review artifact), then steps 6–8 ran on the machine. Step 6:
+Codex switched to the `second-brain` marketplace, `diagrams@second-brain`
+installed, the stale `claude-diagrams` pair removed via the `codex plugin`
+CLI only (caveman config blocks untouched, grep count 8 before and after).
+Step 8 (owner-consented `codex exec` smoke test): **Codex enforcement
+verified end-to-end** — the planning prompt produced
+`artifacts/diagrams/2026-08-26-split-monolith-two-services.html` in the temp
+repo, ran the plugin's cached `bin/diagram-open`, honored `DIAGRAMS_OPEN=0`,
+and replied within the ≤5-line contract; no `~/.codex/AGENTS.md` fallback
+was needed. Outcome recorded in the plugin README with a patch bump to
+`0.4.1` (`bf038d1`). Step 7 ran headlessly via `claude plugin marketplace
+update` + `claude plugin update` — both agents now hold `0.4.1`; Claude Code
+applies it on next session start, so the live PostToolUse hook check happens
+naturally in the next session. Review artifact:
+`artifacts/reviews/2026-08-26-plan-010-execution-review.html`.

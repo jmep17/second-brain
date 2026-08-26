@@ -197,3 +197,16 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Plugin renamed diagram-plans → diagrams (v0.3.0); env vars DIAGRAM_PLANS_* → DIAGRAMS_*; default output artifacts/diagrams/
 - Updated wiki/claude-diagrams-plugin.md, wiki/index.md; root pre-commit now runs plugins/diagrams/tools/check.sh
 - Owner follow-up: re-add the marketplace and reinstall (see plan 009 step 10)
+
+## [2026-08-26] maintenance | Plan 010 — diagrams plugin cross-agent install and enforcement
+
+- Executed by a dispatched worktree executor (steps 0–5), reviewed and
+  approved off `artifacts/reviews/2026-08-26-plan-010-execution-review.html`,
+  merged as `c9212d1`.
+- New PostToolUse hook `plan-artifact-nudge.sh`: any skill writing a plan/spec
+  markdown file now triggers the diagram-artifact reminder; SKILL.md gained the
+  Codex-safe opener fallback and the plans-from-any-skill rule; README gained
+  per-agent install docs and an Enforcement section.
+- Codex moved from the retired `claude-diagrams` marketplace (v0.2.0) to
+  `diagrams@second-brain`; enforcement verified end-to-end via `codex exec`
+  smoke test. Both agents at v0.4.1 (`bf038d1`). Plans 011–014 filed and TODO.
