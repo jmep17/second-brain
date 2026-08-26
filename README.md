@@ -4,11 +4,11 @@ A Claude Code plugin marketplace. Currently one plugin:
 
 ## diagram-plans
 
-When you ask Claude Code to plan, brainstorm, compare options, sketch an architecture, or lay out a roadmap, it answers with a **Mermaid mindmap / flowchart artifact** instead of paragraphs. The HTML file is saved to a directory you choose and published as a Claude Code Artifact.
+When you ask Claude Code to plan, brainstorm, compare options, sketch an architecture, or lay out a roadmap, it answers with a **Mermaid mindmap / flowchart** in a standalone HTML page styled on [Vercel's Geist design system](https://vercel.com/geist) instead of paragraphs. The file is saved to a directory you choose and opened in your browser.
 
 Two parts:
 
-- `skills/diagram-plans/` — the skill: picks the diagram type, writes the HTML file, publishes it, opens it in your browser, keeps the chat reply to a few lines.
+- `skills/diagram-plans/` — the skill: picks the diagram type, writes the Geist-styled HTML file, opens it in your browser, keeps the chat reply to a few lines.
 - `hooks/nudge.sh` — a `UserPromptSubmit` hook that detects plan/brainstorm-shaped prompts and reminds the model to use the skill, so it fires reliably rather than by chance.
 
 ### Install
@@ -28,7 +28,7 @@ Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (p
 {
   "env": {
     "DIAGRAM_PLANS_DIR": "~/notes/diagrams",
-    "DIAGRAM_PLANS_PUBLISH": "1"
+    "DIAGRAM_PLANS_OPEN": "1"
   }
 }
 ```
@@ -36,10 +36,9 @@ Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (p
 | Variable | Default | Meaning |
 |---|---|---|
 | `DIAGRAM_PLANS_DIR` | `.claude/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
-| `DIAGRAM_PLANS_PUBLISH` | `1` | `0` writes the file without publishing an Artifact. |
-| `DIAGRAM_PLANS_OPEN` | `1` | Open the artifact in your default browser when first published (WSL, Linux, macOS). `0` disables. |
+| `DIAGRAM_PLANS_OPEN` | `1` | Open the file in your default browser when created (WSL, Linux, macOS). `0` disables. |
 
-Files are named `YYYY-MM-DD-<topic-slug>.html`. Each is self-contained (Mermaid is rendered natively by the Artifact viewer; opening the raw file in a browser shows the Mermaid source in a `<pre>` block).
+Files are named `YYYY-MM-DD-<topic-slug>.html`. Each page loads Mermaid from jsDelivr and the Geist fonts from Google Fonts, follows your OS light/dark scheme, and otherwise has no dependencies.
 
 ### Opt out for one request
 

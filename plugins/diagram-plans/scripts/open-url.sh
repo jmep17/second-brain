@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# Open a URL in the user's default browser. Works on WSL, Linux, and macOS.
+# Open a URL or local HTML file in the user's default browser. Works on WSL, Linux, and macOS.
 # Usage: open-url.sh <url>
 set -euo pipefail
-url="${1:?usage: open-url.sh <url>}"
+url="${1:?usage: open-url.sh <url-or-file>}"
+
+# Local file paths: make absolute, and on WSL convert to a Windows path.
+if [ -e "$url" ]; then
+  url="$(cd "$(dirname "$url")" && pwd)/$(basename "$url")"
+  if ! command -v wslview >/dev/null 2>&1 && grep -qi microsoft /proc/version 2>/dev/null && command -v wslpath >/dev/null 2>&1; then
+    url="$(wslpath -w "$url")"
+  fi
+fi
 
 if [ "${DIAGRAM_PLANS_OPEN:-1}" = "0" ]; then
   echo "DIAGRAM_PLANS_OPEN=0; not opening $url"
