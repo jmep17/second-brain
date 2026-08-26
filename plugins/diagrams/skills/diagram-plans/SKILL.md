@@ -19,7 +19,7 @@ Plans and brainstorms are trees and graphs, not prose. Draw the structure; keep 
    - filename: `YYYY-MM-DD-<kebab-slug>.html` (today's date, slug from the topic). Redeploying the same topic reuses the same path.
    - Node labels: short noun phrases, ≤ 6 words. Detail that cannot fit a label goes in a single "Notes" list under the diagram, one line each.
    - The page contains one diagram. The reader can flip it to a full-bleed canvas from the page itself, so do not shrink or split a diagram just to make it fit.
-4. **Open it in the browser**: run `diagram-open <absolute-file-path>` (the plugin puts it on `PATH`; if the command is not found, fall back to `bash "${CLAUDE_PLUGIN_ROOT}/bin/diagram-open" <absolute-file-path>`). On a revision to the same file, the open browser tab just needs a refresh; open again only when the file is new. `DIAGRAMS_OPEN=0` skips this step.
+4. **Open it in the browser**: run `diagram-open <absolute-file-path>` (the plugin puts it on `PATH`; if the command is not found, fall back to `bash "${CLAUDE_PLUGIN_ROOT}/bin/diagram-open" <absolute-file-path>`; in agents that define neither, e.g. Codex, run `bash <dir-of-this-SKILL.md>/../../bin/diagram-open <path>` — the opener lives two directories above this file in every install layout). On a revision to the same file, the open browser tab just needs a refresh; open again only when the file is new. `DIAGRAMS_OPEN=0` skips this step.
 5. **Reply in ≤ 5 lines**: the saved path, and the one decision or open question the user must answer. Every other word belongs inside the diagram.
 
 Done when: the file exists at the configured path, the opener script reported `opened` (or was disabled), and the chat reply is under five lines.
@@ -32,3 +32,10 @@ Done when: the file exists at the configured path, the opener script reported `o
 - Contradictions, risks, and unknowns are nodes too (`⚠ risk: …`, `? open: …`), never hidden in prose.
 - When the user then asks to "expand X" or "change Y", edit the same file; the browser tab refreshes to the new version.
 - Explicit request for prose ("write it up", "in paragraphs", "as a doc") overrides this skill.
+- When any skill or workflow has just produced a plan, spec, or tickets
+  document (e.g. a file under `plans/`, `.scratch/`, `specs/`, `tickets/` —
+  the plan-artifact hook will remind you), render that document's structure
+  as a diagram page too: same template, nodes sourced from the document's
+  sections/steps/dependencies, saved and opened like any other diagram. The
+  markdown document remains the source of truth — the diagram is the review surface,
+  and the ≤ 5-line reply rule still applies.
