@@ -20,6 +20,28 @@ Two parts:
 
 Restart Claude Code (or `/reload-plugins`) after installing.
 
+### Updating
+
+Plugin installs are cached and keyed on the version in
+`.claude-plugin/marketplace.json`. After pulling new commits:
+
+```
+/plugin marketplace update claude-diagrams
+/plugin update diagram-plans@claude-diagrams
+```
+
+If a change does not appear, check what your install is actually pinned to:
+
+```
+python3 -c 'import json;print(json.load(open("$HOME/.claude/plugins/installed_plugins.json")))'
+```
+
+**When contributing**: any change to the plugin's files must bump the version in
+*both* `plugins/diagram-plans/.claude-plugin/plugin.json` and
+`.claude-plugin/marketplace.json`. Run `bash tools/check-version-sync.sh`
+to confirm they agree. Without a bump, existing installs keep serving the old
+cached copy.
+
 ### Configure the save path
 
 Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (per project):
@@ -52,7 +74,7 @@ plugins/diagram-plans/
   .claude-plugin/plugin.json
   hooks/hooks.json
   hooks/nudge.sh
-  scripts/open-url.sh
+  bin/diagram-open
   skills/diagram-plans/SKILL.md
   skills/diagram-plans/MERMAID.md
 ```

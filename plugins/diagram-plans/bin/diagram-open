@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Open a URL or local HTML file in the user's default browser. Works on WSL, Linux, and macOS.
-# Usage: open-url.sh <url>
+# On PATH as `diagram-open` while the diagram-plans plugin is enabled.
+# Usage: diagram-open <url-or-file>
 set -euo pipefail
-url="${1:?usage: open-url.sh <url-or-file>}"
+url="${1:?usage: diagram-open <url-or-file>}"
 
 # Local file paths: make absolute, and on WSL convert to a Windows path.
 if [ -e "$url" ]; then
