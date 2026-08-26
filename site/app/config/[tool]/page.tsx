@@ -52,13 +52,7 @@ export default async function ConfigToolPage(props: {
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
       <header className="mb-8">
-        <p className="text-sm text-neutral-500">
-          <Link href="/" className="hover:underline">
-            Second Brain
-          </Link>{" "}
-          / config
-        </p>
-        <h1 className="mt-1 text-3xl font-bold">{entry.label}</h1>
+        <h1 className="text-3xl font-bold">{entry.label}</h1>
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
           Edits write to <code>dotfiles/</code> and run{" "}
           <code>chezmoi apply</code>. Committing is a separate step.
