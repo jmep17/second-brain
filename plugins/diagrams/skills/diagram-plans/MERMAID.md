@@ -1,5 +1,8 @@
 # Mermaid reference for diagram-plans
 
+> Design contract: this template implements
+> [`plugins/DESIGN.md`](../../../DESIGN.md); change tokens there first.
+
 ## Which diagram
 
 | Request smells like | Diagram | Why |

@@ -134,3 +134,8 @@ So nobody re-audits these:
   _brand report_ foundation and carries a wordmark header and triangle footer as
   part of its contract; using it would brand a user's private planning diagrams
   as Vercel documents. Plan 004 takes the token values, not the identity.
+
+Plan 011 (root `plans/`) changed the nudge message to the "present an
+artifact / reply = path + one question" wording on 2026-08-26. Plan 008's
+Step 2 message text is superseded by that wording — executors of 008 must
+carry it, not the text printed in 008.

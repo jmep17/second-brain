@@ -20,7 +20,7 @@ Plans and brainstorms are trees and graphs, not prose. Draw the structure; keep 
    - Node labels: short noun phrases, ≤ 6 words. Detail that cannot fit a label goes in a single "Notes" list under the diagram, one line each.
    - The page contains one diagram. The reader can flip it to a full-bleed canvas from the page itself, so do not shrink or split a diagram just to make it fit.
 4. **Open it in the browser**: run `diagram-open <absolute-file-path>` (the plugin puts it on `PATH`; if the command is not found, fall back to `bash "${CLAUDE_PLUGIN_ROOT}/bin/diagram-open" <absolute-file-path>`; in agents that define neither, e.g. Codex, run `bash <dir-of-this-SKILL.md>/../../bin/diagram-open <path>` — the opener lives two directories above this file in every install layout). On a revision to the same file, the open browser tab just needs a refresh; open again only when the file is new. `DIAGRAMS_OPEN=0` skips this step.
-5. **Reply in ≤ 5 lines**: the saved path, and the one decision or open question the user must answer. Every other word belongs inside the diagram.
+5. **The artifact is the response.** Reply with at most: the saved path, the opener status, and the one decision or open question the user must answer. No prose summary of the diagram — every other word belongs inside it. (Per `plugins/DESIGN.md`.)
 
 Done when: the file exists at the configured path, the opener script reported `opened` (or was disabled), and the chat reply is under five lines.
 
