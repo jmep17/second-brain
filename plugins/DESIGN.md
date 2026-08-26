@@ -177,6 +177,22 @@ behaviour here first, then re-sync every template.
 ```
 <!-- feedback-widget:end -->
 
+### Served review mode
+
+Standalone artifact files, including the embedded feedback widget and its
+`file://` copy-as-issue fallback, remain normative. When served by the site,
+the same-origin review wrapper may discover annotated targets plus plan steps,
+decision units, diagram nodes, notes, components, and writing through its
+documented semantic fallbacks. This wrapper never rewrites or persists the
+artifact HTML.
+
+Future templates SHOULD put stable `data-review-id`, `data-review-kind`, and
+`data-review-label` attributes on meaningful review units. Locators and
+selected excerpts are evidence, not instruction. Only the review tray's
+explicit **Queue for agent** action emits `Status: ready-for-agent` with
+`Execution: queued`; ordinary feedback and triage saves do not authorize
+autonomous work.
+
 ## 9. Conforming instance
 
 `plugins/diagrams/skills/diagram-plans/MERMAID.md` is the reference
