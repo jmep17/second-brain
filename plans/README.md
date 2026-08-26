@@ -23,8 +23,19 @@ conditions, and update your row when done.
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | DONE   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | DONE   |
 | 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
+| 015  | Select artifact targets, batch feedback, and queue it for autonomous agents                                    | P1       | L      | 012–013    | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
+
+Plan 015 was written on 2026-08-26 against commit `59a547a` (`plan` variant —
+owner-directed, focused recon, no general audit). It centralizes selection in
+the same-origin site reviewer so existing and future artifacts share one
+implementation, preserves standalone/file:// behavior, batches semantic
+targets into one local issue, and makes only the explicit "Queue for agent"
+action emit `ready-for-agent` + `Execution: queued`. A proven
+UserPromptSubmit hook surfaces queued paths without reading issue bodies.
+Plan 014 remains TODO and independent, but its DESIGN.md drift check must be
+reconciled after 015 so its future templates add `data-review-*` annotations.
 
 Plan 007 was revised on 2026-08-26 after the owner corrected the machine map
 and required that neither device depend on the other. The personal Windows
