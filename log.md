@@ -95,3 +95,45 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Researched how to summarize documents for readers with ADHD (working memory, BLUF, chunking, layered depth; sources cited in the skill's references/research.md)
 - Created project skill .claude/skills/adhd-summarize/ (SKILL.md + references/research.md), discoverable in Claude Code's skills configuration UI
 - Sanity-tested on raw/How to Store Dotfiles - A Bare Git Repository.md; refined length-budget, action-item, and emoji-register rules based on the run
+
+## [2026-08-26] answer | Open-source, local-only context reducers for Claude Code and Codex
+
+- Researched primary sources only: official repositories, READMEs, configuration, and release documentation for RTK, Context Mode, Serena, Contextception, isthmos, Rolling Context, Repomix, and Aider.
+- Filed wiki/open-source-local-context-reducers.md; updated wiki/index.md.
+- Recommendation: begin with RTK for deterministic shell-output reduction across both clients, then add Serena or Contextception for selective repository context. Context Mode is the broadest cross-client option but is Elastic-2.0 source-available, not OSI open source; Rolling Context is local-only only when explicitly configured with a local summarizer.
+## [2026-08-26] answer | Run Qwen3.8 locally with Claude Code and Codex
+
+- Question: how to run Qwen3.8 quickly on the 48 GB M4 Pro laptop and use the same local model from Claude Code and Codex.
+- Researched primary sources only: official Qwen model cards/config, Ollama model/API/integration documentation, Anthropic Claude Code model-routing documentation, and OpenAI Codex configuration docs/source. No raw source saved; web sources are cited directly.
+- Filed wiki/qwen38-local-claude-code-codex.md; updated wiki/index.md.
+- Findings: the viable local variant is the dense Qwen3.8-27B, specifically Ollama's 18 GB `qwen3.8:27b-mlx`; the 2.4T/95B-active Max-class checkpoint is not a laptop model. Use 64k context, `ollama launch claude`, and `codex --oss -m qwen3.8:27b-mlx`, with a named Codex profile only after the one-shot path works.
+
+## [2026-08-26] answer | Local context reducers — broader correction and expansion
+
+- Human reported that RTK was not very effective. Expanded research from 8 projects to 20 primary-source candidates across proxy/history compaction, MCP output virtualisation, repository retrieval, hooks, and caching.
+- Corrected wiki/open-source-local-context-reducers.md: RTK is a narrow stdout formatter, not the overall default. Revised shortlist: llmtrim or Headroom; Codanna or CostWise; mcp-trunc-proxy for targeted payload virtualisation.
+- Added explicit OSI/source-available and local-by-default/local-with-configuration distinctions. Context Mode is Elastic-2.0 and Caveman BSL-1.1; Rolling Context needs a local summarizer; Claude Context needs local Ollama and Milvus.
+- No raw source was saved and no commit was created.
+
+## [2026-08-26] answer | Local context reducers — focused five-project addendum
+
+- Added primary-source checks for lossless-claude LCM, lossless-code, tokz/compress, Code Context Engine, and Code-RAG; candidate matrix now covers 25 projects.
+- Shortlist changed again: tokz/compress is a strong automatic Claude-specific file/MCP reducer, and Code Context Engine joins the repository-retrieval trial set. Both DAG history projects preserve raw lineage, but default to Claude/cloud summarization unless configured for local/extractive operation; their Codex integration is not equivalent to Claude's automatic compaction.
+- Corrected the earlier Code-RAG exclusion: a licence file now exists. GitHub detects BSD-2-Clause while the README states Apache-2.0; both are OSI-approved, but the metadata conflict is documented and should be resolved before redistribution.
+- No raw source was saved and no commit was created.
+
+## [2026-08-26] maintenance | Context reducer design session started
+
+- Filed provisional design assumptions in wiki/context-reducer-design.md and updated wiki/index.md.
+- Kept the context reducer out of the Second Brain's root CONTEXT.md: it is a possible standalone product being explored here, not part of this repository's domain model.
+- No ADR was created because the recommendations remain subject to prototype validation.
+
+## [2026-08-26] maintenance | Context reducer design memory expanded
+
+- Expanded wiki/context-reducer-design.md into the temporary complete handoff while the product-documentation location is undecided.
+- Recorded accepted and provisionally accepted answers, unanswered questions 9–14, research context, working vocabulary, the design-session procedure, and the documents the eventual product repository will need.
+- Reaffirmed that reducer vocabulary and ADRs do not belong in the Second Brain's root domain docs; no product ADR was created.
+
+## [2026-08-26] maintenance | Documented the claude-diagrams plugin
+
+- Filed wiki/claude-diagrams-plugin.md (entity) for the `diagram-plans` Claude Code plugin built today at ~/src/claude-diagrams: skill + UserPromptSubmit hook, Geist-styled standalone HTML with Mermaid, `DIAGRAM_PLANS_DIR` / `DIAGRAM_PLANS_OPEN` config, browser opener. Recorded the Artifact→standalone-file pivot and the output-style deprecation rationale. Updated wiki/index.md (first Entities entry).
