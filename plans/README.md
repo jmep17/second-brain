@@ -18,6 +18,11 @@ conditions, and update your row when done.
 | 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                                               | P1       | L      | —          | TODO   |
 | 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
 | 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
+| 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | TODO   |
+| 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | TODO   |
+| 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | TODO   |
+| 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
+| 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -282,6 +287,24 @@ owner's to run.
 - 001 and 002 touch disjoint files (`site/` vs `wiki/`, `log.md`),
   so they can run in either order or concurrently.
 
+- 010 is independent of 001–009 in this index, but interacts with the
+  plugin's own plan `plugins/diagrams/plans/008` (both concern hooks): 010
+  adds `hooks/plan-artifact-nudge.sh` and an additive `hooks.json` entry and
+  must not edit `nudge.sh`; 008 rewrites `nudge.sh` and must not remove
+  010's `PostToolUse` block. Either order works; whichever lands second
+  keeps the other's changes.
+
+- 012 requires 011: it replaces DESIGN.md's §9 placeholder with the widget
+  contract. 013 requires all of 010 (write-trigger hook + cross-agent
+  install pipeline), 011 (contract its templates copy), and 012 (widget
+  snippet its templates embed). Recommended order: 010 → 011 → 012 → 013.
+  011's Step 4 and 013's Step 4 both edit hook message strings — run them in
+  plan order or re-read the current string before editing.
+
+- 014 requires 011–013 (contract, widget+API, plugin pattern and
+  check-plugins). 013's Step 4 and 014's Step 5 both edit the write-trigger
+  hook message — run in plan order.
+
 ## Follow-ups (not planned yet)
 
 - **Citation-link convention in `CLAUDE.md`.** The wiki cites sources as
@@ -368,3 +391,78 @@ env vars to `DIAGRAMS_DIR` / `DIAGRAMS_OPEN`, and moves diagram output to
 repo has uncommitted `playwright` / `test/` work the owner must commit first.
 Deferred to later plans: an Artifacts section on the site, a plugins toggle in
 the config UI, and archiving the old GitHub repo. Independent of 001–008.
+
+Plan 010 was written on 2026-08-26 against commit `f17627f` (`plan` variant —
+user-directed, no audit). Brief: make the diagrams plugin installable for
+Claude Code, Codex, etc.; when enabled, enforce diagram artifacts instead of
+long-winded responses; and plans produced by any skill (mattpocock, shadcn,
+etc.) must become an artifact in the browser. It adds a PostToolUse hook that
+fires when any skill writes a plan/spec markdown file (`plans/`, `.scratch/`,
+`specs/`, `tickets/`), a SKILL.md rule making the diagram page the review
+surface for such documents, a cross-agent opener fallback, per-agent install
+docs, and machine-level steps that move Codex off the stale
+`diagram-plans@claude-diagrams` 0.2.0 (old repo) onto `diagrams@second-brain`
+0.4.0. Codex's execution of plugin-shipped hooks is undocumented, so the plan
+verifies it empirically and falls back to a `~/.codex/AGENTS.md` guidance
+snippet. It does NOT touch `nudge.sh`, which the plugin's own plan
+(`plugins/diagrams/plans/008`) owns; its stdin test cases are to be folded
+into 008's corpus when that lands.
+
+Plans 011–013 were written on 2026-08-26 against commit `f17627f` (`plan`
+variant — user-directed, no audit). Brief: for ANY planning, decision,
+brainstorm, or architecture request an artifact must be presented instead of
+a prose response; artifacts must be interactive (feedback and RFC submission
+from the page); all artifact types need conventions and designs, not just
+diagrams; and nothing may be designed outside Vercel's Geist design system
+(grounded in vercel.com/geist/{colors,typography,materials,grid}.md, fetched
+2026-08-26). The split:
+
+- **011** writes the normative contract (`plugins/DESIGN.md` — Geist scale
+  roles, type categories, materials radii, grid-guide rules, tokens-not-
+  identity, the page contract, and the "reply = artifact path + one open
+  question" rule), points `CLAUDE.md`/`AGENTS.md` and the nudge hook at it,
+  and records the existing diagram template as the conforming reference
+  implementation.
+- **012** makes artifacts interactive with machinery the repo already has:
+  the site serves `artifacts/**` pages (`/artifacts` index in the sidebar via
+  the plan-006 transformer pattern), and a Geist feedback widget on every
+  page POSTs to `/api/artifacts/feedback`, which files a
+  `Status: needs-triage` issue under `.scratch/artifact-feedback/issues/`
+  per `docs/agents/issue-tracker.md`; `file://` opens degrade to
+  copy-as-issue. The widget contract lives in DESIGN.md §9.
+- **013** ships the missing response shapes as sibling plugins — `plans`
+  (step lists + dependencies + status chips) and `decisions` (options grid
+  with Geist cell-and-guide styling, recommendation, RFC-default widget) —
+  generalizes the pre-commit plugin checks into `tools/check-plugins.sh`,
+  routes 010's write-trigger hook message by document type, and installs
+  both plugins into Claude Code and Codex.
+
+Known deliberate frictions, all recorded in the plans themselves: 011 and
+012 each touch one delimited region of files owned by the plugin's own plans
+(`nudge.sh` message string — 008; the template widget block — 006/007), with
+reconciliation paragraphs appended to `plugins/diagrams/plans/README.md`;
+013 duplicates `bin/diagram-open` into the two new plugins rather than
+inventing cross-plugin path resolution (consolidate at a third consumer).
+
+Plan 014 was written on 2026-08-26 against commit `f17627f` (`plan` variant —
+user-directed, no audit). Brief: artifacts for ALL output shapes of the
+mattpocock skills and the improve skill. The inventory (from each SKILL.md,
+read 2026-08-26) left four uncovered shapes, shipped as four more sibling
+plugins: **boards** (to-tickets ticket sets with blocking edges, wayfinder
+maps, triage passes, plan status tables), **reviews** (code-review two-axis
+findings, improve audit findings, diagnoses, retros — with a secrets-REDACTED
+rule), **questionnaires** (to-questionnaire documents and grilling sessions
+rendered as fill-in pages whose answers POST back through the plan-012
+feedback API as `kind: "answers"` and land as needs-triage issues), and
+**reports** (research/teach documents — the one type where prose lives inside
+the artifact). DESIGN.md gains §11, the normative output→type mapping
+including the exempt list (handoff, code-producing skills, wizard); the
+write-trigger hook routes by path shape; CLAUDE.md/AGENTS.md wording widens
+accordingly. 014 also supersedes 013's opener-consolidation note: install
+caches are per-plugin in both agents, so copies are structural — a
+`check-plugins.sh` identity assertion guards drift instead.
+
+Decision (2026-08-26, owner): feedback/RFC/answer submission requires the
+local site to be running; `file://` opens degrade to copy-as-issue. No
+offline submission queue — accepted as the final shape, closing plan 012's
+open question. Executors of 012/014 build exactly that behaviour.
