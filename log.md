@@ -89,3 +89,9 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Review pass over the prototype branch found ten issues; all fixed: chezmoi/git exit codes now checked (new "chezmoi error" state instead of a false "in sync"), save refused with 409 when the target drifted after load (closes the force-overwrite race), adopt refused for template sources, drift resolution confirms before discarding unsaved editor text, robust JSON/error handling in all client handlers and API routes, `git status -z` parsing for renames/quoted paths, `Object.hasOwn` tool lookup (/config/toString 500 → 404), dead `serve` dependency removed, docs links reuse the loader's `slugify`.
 - Re-verified end to end: regression suite plus new cases (save-while-drifted 409 keeps editor text and source untouched; template adopt 400; malformed body 400; /config/toString 404); typecheck and production build green.
 - Updated ticket 07 answer and map with the hardening notes; merged branch `claude/config-editor-prototype-vecru1` to main.
+
+## [2026-08-26] maintenance | ADHD summarization skill
+
+- Researched how to summarize documents for readers with ADHD (working memory, BLUF, chunking, layered depth; sources cited in the skill's references/research.md)
+- Created project skill .claude/skills/adhd-summarize/ (SKILL.md + references/research.md), discoverable in Claude Code's skills configuration UI
+- Sanity-tested on raw/How to Store Dotfiles - A Bare Git Repository.md; refined length-budget, action-item, and emoji-register rules based on the run
