@@ -53,24 +53,21 @@ export default async function ConfigToolPage(props: {
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
       <header className="mb-8">
         <h1 className="text-3xl font-bold">{entry.label}</h1>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-fd-muted-foreground mt-2 text-sm">
           Edits write to <code>dotfiles/</code> and run{" "}
           <code>chezmoi apply</code>. Committing is a separate step.
         </p>
       </header>
 
       {docs.length > 0 && (
-        <section className="mb-8 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+        <section className="mb-8 rounded-lg border bg-fd-card p-4">
+          <h2 className="text-fd-muted-foreground text-sm font-semibold tracking-wide uppercase">
             Docs
           </h2>
           <ul className="mt-2 space-y-1">
             {docs.map((doc) => (
               <li key={doc.href}>
-                <Link
-                  href={doc.href}
-                  className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                >
+                <Link href={doc.href} className="text-sm font-medium underline">
                   {doc.title}
                 </Link>
               </li>

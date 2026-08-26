@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { buttonVariants } from "fumadocs-ui/components/ui/button";
+import { ObsidianCallout } from "fumadocs-obsidian/ui";
 
 interface DirtyFile {
   status: string;
@@ -69,20 +71,20 @@ export function CommitBox() {
   }
 
   return (
-    <section className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+    <section className="rounded-lg border bg-fd-card p-4">
+      <h2 className="text-fd-muted-foreground text-sm font-semibold tracking-wide uppercase">
         Commit
       </h2>
       {dirty.length === 0 ? (
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="text-fd-muted-foreground mt-2 text-sm">
           No uncommitted changes under <code>dotfiles/</code>.
         </p>
       ) : (
         <>
-          <ul className="mt-2 space-y-1 font-mono text-xs text-neutral-600 dark:text-neutral-300">
+          <ul className="text-fd-muted-foreground mt-2 space-y-1 font-mono text-xs">
             {dirty.map((file) => (
               <li key={file.path}>
-                <span className="mr-2 inline-block w-6 text-amber-600">
+                <span className="text-fd-foreground mr-2 inline-block w-6 font-medium">
                   {file.status || "·"}
                 </span>
                 {file.path}
@@ -94,12 +96,12 @@ export function CommitBox() {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Commit message"
-              className="flex-1 rounded-md border border-neutral-300 bg-transparent px-3 py-1.5 text-sm dark:border-neutral-700"
+              className="focus-visible:ring-fd-ring flex-1 rounded-md border bg-transparent px-3 py-1.5 text-sm outline-none focus-visible:ring-2"
             />
             <button
               onClick={() => void commit()}
               disabled={busy || message.trim() === ""}
-              className="rounded-md bg-neutral-800 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40 dark:bg-neutral-200 dark:text-neutral-900"
+              className={buttonVariants({ color: "primary", size: "sm" })}
             >
               Commit
             </button>
@@ -107,14 +109,14 @@ export function CommitBox() {
         </>
       )}
       {result && (
-        <p className="mt-2 font-mono text-xs text-green-700 dark:text-green-400">
-          {result}
-        </p>
+        <ObsidianCallout type="success">
+          <pre className="overflow-x-auto font-mono text-xs">{result}</pre>
+        </ObsidianCallout>
       )}
       {error && (
-        <p className="mt-2 font-mono text-xs text-red-700 dark:text-red-400">
-          {error}
-        </p>
+        <ObsidianCallout type="error">
+          <pre className="overflow-x-auto font-mono text-xs">{error}</pre>
+        </ObsidianCallout>
       )}
     </section>
   );
