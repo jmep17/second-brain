@@ -7,16 +7,17 @@ conditions, and update your row when done.
 
 ## Execution order & status
 
-| Plan | Title                                                                                       | Priority | Effort | Depends on | Status |
-| ---- | ------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                                | P2       | M      | —          | DONE   |
-| 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations              | P2       | M      | —          | TODO   |
-| 003  | Site home page becomes a generated table of contents, replacing the Index page              | P2       | S      | 001 (DONE) | DONE   |
-| 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev | P2       | M      | 003, 005   | DONE   |
-| 005  | Home page uses the docs layout so it keeps the sidebar                                      | P3       | S      | 003 (DONE) | DONE   |
-| 006  | Sidebar on every page (config + 404s); Config joins the page tree                           | P2       | S      | 005 (DONE) | DONE   |
-| 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                            | P1       | L      | —          | TODO   |
-| 008  | Restyle the config editor onto Fumadocs theme tokens                                        | P3       | M      | 006 (DONE) | DONE   |
+| Plan | Title                                                                                                          | Priority | Effort | Depends on | Status |
+| ---- | -------------------------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| 001  | Add a Fumadocs web UI (`site/`) rendering `wiki/` and `raw/`                                                   | P2       | M      | —          | DONE   |
+| 002  | Rewrite `wiki/mattpocock-skills-workflow.md` with examples + durable citations                                 | P2       | M      | —          | TODO   |
+| 003  | Site home page becomes a generated table of contents, replacing the Index page                                 | P2       | S      | 001 (DONE) | DONE   |
+| 004  | Site shows all repo docs (plans, ADRs, agent docs, issues, root files) + live reload in dev                    | P2       | M      | 003, 005   | DONE   |
+| 005  | Home page uses the docs layout so it keeps the sidebar                                                         | P3       | S      | 003 (DONE) | DONE   |
+| 006  | Sidebar on every page (config + 404s); Config joins the page tree                                              | P2       | S      | 005 (DONE) | DONE   |
+| 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                                               | P1       | L      | —          | TODO   |
+| 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
+| 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -357,3 +358,13 @@ owner's to run.
 - **Snapshotting the 25 `SKILL.md` files into `raw/`** (considered for plan 002): would make the mattpocock-skills page's citations fully self-contained, but `raw/` is for human-curated sources, 25 files is a large import, and pinning citations to an upstream commit already gives immutability. Revisit only if the upstream repo goes private.
 - **Splitting the mattpocock-skills examples onto a separate `concept` page**: the page stays readable at the planned length; a split costs cross-linking for no reader benefit yet. Revisit past ~400 lines.
 - **Editing the plugin's own docs** (`~/.claude/plugins/cache/.../mattpocock-skills/`): it is a read-only managed install outside this repository, replaced wholesale on update. Any edit there is lost on the next `/plugin update`.
+
+Plan 009 was written on 2026-08-26 against commit `00ddd4a` (`plan` variant —
+user-directed, no audit). It imports `~/src/claude-diagrams` (HEAD `ea3e98b`)
+as a git subtree at `plugins/diagrams`, makes the repo root the Claude Code
+marketplace (`second-brain`), renames the plugin to `diagrams` (v0.3.0) and its
+env vars to `DIAGRAMS_DIR` / `DIAGRAMS_OPEN`, and moves diagram output to
+`artifacts/diagrams/`. Precondition the executor cannot satisfy: the source
+repo has uncommitted `playwright` / `test/` work the owner must commit first.
+Deferred to later plans: an Artifacts section on the site, a plugins toggle in
+the config UI, and archiving the old GitHub repo. Independent of 001–008.
