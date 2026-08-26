@@ -223,3 +223,17 @@ Append-only record of wiki operations. Newest entries at the bottom.
   responses` rule; artifacts/README.md lists the three-type taxonomy; the
   nudge message and SKILL.md step 5 now say "present an artifact / reply =
   path + one question". Both agents refreshed to v0.5.0. Plans 012–014 next.
+
+## [2026-08-26] maintenance | Plan 012 — interactive artifacts: site serving + feedback/RFC loop
+
+- Executed by a dispatched worktree executor, approved after one revision
+  round (the defect was in the plan's own text — widget vs API payload
+  shape; fixed in `0ae7062` by normalizing a leading `artifacts/` in the
+  feedback route). Merged as `67a4ee0`.
+- The site now serves artifact pages at `/artifacts/view/[...file]`, lists
+  them at `/artifacts` (sidebar entry), and `POST /api/artifacts/feedback`
+  files widget submissions into `.scratch/artifact-feedback/issues/` as
+  `needs-triage` tracker issues. `plugins/DESIGN.md`'s feedback-affordance
+  section now carries the normative widget contract + snippet, embedded in
+  the diagram template between `feedback-widget` delimiters. Review pages
+  now carry the widget too. Both agents at v0.6.0. Plan 013 next.

@@ -67,7 +67,7 @@
 
   <section class="card verdict">
     <span class="chip">APPROVE</span>
-    <span>Ready to merge. Three commits (<code>a8ba566</code>, <code>1c526c0</code>, <code>0ae7062</code>) on <code>advisor/012-interactive-artifacts</code>, based on current <code>main</code>. Test-merge: <strong>clean</strong>.</span>
+    <span><strong>Merged into <code>main</code> as <code>67a4ee0</code>.</strong> Both agents refreshed to <code>0.6.0</code>. The feedback loop is live: serve this page via the site and the widget below files real issues.</span>
   </section>
 
   <div class="strip">
@@ -99,7 +99,7 @@
     <div class="note"><span class="tag">Deviation — accepted</span>Dual-mode file:// check ran against a mocked DOM (no headless browser in the sandbox) — and the widget on THIS page is the real check: opened from disk it reads "copy as issue"; served by the site it files an issue.</div>
     <div class="note"><span class="tag">Deviation — accepted</span>Dev-server wrapper bypassed (its fixed ws port 8000 is held by the pre-existing server on the main checkout); routes under test don't depend on the watcher.</div>
     <div class="note risk"><span class="tag">Watch</span>Feedback issues auto-render on the site (vault includes .scratch/**) — triage by editing the Status: line. NN collisions accepted by design (single owner, localhost).</div>
-    <div class="note open info"><span class="tag">Your decision</span>Merge <code>0ae7062</code> (3 commits)? After merge: refresh both agents to 0.6.0, and this loop goes live — try the widget below once the page is served at <code>/artifacts/view/reviews/…</code>.</div>
+    <div class="note"><span class="tag">Decided</span>Owner approved 2026-08-26 ("looks good, merge"). Merged as <code>67a4ee0</code>; both agents refreshed to 0.6.0 the same day.</div>
   </section>
 
   <!-- feedback-widget:start -->
