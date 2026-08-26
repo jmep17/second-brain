@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review: plan 010 execution — APPROVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --geist-bg: #ffffff; --geist-fg: #171717;
+    --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
+    --text-warning: #8a4b00; --text-info: #0057b7; --text-success: #0f7b3a;
+    --radius: 10px;
+    --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --geist-bg: #000000; --geist-fg: #ededed;
+      --accents-1: #111111; --accents-2: #333333; --accents-3: #888888; --accents-5: #a1a1a1;
+      --text-warning: #f5a623; --text-info: #52a8ff; --text-success: #3dd68c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--geist-bg); color: var(--geist-fg); font-family: var(--font-sans); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+  header { margin-bottom: 28px; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accents-3); margin-bottom: 10px; }
+  h1 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 600; letter-spacing: -.03em; margin: 0 0 8px; }
+  .sub { color: var(--accents-5); max-width: 62ch; margin: 0; }
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; margin: 32px 0 12px; }
+  .card { border: 1px solid var(--accents-2); border-radius: var(--radius); background: var(--accents-1); padding: 16px 18px; }
+  .verdict { display: flex; align-items: center; gap: 14px; border-color: color-mix(in srgb, var(--text-success) 45%, var(--accents-2)); }
+  .verdict .chip { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; font-weight: 500; color: var(--text-success); border: 1px solid color-mix(in srgb, var(--text-success) 55%, var(--accents-2)); border-radius: 6px; padding: 4px 10px; background: var(--geist-bg); }
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 0; }
+  .stat { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 12px 14px; background: var(--geist-bg); }
+  .stat .n { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+  .stat .l { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tablewrap { border: 1px solid var(--accents-2); border-radius: var(--radius); overflow-x: auto; background: var(--geist-bg); }
+  th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); text-align: left; font-weight: 500; padding: 10px 14px; border-bottom: 1px solid var(--accents-2); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--accents-2); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .pass { font-family: var(--font-mono); font-size: 11px; color: var(--text-success); white-space: nowrap; }
+  .warn { font-family: var(--font-mono); font-size: 11px; color: var(--text-warning); white-space: nowrap; }
+  code, .mono { font-family: var(--font-mono); font-size: 12px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  td .out { color: var(--accents-5); font-family: var(--font-mono); font-size: 11.5px; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
+  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; }
+  .note .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 6px; color: var(--accents-3); }
+  .note.info { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
+  .note.info .tag { color: var(--text-info); }
+  .note.risk { border-color: color-mix(in srgb, var(--text-warning) 40%, var(--accents-2)); }
+  .note.risk .tag { color: var(--text-warning); }
+  ol { margin: 8px 0 0 18px; padding: 0; }
+  li { margin: 4px 0; }
+  @media (max-width: 640px) { main { padding: 36px 16px 72px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Review · 2026-08-26 · plan 010 execution</div>
+    <h1>Plan 010 executed — reviewer verdict: approve</h1>
+    <p class="sub">Executor ran steps 0–5 in an isolated worktree and stopped at the merge boundary as planned. Every criterion below was re-run independently by the reviewer — nothing is taken from the executor's report.</p>
+  </header>
+
+  <section class="card verdict">
+    <span class="chip">APPROVE</span>
+    <span>Ready to merge. Commit <code>e0e7f61</code> on branch <code>advisor/010-cross-agent-install</code>, based on <code>f17627f</code>. Test-merge against current <code>main</code>: <strong>clean, no conflicts</strong>.</span>
+  </section>
+
+  <div class="strip">
+    <div class="stat"><div class="n">10 / 10</div><div class="l">criteria pass</div></div>
+    <div class="stat"><div class="n">7 / 7</div><div class="l">hook probes pass</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">files, +100 −5</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">deviation (authorized)</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">out-of-scope files</div></div>
+  </div>
+
+  <h2>Done criteria — reviewer re-runs</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Criterion</th><th>Result</th><th>Evidence (re-run by reviewer in the worktree)</th></tr>
+    <tr><td>Seven hook stdin probes: 2 fire, 5 quiet, all exit 0</td><td class="pass">PASS</td><td class="out">plans/011-foo.md + .scratch/auth/spec.md → nudge printed; README.md, Edit-tool, wiki path, malformed JSON, empty stdin → silent; rc=0 ×7</td></tr>
+    <tr><td>Plugin structural checks</td><td class="pass">PASS</td><td class="out">bun run test → "all checks passed": 3× valid json, 5× shell syntax ok (incl. plan-artifact-nudge.sh), opener executable</td></tr>
+    <tr><td>Version sync 0.4.0 in both manifests</td><td class="pass">PASS</td><td class="out">check-version-sync.sh → "version in sync: 0.4.0"</td></tr>
+    <tr><td><code>nudge.sh</code> untouched (plugin plan 008 owns it)</td><td class="pass">PASS</td><td class="out">git diff f17627f..HEAD -- hooks/nudge.sh → 0 lines</td></tr>
+    <tr><td>README: Codex install commands + Enforcement section</td><td class="pass">PASS</td><td class="out">grep counts 1/1; full diff read — Claude Code / Codex / Other agents / Enforcement sections present</td></tr>
+    <tr><td>SKILL.md: opener fallback + new rule; frontmatter untouched</td><td class="pass">PASS</td><td class="out">grep "two directories above"=1, "review surface"=1; first 4 lines byte-identical to base</td></tr>
+    <tr><td><code>hooks.json</code> purely additive</td><td class="pass">PASS</td><td class="out">diff shows only the +PostToolUse block; UserPromptSubmit entry untouched; python3 -m json.tool valid</td></tr>
+    <tr><td>Hook script has no non-zero exit path</td><td class="pass">PASS</td><td class="out">read in full: set -uo (no -e), python guarded by "|| true", ends "exit 0"; matches plan byte-for-byte</td></tr>
+    <tr><td>Scope: only the six in-scope files</td><td class="pass">PASS</td><td class="out">git diff --stat f17627f..HEAD → exactly the 6 files; worktree status clean post-commit</td></tr>
+    <tr><td>Formatting</td><td class="pass">PASS</td><td class="out">bunx prettier --check on all 6 files → "All matched files use Prettier code style!" (reviewer ran it; executor couldn't — no node_modules in fresh worktree)</td></tr>
+    <tr><td>Steps 6–8 (Codex + Claude Code installs, hook smoke test)</td><td class="warn">POST-MERGE</td><td class="out">Machine-level by design; plan's own STOP rule — they run against ~/src/second-brain after merge</td></tr>
+  </table></div>
+
+  <h2>What the diff does</h2>
+  <div class="tablewrap"><table>
+    <tr><th>File</th><th>Change</th></tr>
+    <tr><td><code>hooks/plan-artifact-nudge.sh</code> <span class="mono">new, +29</span></td><td>PostToolUse hook: any skill writing a <code>.md</code> under <code>plans/</code>, <code>.scratch/</code>, <code>specs/</code>, <code>tickets/</code> triggers "render this as a diagram artifact" — prompt wording no longer matters</td></tr>
+    <tr><td><code>hooks/hooks.json</code> <span class="mono">+11</span></td><td>Wires the new hook under PostToolUse with a <code>Write</code> matcher; existing nudge untouched</td></tr>
+    <tr><td><code>skills/diagram-plans/SKILL.md</code> <span class="mono">+8 −1</span></td><td>Codex-safe opener fallback (relative path, no <code>CLAUDE_PLUGIN_ROOT</code>); new rule: skill-produced plans get a diagram page, markdown stays source of truth</td></tr>
+    <tr><td><code>README.md</code> <span class="mono">+49 −3</span></td><td>Install docs per agent (Claude Code / Codex / other agents), Enforcement section with opt-outs, layout updated</td></tr>
+    <tr><td>both manifests <span class="mono">2× 1-line</span></td><td>0.3.0 → 0.4.0 (cache-busting version bump)</td></tr>
+  </table></div>
+
+  <h2>Notes</h2>
+  <section class="notes">
+    <div class="note info"><span class="tag">Deviation — authorized</span>Executor dropped the <code>npx skills add --skill</code> example after verifying the CLI has no such flag; the plan explicitly instructed "do not guess flags into the README". Copy-the-folder path documented instead.</div>
+    <div class="note"><span class="tag">Worktree base</span>The worktree branched from <code>f17627f</code> (origin/main), not the two newer plans-commits — expected harness behavior; verified the merge into current <code>main</code> is clean anyway.</div>
+    <div class="note"><span class="tag">Prettier gap closed</span>Executor's <code>bun run format</code> failed (fresh worktree, no node_modules). Reviewer re-ran prettier via <code>bunx</code> — all six files clean, so nothing slipped through.</div>
+    <div class="note risk"><span class="tag">Still unverified</span>Whether Codex executes plugin-shipped hooks. Step 8 tests it empirically post-merge; the <code>~/.codex/AGENTS.md</code> fallback is specified if it doesn't.</div>
+    <div class="note open info"><span class="tag">Your decision</span>Merge <code>advisor/010-cross-agent-install</code> into <code>main</code>? After merge, steps 6–8 run on the machine: Codex marketplace switch, Claude Code plugin refresh, and the Codex hook smoke test (one <code>codex exec</code> call, needs your consent).</div>
+  </section>
+
+  <h2>If you merge</h2>
+  <div class="card"><ol>
+    <li><code>git merge advisor/010-cross-agent-install</code> — verified conflict-free against current main</li>
+    <li>Step 6: <code>codex plugin marketplace add ~/src/second-brain</code> → <code>codex plugin add diagrams@second-brain</code> → remove the stale <code>claude-diagrams</code> pair</li>
+    <li>Step 7: <code>/plugin marketplace update second-brain</code> + <code>/plugin update diagrams@second-brain</code>, then the live hook check</li>
+    <li>Step 8: Codex hook smoke test (<code>codex exec</code> in a temp dir) — falls back to <code>~/.codex/AGENTS.md</code> guidance if plugin hooks don't fire</li>
+  </ol></div>
+</main>
+</body>
+</html>

@@ -18,7 +18,7 @@ conditions, and update your row when done.
 | 007  | Run independently switchable Qwen3.8 backends on Windows and Mac                                               | P1       | L      | —          | TODO   |
 | 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
 | 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
-| 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | TODO   |
+| 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE (0–5; merge + steps 6–8 pending) |
 | 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | TODO   |
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | TODO   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
@@ -466,3 +466,21 @@ Decision (2026-08-26, owner): feedback/RFC/answer submission requires the
 local site to be running; `file://` opens degrade to copy-as-issue. No
 offline submission queue — accepted as the final shape, closing plan 012's
 open question. Executors of 012/014 build exactly that behaviour.
+
+Plan 010 was executed on 2026-08-26 by a dispatched executor in an isolated
+worktree and APPROVED on review. Branch `advisor/010-cross-agent-install`
+(commit `e0e7f61`, based on `f17627f`), worktree
+`.claude/worktrees/agent-a1f04db481be52a33`. The reviewer independently
+re-ran every done criterion: all seven hook stdin probes (2 fire / 5 quiet,
+exit 0 throughout), `bun run test`, version sync 0.4.0, `nudge.sh`
+byte-untouched, all grep gates, frontmatter unchanged, scope exactly the six
+in-scope files, and a prettier check via `bunx` (the executor could not run
+`bun run format` — fresh worktree, no node_modules; the reviewer's check
+closed that gap: all six files clean). One deviation, documented and
+pre-authorized by the plan: the README's `npx skills add --skill` example was
+dropped after `npx skills add --help` showed no such flag; the
+copy-the-folder path is documented instead. Test-merge against current
+`main` is conflict-free. NOT MERGED — owner's decision, presented in
+`artifacts/reviews/2026-08-26-plan-010-execution-review.html`. Steps 6–8
+(Codex marketplace switch, Claude Code refresh, Codex hook smoke test) run
+post-merge on the machine; Step 8's `codex exec` needs operator consent.
