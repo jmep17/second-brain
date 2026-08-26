@@ -101,19 +101,29 @@ Legacy body
     expect(parseBatch({ targets: [{ ...target, excerpt: "" }] }).ok).toBe(true);
   });
 
-  test.each(["line one\nline two", "line one\rline two"])(
-    "rejects legacy title line breaks in %j",
-    (title) => {
-      expect(
-        parseFeedbackPayload({
-          artifact: "artifacts/diagrams/example.html",
-          kind: "feedback",
-          title,
-          body: "Legacy body",
-        }).ok
-      ).toBe(false);
-    }
-  );
+  test("keeps legacy multiline titles byte-for-byte", () => {
+    const parsed = parseFeedbackPayload({
+      artifact: "artifacts/diagrams/example.html",
+      kind: "feedback",
+      title: "Legacy title\r\ncontinued",
+      body: "Legacy body",
+    });
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(
+      renderFeedbackIssue(parsed.value, "diagrams/example.html", "2026-08-27")
+    ).toBe(`# Legacy title\r\ncontinued
+
+Status: needs-triage
+Kind: feedback
+Artifact: artifacts/diagrams/example.html
+Date: 2026-08-27
+
+Legacy body
+
+## Comments
+`);
+  });
 
   test.each(["line one\nline two", "line one\rline two"])(
     "rejects batch title line breaks in %j",

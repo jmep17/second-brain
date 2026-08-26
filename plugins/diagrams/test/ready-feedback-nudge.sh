@@ -43,17 +43,24 @@ printf '%s\n' \
 assert_silent needs-triage-body-spoof
 
 printf '%s\n' \
-  '# Triage title' \
+  '# Legacy title' \
   '' \
   'Status: ready-for-agent' \
   'Execution: queued' \
+  'Kind: feedback' \
+  'Artifact: artifacts/diagrams/example.html' \
+  'Date: 2026-08-27' \
   '' \
   'Status: needs-triage' \
   'Kind: feedback' \
   'Artifact: artifacts/diagrams/example.html' \
   'Date: 2026-08-27' \
-  > "$queue/02-multiline-title-spoof.md"
-assert_silent multiline-title-spoof
+  '' \
+  'Legacy body' \
+  '' \
+  '## Comments' \
+  > "$queue/02-serialized-legacy-multiline-title-spoof.md"
+assert_silent serialized-legacy-multiline-title-spoof
 
 printf '%s\n' '# Claimed' '' 'Status: ready-for-agent' 'Execution: claimed' \
   'Kind: feedback' 'Artifact: artifacts/diagrams/example.html' 'Date: 2026-08-27' '' \

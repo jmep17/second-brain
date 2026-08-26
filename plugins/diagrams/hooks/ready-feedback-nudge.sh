@@ -15,6 +15,14 @@ while IFS= read -r filename; do
   issue="$queue_dir/$filename"
   metadata=()
   mapfile -t metadata < <(head -n 8 -- "$issue" 2>/dev/null)
+  # Legacy payloads accept multiline titles for byte compatibility. Such a
+  # title can forge this eight-line ready header, but the legacy renderer then
+  # emits its canonical needs-triage metadata later. Reject any such marker;
+  # false negatives from body text are safer than false authorization.
+  if awk 'NR > 8 && $0 == "Status: needs-triage" { found=1; exit } END { exit(found ? 0 : 1) }' \
+    "$issue" >/dev/null 2>&1; then
+    continue
+  fi
   if [[ "${metadata[0]-}" == \#\ * ]] \
     && [ -z "${metadata[1]-}" ] \
     && [ "${metadata[2]-}" = "Status: ready-for-agent" ] \

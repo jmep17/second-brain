@@ -102,7 +102,7 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
   const isBatch = "targets" in value || "readyForAgent" in value;
   const title = requiredString(value.title, "title", isBatch ? 120 : undefined);
   if (typeof title !== "string") return { ok: false, error: title.error };
-  if (/[\r\n]/.test(title)) {
+  if (isBatch && /[\r\n]/.test(title)) {
     return { ok: false, error: "title must be one line" };
   }
   const body = requiredString(value.body, "body", isBatch ? 10_000 : undefined);

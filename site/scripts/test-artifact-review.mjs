@@ -316,20 +316,23 @@ try {
 
   console.log(`artifact review passed; filed ${filedPath}`);
 } finally {
-  if (browser) await browser.close();
-  for (const name of await issueNames()) {
-    if (preExistingIssueNames.has(name)) continue;
-    const issuePath = path.join(issueDir, name);
-    const issue = await readFile(issuePath, "utf8");
-    if (!issue.includes(runMarker)) continue;
-    await unlink(issuePath);
-    console.log(
-      `removed smoke issue ${path.join(
-        ".scratch",
-        "artifact-feedback",
-        "issues",
-        name
-      )}`
-    );
+  try {
+    if (browser) await browser.close();
+  } finally {
+    for (const name of await issueNames()) {
+      if (preExistingIssueNames.has(name)) continue;
+      const issuePath = path.join(issueDir, name);
+      const issue = await readFile(issuePath, "utf8");
+      if (!issue.includes(runMarker)) continue;
+      await unlink(issuePath);
+      console.log(
+        `removed smoke issue ${path.join(
+          ".scratch",
+          "artifact-feedback",
+          "issues",
+          name
+        )}`
+      );
+    }
   }
 }

@@ -132,6 +132,9 @@ claim the queue. Static artifact files remain standalone and unchanged.
 - `AGENTS.md`, `CLAUDE.md` (identical autonomous queue guidance)
 - `plugins/diagrams/hooks/ready-feedback-nudge.sh` (create)
 - `plugins/diagrams/hooks/hooks.json`
+- `plugins/diagrams/package.json`
+- `plugins/diagrams/test/ready-feedback-nudge.sh` (permanent queue-hook
+  regression integration)
 - `plugins/diagrams/.claude-plugin/plugin.json`
 - `.claude-plugin/marketplace.json`
 - `plans/README.md` (reviewer owns the status row)
