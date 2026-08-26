@@ -1,0 +1,18 @@
+{
+  "name": "claude-diagrams",
+  "owner": {
+    "name": "Jorden Parker"
+  },
+  "metadata": {
+    "description": "Claude Code plugins that answer with diagrams instead of prose."
+  },
+  "plugins": [
+    {
+      "name": "diagram-plans",
+      "source": "./plugins/diagram-plans",
+      "description": "Plans, brainstorms, and design discussions become a Mermaid mindmap or flowchart artifact saved to a configurable directory.",
+      "version": "0.1.0",
+      "category": "productivity"
+    }
+  ]
+}

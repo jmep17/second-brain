@@ -1,0 +1,9 @@
+{
+  "name": "diagram-plans",
+  "version": "0.1.0",
+  "description": "Plans, brainstorms, and design discussions become a Mermaid mindmap or flowchart artifact saved to a configurable directory.",
+  "author": {
+    "name": "Jorden Parker"
+  },
+  "keywords": ["diagram", "mindmap", "mermaid", "planning", "brainstorm", "artifact"]
+}
