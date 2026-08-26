@@ -1,0 +1,9 @@
+node_modules
+
+# MERMAID.md is a reference the skill loads into context on every invocation,
+# and it embeds a complete HTML template the model copies verbatim. Prettier
+# expands that template's CSS one declaration per line, taking the file from
+# 400 to 775 lines. It does not corrupt anything -- the <pre> contents survive
+# byte-for-byte -- but it doubles the token cost of the file to no benefit,
+# since nobody hand-edits it for style.
+plugins/diagram-plans/skills/diagram-plans/MERMAID.md
