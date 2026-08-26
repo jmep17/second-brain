@@ -1,8 +1,7 @@
-import { getSource } from "@/lib/source";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { baseOptions } from "@/lib/layout.shared";
+import { docsLayoutProps } from "@/lib/layout.shared";
 import { buildToc } from "@/lib/toc";
 
 export const metadata: Metadata = {
@@ -12,9 +11,8 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const groups = await buildToc();
-  const source = await getSource();
   return (
-    <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
+    <DocsLayout {...await docsLayoutProps()}>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
         <h1 className="mb-2 text-3xl font-semibold">Table of contents</h1>
         <p className="text-fd-muted-foreground mb-8">

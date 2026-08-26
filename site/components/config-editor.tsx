@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { buttonVariants } from "fumadocs-ui/components/ui/button";
+import { ObsidianCallout } from "fumadocs-obsidian/ui";
 
 type FileState = "in-sync" | "drifted" | "not-applied" | "meta" | "error";
 
@@ -16,29 +18,14 @@ interface FileStatus {
 }
 
 const BADGE: Record<FileState, { label: string; className: string }> = {
-  "in-sync": {
-    label: "in sync",
-    className:
-      "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-  },
-  drifted: {
-    label: "drifted",
-    className:
-      "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300",
-  },
-  "not-applied": {
-    label: "not applied",
-    className: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-  },
+  "in-sync": { label: "in sync", className: "bg-fd-success/20" },
+  drifted: { label: "drifted", className: "bg-fd-warning/20" },
+  "not-applied": { label: "not applied", className: "bg-fd-error/20" },
   meta: {
     label: "chezmoi meta",
-    className:
-      "bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
+    className: "bg-fd-muted text-fd-muted-foreground",
   },
-  error: {
-    label: "chezmoi error",
-    className: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-  },
+  error: { label: "chezmoi error", className: "bg-fd-error/20" },
 };
 
 /** Parse a JSON body; error responses may be non-JSON (e.g. a bare 500). */
@@ -163,7 +150,7 @@ export function ConfigEditor({ path }: { path: string }) {
 
   if (!status) {
     return (
-      <section className="rounded-lg border border-neutral-200 p-4 text-sm text-neutral-500 dark:border-neutral-800">
+      <section className="text-fd-muted-foreground rounded-lg border bg-fd-card p-4 text-sm">
         {error ?? `Loading ${path}…`}
       </section>
     );
@@ -173,27 +160,27 @@ export function ConfigEditor({ path }: { path: string }) {
   const dirty = text !== status.content;
 
   return (
-    <section className="rounded-lg border border-neutral-200 dark:border-neutral-800">
-      <header className="flex items-center gap-3 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+    <section className="rounded-lg border bg-fd-card">
+      <header className="flex items-center gap-3 border-b px-4 py-3">
         <code className="text-sm font-medium">dotfiles/{status.path}</code>
         <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}
+          className={`text-fd-foreground rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}
         >
           {badge.label}
         </span>
         {status.target && (
-          <span className="truncate text-xs text-neutral-400">
+          <span className="text-fd-muted-foreground truncate text-xs">
             → {status.target}
           </span>
         )}
         <span className="ml-auto flex items-center gap-2">
           {savedAt && !dirty && (
-            <span className="text-xs text-neutral-400">saved</span>
+            <span className="text-fd-muted-foreground text-xs">saved</span>
           )}
           <button
             onClick={() => void save()}
             disabled={busy || !dirty}
-            className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white disabled:opacity-40"
+            className={buttonVariants({ color: "primary", size: "sm" })}
           >
             Save
           </button>
@@ -201,70 +188,82 @@ export function ConfigEditor({ path }: { path: string }) {
       </header>
 
       {status.state === "error" && (
-        <div className="border-b border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-          chezmoi could not report this file's state:
-          <pre className="mt-2 overflow-x-auto text-xs">{status.error}</pre>
+        <div className="px-4">
+          <ObsidianCallout type="error">
+            chezmoi could not report this file&apos;s state:
+            <pre className="mt-2 overflow-x-auto text-xs">{status.error}</pre>
+          </ObsidianCallout>
         </div>
       )}
 
       {stale && (
-        <div className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          The file changed on disk since you opened it; this save was rejected.{" "}
-          <button onClick={() => void load()} className="font-medium underline">
-            Reload
-          </button>{" "}
-          (your edits will be lost).
+        <div className="px-4">
+          <ObsidianCallout type="warning">
+            The file changed on disk since you opened it; this save was
+            rejected.{" "}
+            <button
+              onClick={() => void load()}
+              className="font-medium underline"
+            >
+              Reload
+            </button>{" "}
+            (your edits will be lost).
+          </ObsidianCallout>
         </div>
       )}
 
       {applyError && (
-        <div className="border-b border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-          Saved, but <code>chezmoi apply</code> failed — the file is not
-          applied:
-          <pre className="mt-2 overflow-x-auto text-xs">{applyError}</pre>
+        <div className="px-4">
+          <ObsidianCallout type="error">
+            Saved, but <code>chezmoi apply</code> failed — the file is not
+            applied:
+            <pre className="mt-2 overflow-x-auto text-xs">{applyError}</pre>
+          </ObsidianCallout>
         </div>
       )}
 
       {status.state === "drifted" && (
-        <div className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          <p>
-            {driftBlocked
-              ? "Save refused: the applied file changed after you opened this page. Resolve the drift, then save again — your editor text is kept."
-              : "The applied file differs from this source (edited directly in $HOME?)."}
-          </p>
-          {status.diff ? (
-            <pre className="mt-2 max-h-48 overflow-auto rounded bg-white/60 p-2 text-xs dark:bg-black/30">
-              {status.diff}
-            </pre>
-          ) : (
-            <p className="mt-1 text-xs">
-              Diff withheld: template files may render secrets.
+        <div className="px-4">
+          <ObsidianCallout type="warning">
+            <p>
+              {driftBlocked
+                ? "Save refused: the applied file changed after you opened this page. Resolve the drift, then save again — your editor text is kept."
+                : "The applied file differs from this source (edited directly in $HOME?)."}
             </p>
-          )}
-          <div className="mt-2 flex gap-2">
-            {!status.isTemplate && (
-              <button
-                onClick={() => void resolveDrift("adopt")}
-                disabled={busy}
-                className="rounded-md border border-amber-400 px-2 py-1 text-xs font-medium disabled:opacity-40"
-              >
-                Adopt $HOME version
-              </button>
+            {status.diff ? (
+              <pre className="mt-2 max-h-48 overflow-auto rounded bg-fd-muted p-2 text-xs">
+                {status.diff}
+              </pre>
+            ) : (
+              <p className="mt-1 text-xs">
+                Diff withheld: template files may render secrets.
+              </p>
             )}
-            <button
-              onClick={() => void resolveDrift("overwrite")}
-              disabled={busy}
-              className="rounded-md border border-amber-400 px-2 py-1 text-xs font-medium disabled:opacity-40"
-            >
-              Overwrite with source
-            </button>
-          </div>
+            <div className="mt-2 flex gap-2">
+              {!status.isTemplate && (
+                <button
+                  onClick={() => void resolveDrift("adopt")}
+                  disabled={busy}
+                  className={buttonVariants({ color: "outline", size: "sm" })}
+                >
+                  Adopt $HOME version
+                </button>
+              )}
+              <button
+                onClick={() => void resolveDrift("overwrite")}
+                disabled={busy}
+                className={buttonVariants({ color: "outline", size: "sm" })}
+              >
+                Overwrite with source
+              </button>
+            </div>
+          </ObsidianCallout>
         </div>
       )}
 
       {error && (
-        <div className="border-b border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
+        <div className="px-4">
+          <ObsidianCallout type="error">{error}</ObsidianCallout>
         </div>
       )}
 
@@ -272,7 +271,7 @@ export function ConfigEditor({ path }: { path: string }) {
         value={text}
         onChange={(event) => setText(event.target.value)}
         spellCheck={false}
-        className="block h-[28rem] w-full resize-y bg-transparent p-4 font-mono text-sm leading-relaxed outline-none"
+        className="focus-visible:ring-fd-ring block h-[28rem] w-full resize-y border-t bg-transparent p-4 font-mono text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-inset"
       />
     </section>
   );

@@ -1,9 +1,11 @@
 import path from "node:path";
 import { dynamicLoader } from "fumadocs-core/source";
+import type * as PageTree from "fumadocs-core/page-tree";
 import { obsidian } from "fumadocs-obsidian";
 import { slug } from "github-slugger";
 import { remarkLooseLinks } from "@/lib/remark-loose-links";
 import { titleFromHeading } from "@/lib/title-from-heading";
+import { TOOLS } from "@/lib/config-files";
 
 /** The Obsidian vault is the whole repo, narrowed by `include`. */
 const vaultDir = path.resolve(process.cwd(), "..");
@@ -62,6 +64,26 @@ const FOLDER_LABELS: Record<string, string> = {
 };
 
 /**
+ * Sidebar entry for the config editor: one page per TOOLS entry. `defaultOpen`
+ * matters — a collapsed folder does not render its children into the HTML at
+ * all, so without it the tool links are invisible until the reader clicks.
+ */
+function configFolder(): PageTree.Folder {
+  return {
+    type: "folder",
+    name: "Config",
+    $id: "config",
+    defaultOpen: true,
+    children: Object.entries(TOOLS).map(([tool, { label }]) => ({
+      type: "page" as const,
+      name: label,
+      url: `/config/${tool}`,
+      $id: `config/${tool}`,
+    })),
+  };
+}
+
+/**
  * Re-reads the vault on every `get()` (cheap: only invalidated files are
  * re-parsed), so dev picks up new and edited pages. `bun run build` calls it
  * once per render with nothing invalidated — same output as a static loader.
@@ -79,6 +101,18 @@ const loader = dynamicLoader(vault.dynamicSource(), {
         folder(node, folderPath) {
           const label = FOLDER_LABELS[folderPath];
           return label ? { ...node, name: label } : node;
+        },
+        /**
+         * The config editor is a hand-built route with no file in the vault,
+         * so the loader cannot discover it. Append it once the tree is built
+         * and every sidebar on the site lists it — docs, home, config and the
+         * 404s all render the same tree.
+         */
+        root(node) {
+          return {
+            ...node,
+            children: [...node.children, configFolder()],
+          };
         },
       },
     ],
