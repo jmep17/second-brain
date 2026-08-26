@@ -139,3 +139,7 @@ Plan 011 (root `plans/`) changed the nudge message to the "present an
 artifact / reply = path + one question" wording on 2026-08-26. Plan 008's
 Step 2 message text is superseded by that wording — executors of 008 must
 carry it, not the text printed in 008.
+
+Plan 012 (root `plans/`) inserted the feedback-widget block into the
+template on 2026-08-26; plans 006/007 executors must preserve the
+delimited block.
