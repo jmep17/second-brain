@@ -93,3 +93,12 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 ### Domain docs
 
 Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+## Artifact responses
+
+For any planning, decision, brainstorming, or architecture request, the
+response is an artifact — a Geist-styled HTML page under `artifacts/`
+(see `plugins/DESIGN.md` and `artifacts/README.md`), opened in the
+browser. Do not answer these requests in prose: the chat reply is the
+artifact path plus at most one open question. An explicit request for
+prose ("write it up", "in paragraphs") overrides this.
