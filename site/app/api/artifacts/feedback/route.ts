@@ -50,9 +50,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "bad body" }, { status: 400 });
   }
 
+  // The widget's data-artifact carries the page's repo-relative path
+  // ("artifacts/diagrams/x.html"); tests and other tools may send the
+  // artifacts-relative shape ("diagrams/x.html") that resolveArtifact()
+  // expects. Accept both by stripping a leading "artifacts/" once.
+  const relArtifact = artifact.replace(/^artifacts\//, "");
+
   let abs: string;
   try {
-    abs = resolveArtifact(artifact);
+    abs = resolveArtifact(relArtifact);
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 403 });
   }
@@ -76,7 +82,7 @@ export async function POST(req: NextRequest) {
 
 Status: needs-triage
 Kind: ${kind}
-Artifact: artifacts/${artifact}
+Artifact: artifacts/${relArtifact}
 Date: ${date}
 
 ${text}
