@@ -81,6 +81,10 @@ hooks.
   end up as an artifact in the browser, not a wall of markdown.
 - Opting out: disable the plugin; or per-request, ask for prose ("write it
   up", "in paragraphs"); or set `DIAGRAMS_OPEN=0` to keep files from opening.
+- Verified under Codex 0.149.1 (2026-08-26): with the plugin installed via
+  `codex plugin add diagrams@second-brain`, a `codex exec` planning prompt
+  produced the diagram page, ran the plugin's cached `bin/diagram-open`, and
+  honored `DIAGRAMS_OPEN=0` — no `~/.codex/AGENTS.md` fallback needed.
 
 Agents that install only the skill (no hook support) still follow the same
 rules when the skill is invoked, but nothing fires automatically.
