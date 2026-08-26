@@ -16,7 +16,7 @@ Two parts:
 ### Install
 
 ```
-/plugin marketplace add jordenparker/claude-diagrams   # or a local path: /plugin marketplace add ~/src/claude-diagrams
+/plugin marketplace add jmep17/claude-diagrams   # or a local path: /plugin marketplace add ~/src/claude-diagrams
 /plugin install diagram-plans@claude-diagrams
 ```
 
