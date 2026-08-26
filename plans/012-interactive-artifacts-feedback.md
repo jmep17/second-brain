@@ -20,7 +20,7 @@
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: MED (new API endpoint that writes repo files; template surgery in a shared file)
-- **Depends on**: plans/011 (DESIGN.md exists; its §9 placeholder is what this plan fills)
+- **Depends on**: plans/011 (DESIGN.md exists; its "Feedback affordance" placeholder section is what this plan fills)
 - **Category**: dx / direction
 - **Planned at**: commit `f17627f`, 2026-08-26
 
@@ -118,7 +118,7 @@ At `f17627f` + plan 011. All excerpts verified 2026-08-26.
   `artifacts/diagrams/2026-08-26-claude-diagrams-into-second-brain.html`
   (an instance of the template; not edited by this plan — old artifacts
   simply lack the widget).
-- `plugins/DESIGN.md` §9 (from plan 011) is a one-sentence placeholder
+- `plugins/DESIGN.md`'s "Feedback affordance" section (from plan 011) is a one-sentence placeholder
   reserving the feedback affordance for this plan to define.
 
 ## Commands you will need
@@ -140,7 +140,7 @@ At `f17627f` + plan 011. All excerpts verified 2026-08-26.
 - `site/app/artifacts/view/[...file]/route.ts` (create — serves pages)
 - `site/app/api/artifacts/feedback/route.ts` (create — files issues)
 - `site/lib/source.ts` (add `artifactsFolder()` beside `configFolder()`, append in the same `root` transformer)
-- `plugins/DESIGN.md` (replace §9 placeholder with the widget contract + snippet)
+- `plugins/DESIGN.md` (replace the "Feedback affordance" placeholder with the widget contract + snippet)
 - `plugins/diagrams/skills/diagram-plans/MERMAID.md` (ONE delimited widget block in the template — Step 4)
 - `plugins/diagrams/plans/README.md` (reconciliation paragraph)
 - `plugins/diagrams/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` (version bump, minor)
@@ -255,7 +255,7 @@ residue, not content; say so in your report.
 
 ### Step 4: The widget — DESIGN.md contract + template block
 
-**4a — `plugins/DESIGN.md` §9** replaces the placeholder with the normative
+**4a — `plugins/DESIGN.md`, "Feedback affordance" section** replaces the placeholder with the normative
 contract: every artifact page ends `<main>` with a delimited feedback
 section; fields `kind` (`feedback`/`rfc`), `title`, `body`; the page carries
 its repo-relative path in `data-artifact` on that section; behaviour —
@@ -265,8 +265,7 @@ button is replaced by "copy as issue", which puts the exact tracker-format
 markdown (the Step 3 block) on the clipboard for the reader to hand to an
 agent or paste into `.scratch/` themselves. All controls styled from the
 existing tokens (mono labels, `--accents-2` borders, radius 6–8px, AA text)
-— include the full snippet (HTML + ~30-line script + the small CSS) in §9
-verbatim, marked between `<!-- feedback-widget:start -->` and
+— include the full snippet (HTML + ~30-line script + the small CSS) in that section verbatim, marked between `<!-- feedback-widget:start -->` and
 `<!-- feedback-widget:end -->`.
 
 **4b — `MERMAID.md`**: insert that exact snippet into the template between
@@ -318,7 +317,7 @@ ALL must hold:
 - [ ] `/artifacts` renders in the docs chrome; `Artifacts` appears in the sidebar on `/`
 - [ ] `/artifacts/view/...` serves the existing diagram artifact; both traversal probes → 404/403
 - [ ] Feedback POST files a correctly-formatted `needs-triage` issue; 400/403 paths verified; smoke residue deleted
-- [ ] `plugins/DESIGN.md` §9 carries the full widget contract + delimited snippet
+- [ ] `plugins/DESIGN.md`'s "Feedback affordance" section carries the full widget contract + delimited snippet
 - [ ] Template block present in `MERMAID.md` between delimiters; nothing else changed there; plugin README reconciliation paragraph added
 - [ ] Manifests bumped and in sync; `bun run test` (plugin) passes
 - [ ] `git status --porcelain` shows only in-scope files
@@ -328,7 +327,7 @@ ALL must hold:
 
 Stop and report back (do not improvise) if:
 
-- Plan 011 is not DONE (no `plugins/DESIGN.md` §9 to fill).
+- Plan 011 is not DONE (no `plugins/DESIGN.md` feedback placeholder to fill).
 - A route handler at `app/artifacts/view/[...file]/route.ts` conflicts with
   the page at `app/artifacts/page.tsx` in this Next version (route-group
   the page as a fix attempt; if that also fails, STOP).
@@ -341,7 +340,7 @@ Stop and report back (do not improvise) if:
 
 ## Maintenance notes
 
-- Plan 013's two new templates must embed the §9 snippet verbatim — DESIGN.md
+- Plan 013's two new templates must embed the widget snippet verbatim — DESIGN.md
   is now the single source for the widget; fix it there, then re-sync
   templates.
 - Feedback issues render on the site automatically (vault includes

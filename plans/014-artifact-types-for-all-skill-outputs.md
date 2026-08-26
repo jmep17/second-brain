@@ -35,7 +35,8 @@ grilling sessions (**questionnaires** — the natural interactive case: the
 recipient answers *on the page* and the answers flow back through the plan
 012 feedback API), and research/report documents (**reports**). This plan
 ships those four types as sibling plugins, writes the normative
-output→type mapping into `plugins/DESIGN.md`, and extends the enforcement
+output→type mapping into `plugins/DESIGN.md` (a new "Output → artifact
+type" section), and extends the enforcement
 hook so file-shaped outputs route to the right type automatically.
 
 ## Current state
@@ -70,8 +71,8 @@ reader); code-producing skills (`implement`, `implement-spec`, `tdd`,
 
 ### Platform state this plan builds on
 
-- Plugin pattern (013): `plugins/<name>/{.claude-plugin/plugin.json, skills/<skill>/SKILL.md, skills/<skill>/TEMPLATE.md, bin/diagram-open}`; no `hooks` key on secondary plugins; versions in root `.claude-plugin/marketplace.json`; `tools/check-plugins.sh` validates every plugin generically; skills follow the five-step shape ending in the DESIGN.md §8 reply contract; openers resolve PATH → `${CLAUDE_PLUGIN_ROOT}` → `<dir-of-SKILL.md>/../../bin/diagram-open`.
-- `plugins/DESIGN.md` (011, amended by 012): tokens, page contract §7, reply contract §8, feedback widget §9 (delimited snippet with `data-artifact`, `kind` field `feedback|rfc`, file:// copy-as-issue fallback).
+- Plugin pattern (013): `plugins/<name>/{.claude-plugin/plugin.json, skills/<skill>/SKILL.md, skills/<skill>/TEMPLATE.md, bin/diagram-open}`; no `hooks` key on secondary plugins; versions in root `.claude-plugin/marketplace.json`; `tools/check-plugins.sh` validates every plugin generically; skills follow the five-step shape ending in the DESIGN.md reply contract; openers resolve PATH → `${CLAUDE_PLUGIN_ROOT}` → `<dir-of-SKILL.md>/../../bin/diagram-open`.
+- `plugins/DESIGN.md` (011, amended by 012): tokens, page contract, reply contract, feedback widget section ("Feedback affordance" — delimited snippet with `data-artifact`, `kind` field `feedback|rfc`, file:// copy-as-issue fallback).
 - Feedback API (012): `POST /api/artifacts/feedback` accepts `kind: "feedback" | "rfc"`, files `.scratch/artifact-feedback/issues/NN-<slug>.md` with `Status: needs-triage`.
 - Hook (010, message routed in 013): `plugins/diagrams/hooks/plan-artifact-nudge.sh` fires on Write of `.md` under `(plans|\.scratch|specs?|tickets?)/`, excluding `README.md`/`index.md` basenames.
 - 013's maintenance note said "consolidate `bin/diagram-open` at a third consumer" — **this plan supersedes that**: install caches are per-plugin in both Claude Code and Codex, so no shared parent exists at runtime; copies are structural. Step 6 adds a drift guard instead.
@@ -90,7 +91,7 @@ reader); code-producing skills (`implement`, `implement-spec`, `tdd`,
 
 - `plugins/boards/**`, `plugins/reviews/**`, `plugins/questionnaires/**`, `plugins/reports/**` (create; skills `board-pages`, `review-pages`, `questionnaire-pages`, `report-pages`; env overrides `BOARDS_DIR` etc.; `DIAGRAMS_OPEN` stays the single open toggle)
 - `.claude-plugin/marketplace.json` (four entries + diagrams bump)
-- `plugins/DESIGN.md` (new §11: the mapping table above, verbatim, plus the exempt list)
+- `plugins/DESIGN.md` (new "Output → artifact type" section: the mapping table above, verbatim, plus the exempt list)
 - `plugins/diagrams/hooks/plan-artifact-nudge.sh` (path→type routing — Step 5)
 - `site/app/api/artifacts/feedback/route.ts` (allowed kinds += `"answers"` — one-line set change + its 400 test)
 - `tools/check-plugins.sh` (opener-identity assertion)
@@ -161,7 +162,7 @@ is the questionnaire the recipient fills in. TEMPLATE.md body: intro card
 (who it's for, the context they need — from the skill's own structure),
 then question cards grouped under theme headings, most-important-first,
 each with a labelled `<textarea>`; ONE submit control for the whole page.
-Submit behaviour extends the §9 widget contract: serialize all Q/A pairs
+Submit behaviour extends the DESIGN.md widget contract: serialize all Q/A pairs
 into a markdown body (`## <question>\n\n<answer>` per pair, unanswered
 marked `_unanswered_`), POST to `/api/artifacts/feedback` with
 `kind: "answers"`, `title: "Answers: <questionnaire title>"`; on `file://`,
@@ -171,7 +172,7 @@ questionnaire loop without new infrastructure.
 
 **Amend `site/app/api/artifacts/feedback/route.ts`**: allowed kinds become
 `"feedback" | "rfc" | "answers"` (update the validation set and the type;
-nothing else). Amend DESIGN.md §9's kind list to match.
+nothing else). Amend the DESIGN.md widget section's kind list to match.
 
 **Verify**: template greps as above; API — with the dev server on a
 verified-free port, POST `kind":"answers"` → 200 + filed path;
@@ -188,7 +189,7 @@ which the current pattern misses); everything else that already fired →
 `plan-pages`. The message names the chosen skill and keeps the 013 wording
 (reply contract, prose escape, "diagram-plans if the plugin is missing").
 Chat-shaped outputs (code-review, grilling, research summaries) can't be
-caught by a Write hook — they are covered by the mapping in DESIGN.md §11
+caught by a Write hook — they are covered by the DESIGN.md mapping section
 and the CLAUDE.md rule (Step 7); do not try to hook them.
 
 **Verify**: re-run 013's seven probes (message may differ, fire/quiet must
@@ -201,7 +202,7 @@ quiet. All exit 0.
 
 - `tools/check-plugins.sh`: add the opener-identity check (`cmp` every
   `plugins/*/bin/diagram-open` against the diagrams copy; fail on drift).
-- `plugins/DESIGN.md`: append §11 "Output → artifact type" — the full
+- `plugins/DESIGN.md`: append the "Output → artifact type" section — the full
   mapping table and exempt list from Current state, verbatim.
 - `CLAUDE.md` + `AGENTS.md` §Artifact responses: extend the first sentence
   to "planning, decision, review, diagnosis, research, questionnaire,
@@ -231,8 +232,8 @@ expected list grows to seven).
   page opens, answer two questions, submit against the running site →
   issue appears with the Q/A body; `/to-tickets` on a toy spec → board
   page; ask for a code review → findings page with `file:line` evidence.
-- Conformance: each new template diffed against DESIGN.md §§3–9 checklist
-  (tokens copied verbatim; widget block byte-identical to §9's snippet
+- Conformance: each new template diffed against the DESIGN.md contract checklist
+  (tokens copied verbatim; widget block byte-identical to the DESIGN.md widget section's snippet
   apart from `data-artifact` and the questionnaires' submit variant).
 
 ## Done criteria
@@ -243,7 +244,7 @@ ALL must hold:
 - [ ] All four templates: zero jsDelivr, fonts present, widget present; boards+questionnaires interactive behaviours verified; reviews SKILL.md carries the REDACTED rule
 - [ ] Feedback API accepts `answers`, rejects unknown kinds; site typecheck+build pass
 - [ ] Hook: ten probes pass; exit 0 always; fire/quiet unchanged for the original seven
-- [ ] DESIGN.md §11 mapping present incl. exempt list; CLAUDE.md/AGENTS.md wording extended and byte-identical tails
+- [ ] DESIGN.md output→type mapping section present incl. exempt list; CLAUDE.md/AGENTS.md wording extended and byte-identical tails
 - [ ] `artifacts/README.md` lists seven shipped types; marketplace has seven entries, versions in sync
 - [ ] Step 7 outputs in your report: both agents list seven plugins
 - [ ] `git status --porcelain` shows only in-scope files; `plans/README.md` row updated
@@ -252,7 +253,7 @@ ALL must hold:
 
 Stop and report back (do not improvise) if:
 
-- Any of plans 011–013 is not DONE, or DESIGN.md §9's widget snippet is
+- Any of plans 011–013 is not DONE, or DESIGN.md's widget snippet is
   missing (nothing to embed).
 - The questionnaire submit cannot serialize/POST from a served page after
   one fix attempt (report the console error; no CORS speculation).
@@ -264,7 +265,7 @@ Stop and report back (do not improvise) if:
 
 ## Maintenance notes
 
-- The mapping table (DESIGN.md §11) is now the contract third-party skills
+- The mapping table (DESIGN.md's output→type section) is now the contract third-party skills
   are read against; when a new skill is installed, extend the table — never
   the skill.
 - `improve-codebase-architecture` already emits a visual HTML report; a

@@ -19,7 +19,7 @@ conditions, and update your row when done.
 | 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
 | 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
 | 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE   |
-| 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | TODO   |
+| 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | DONE (awaiting merge) |
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | TODO   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
 | 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
@@ -501,3 +501,24 @@ update` + `claude plugin update` — both agents now hold `0.4.1`; Claude Code
 applies it on next session start, so the live PostToolUse hook check happens
 naturally in the next session. Review artifact:
 `artifacts/reviews/2026-08-26-plan-010-execution-review.html`.
+
+Plan 011 was executed on 2026-08-26 by a dispatched executor in an isolated
+worktree and APPROVED on review — commits `9a7a5e2` + `5f0d3eb` on branch
+`worktree-agent-af8f8065298a82657`, based on `39b47ec` (the reviewer had the
+executor fast-forward to local `main` first, since harness worktrees base on
+origin/main). The reviewer independently re-ran all nine applicable done
+criteria: DESIGN.md read in full against the fetched Geist facts,
+CLAUDE.md/AGENTS.md byte-identical with the new `## Artifact responses`
+section, three-type taxonomy in artifacts/README.md, nudge message escalated
+(string-only diff; fire/quiet probes pass), SKILL.md step 5 replaced with
+frontmatter untouched, MERMAID.md diff exactly the pointer blockquote,
+manifests 0.5.0 in sync with `bun run test` passing, the plan-008
+reconciliation paragraph present, and scope exactly the ten in-scope files.
+Two accepted deviations: committed on the harness worktree branch (as 010
+did), and the MERMAID pointer wraps to a 2-line blockquote (the plan's own
+text does). Reviewer-side reconciliation: DESIGN.md landed with an
+unnumbered scope line, shifting section numbers — plans 012/014 now cite
+DESIGN.md sections by name instead of §-number. NOT MERGED — owner's
+decision, presented in
+`artifacts/reviews/2026-08-26-plan-011-execution-review.html`. Post-merge:
+refresh both agents to 0.5.0.

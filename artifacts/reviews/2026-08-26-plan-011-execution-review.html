@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review: plan 011 execution — APPROVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --geist-bg: #ffffff; --geist-fg: #171717;
+    --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
+    --text-warning: #8a4b00; --text-info: #0057b7; --text-success: #0f7b3a;
+    --radius: 10px;
+    --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --geist-bg: #000000; --geist-fg: #ededed;
+      --accents-1: #111111; --accents-2: #333333; --accents-3: #888888; --accents-5: #a1a1a1;
+      --text-warning: #f5a623; --text-info: #52a8ff; --text-success: #3dd68c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--geist-bg); color: var(--geist-fg); font-family: var(--font-sans); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+  header { margin-bottom: 28px; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accents-3); margin-bottom: 10px; }
+  h1 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 600; letter-spacing: -.03em; margin: 0 0 8px; }
+  .sub { color: var(--accents-5); max-width: 62ch; margin: 0; }
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; margin: 32px 0 12px; }
+  .card { border: 1px solid var(--accents-2); border-radius: var(--radius); background: var(--accents-1); padding: 16px 18px; }
+  .verdict { display: flex; align-items: center; gap: 14px; border-color: color-mix(in srgb, var(--text-success) 45%, var(--accents-2)); }
+  .verdict .chip { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; font-weight: 500; color: var(--text-success); border: 1px solid color-mix(in srgb, var(--text-success) 55%, var(--accents-2)); border-radius: 6px; padding: 4px 10px; background: var(--geist-bg); }
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 0; }
+  .stat { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 12px 14px; background: var(--geist-bg); }
+  .stat .n { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+  .stat .l { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tablewrap { border: 1px solid var(--accents-2); border-radius: var(--radius); overflow-x: auto; background: var(--geist-bg); }
+  th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); text-align: left; font-weight: 500; padding: 10px 14px; border-bottom: 1px solid var(--accents-2); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--accents-2); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .pass { font-family: var(--font-mono); font-size: 11px; color: var(--text-success); white-space: nowrap; }
+  code, .mono { font-family: var(--font-mono); font-size: 12px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  td .out { color: var(--accents-5); font-family: var(--font-mono); font-size: 11.5px; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
+  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; }
+  .note .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 6px; color: var(--accents-3); }
+  .note.info { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
+  .note.info .tag { color: var(--text-info); }
+  @media (max-width: 640px) { main { padding: 36px 16px 72px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Review · 2026-08-26 · plan 011 execution</div>
+    <h1>Plan 011 executed — reviewer verdict: approve</h1>
+    <p class="sub">The Geist design contract (plugins/DESIGN.md), the repo-wide "artifact is the response" rule, and the escalated nudge. Every criterion re-run independently by the reviewer.</p>
+  </header>
+
+  <section class="card verdict">
+    <span class="chip">APPROVE</span>
+    <span>Ready to merge. Commits <code>9a7a5e2</code> + <code>5f0d3eb</code>, based on current <code>main</code> (<code>39b47ec</code>). Test-merge: <strong>clean, no conflicts</strong>.</span>
+  </section>
+
+  <div class="strip">
+    <div class="stat"><div class="n">9 / 9</div><div class="l">criteria pass</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">files, +138 −9</div></div>
+    <div class="stat"><div class="n">0.5.0</div><div class="l">plugin version</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">out-of-scope files</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">STOP conditions hit</div></div>
+  </div>
+
+  <h2>Done criteria — reviewer re-runs</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Criterion</th><th>Result</th><th>Evidence (re-run by reviewer in the worktree)</th></tr>
+    <tr><td><code>plugins/DESIGN.md</code>: all contracted sections, prettier-clean</td><td class="pass">PASS</td><td class="out">Read in full: scope line + 9 sections (tokens-not-identity, color, typography, materials, grid, page contract, reply contract, feedback placeholder, conforming instance). Every claim traces to the fetched Geist docs — no invented facts. prettier --check clean</td></tr>
+    <tr><td>CLAUDE.md / AGENTS.md identical, new rule section</td><td class="pass">PASS</td><td class="out">diff of full files → identical; "## Artifact responses" present once in each</td></tr>
+    <tr><td>artifacts/README.md: three-type taxonomy + contract pointer</td><td class="pass">PASS</td><td class="out">Table lists diagrams (shipped) / plans (013) / decisions (013); "All types follow plugins/DESIGN.md"</td></tr>
+    <tr><td>Nudge escalated, string-only change</td><td class="pass">PASS</td><td class="out">diff = exactly one echo line; fire probe prints "Present an artifact … at most one open question"; quiet probe silent, rc=0; bash -n clean</td></tr>
+    <tr><td>SKILL.md step 5 = reply contract; frontmatter untouched</td><td class="pass">PASS</td><td class="out">diff shows only the step-5 line replaced; description: byte-identical</td></tr>
+    <tr><td>MERMAID.md: pointer only</td><td class="pass">PASS</td><td class="out">diff = one 2-line blockquote + blank line after the H1; template untouched</td></tr>
+    <tr><td>Manifests 0.5.0 in sync; plugin checks</td><td class="pass">PASS</td><td class="out">check-version-sync.sh → 0.5.0; bun run test → all checks passed</td></tr>
+    <tr><td>Plan-008 reconciliation paragraph</td><td class="pass">PASS</td><td class="out">Present in plugins/diagrams/plans/README.md — 008 executors must carry the new message wording</td></tr>
+    <tr><td>Scope</td><td class="pass">PASS</td><td class="out">git diff --stat 39b47ec..HEAD → exactly the ten in-scope files; worktree status clean</td></tr>
+  </table></div>
+
+  <h2>Notes</h2>
+  <section class="notes">
+    <div class="note info"><span class="tag">Reviewer reconciliation</span>DESIGN.md's scope line is unnumbered, so its sections don't match the §-numbers plans 012/014 used. Both plans now reference sections by <em>name</em> ("Feedback affordance", "Output → artifact type") — executor confusion averted. Uncommitted alongside this review.</div>
+    <div class="note"><span class="tag">Deviation — accepted</span>Committed on the harness worktree branch rather than creating <code>advisor/011-geist-conventions</code> — consistent with how 010 landed; the branch name is packaging, not content.</div>
+    <div class="note"><span class="tag">Deviation — accepted</span>MERMAID.md verify expected "1 added line"; the plan's own blockquote text wraps to two lines + separator. Judged conforming: one additive blockquote, nothing else.</div>
+    <div class="note open info"><span class="tag">Your decision</span>Merge commits <code>9a7a5e2</code>+<code>5f0d3eb</code> (branch <code>worktree-agent-af8f8065298a82657</code>)? After merge: refresh both agents to 0.5.0 (same headless commands as 010), then 012 is unblocked.</div>
+  </section>
+</main>
+</body>
+</html>
