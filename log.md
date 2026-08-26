@@ -76,3 +76,9 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Human reported the recommended download `Jundot/Qwen3.8-27B-oQ4e-mtp` does not exist (404). Root cause: the repo name came from a web-search summary; search results still list such pages, but oMLX's own source at HEAD only references Qwen 3.6 oQ quants, corroborating the human.
 - Rewrote A.2 with verifiable routes only: search-and-verify on HF, or build the quant locally with oMLX's oQ quantizer (preserve_mtp option confirmed in omlx/admin/oq_manager.py; streaming path fits 48 GB). Flipped the top recommendation to MTPLX as the verified turnkey path — its quant `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` is the DEFAULT_HF_MODEL_ID in MTPLX's source (mtplx/profiles.py:155), so that download cannot dangle.
 - Correction noted on the page per the contradiction rule. Lesson: treat search-result repo names as unverified until the page is opened; source-code references are ground truth.
+
+## [2026-08-26] maintenance | ADHD summarization skill
+
+- Researched how to summarize documents for readers with ADHD (working memory, BLUF, chunking, layered depth; sources cited in the skill's references/research.md)
+- Created project skill .claude/skills/adhd-summarize/ (SKILL.md + references/research.md), discoverable in Claude Code's skills configuration UI
+- Sanity-tested on raw/How to Store Dotfiles - A Bare Git Repository.md; refined length-budget, action-item, and emoji-register rules based on the run
