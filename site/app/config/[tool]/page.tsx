@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { slug } from "github-slugger";
 import { ConfigEditor } from "@/components/config-editor";
 import { CommitBox } from "@/components/commit-box";
 import { repoRoot, TOOLS } from "@/lib/config-files";
+import { slugify } from "@/lib/source";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ async function docsForTool(tool: string): Promise<DocLink[]> {
     const title = fm.match(/^title:\s*(.+)$/m)?.[1] ?? name;
     docs.push({
       title: title.trim(),
-      href: `/docs/wiki/${slug(name.replace(/\.md$/, "")).replace(/-+/g, "-")}`,
+      href: `/docs/wiki/${slugify(name.replace(/\.md$/, ""))}`,
     });
   }
   return docs;
@@ -42,7 +42,9 @@ export default async function ConfigToolPage(props: {
   params: Promise<{ tool: string }>;
 }) {
   const { tool } = await props.params;
-  const entry = TOOLS[tool];
+  // Object.hasOwn: a plain index would let /config/toString reach inherited
+  // Object.prototype members and crash instead of 404ing.
+  const entry = Object.hasOwn(TOOLS, tool) ? TOOLS[tool] : undefined;
   if (!entry) notFound();
 
   const docs = await docsForTool(tool);

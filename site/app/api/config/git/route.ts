@@ -3,17 +3,28 @@ import { git } from "@/lib/config-files";
 
 /** GET /api/config/git — dirty files under dotfiles/**. */
 export async function GET() {
+  // -z: NUL-separated, unquoted paths; renames come as "XY new\0old\0".
   const status = await git(
     "status",
-    "--porcelain",
+    "--porcelain=v1",
+    "-z",
     "--untracked-files=all",
     "--",
     "dotfiles"
   );
-  const dirty = status.stdout
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => ({ status: line.slice(0, 2).trim(), path: line.slice(3) }));
+  if (status.code !== 0) {
+    return NextResponse.json(
+      { error: `git status failed: ${status.stderr.trim()}` },
+      { status: 500 }
+    );
+  }
+  const entries = status.stdout.split("\0").filter(Boolean);
+  const dirty: { status: string; path: string }[] = [];
+  for (let i = 0; i < entries.length; i++) {
+    const code = entries[i].slice(0, 2);
+    dirty.push({ status: code.trim(), path: entries[i].slice(3) });
+    if (code[0] === "R" || code[0] === "C") i++; // skip the origin path
+  }
   return NextResponse.json({ dirty });
 }
 
@@ -22,7 +33,13 @@ export async function GET() {
  * One commit for everything dirty; push is out of scope for the prototype.
  */
 export async function POST(req: NextRequest) {
-  const { message } = await req.json();
+  let body: { message?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "malformed JSON body" }, { status: 400 });
+  }
+  const { message } = body;
   if (typeof message !== "string" || message.trim() === "") {
     return NextResponse.json(
       { error: "empty commit message" },

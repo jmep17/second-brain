@@ -19,8 +19,17 @@ export function CommitBox() {
   const [busy, setBusy] = useState(false);
 
   const refresh = useCallback(async () => {
-    const res = await fetch("/api/config/git");
-    if (res.ok) setDirty((await res.json()).dirty);
+    try {
+      const res = await fetch("/api/config/git");
+      const data = await res.json();
+      if (!res.ok) {
+        setError(String(data.error));
+        return;
+      }
+      setDirty(data.dirty);
+    } catch (err) {
+      setError(`git status failed: ${String(err)}`);
+    }
   }, []);
 
   useEffect(() => {
@@ -39,14 +48,21 @@ export function CommitBox() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
-      const data = await res.json();
+      let data: { error?: string; output?: string };
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `${res.status} ${res.statusText}` };
+      }
       if (!res.ok) {
-        setError(data.error);
+        setError(String(data.error));
         return;
       }
-      setResult(data.output);
+      setResult(data.output ?? "");
       setMessage("");
       await refresh();
+    } catch (err) {
+      setError(`commit failed: ${String(err)}`);
     } finally {
       setBusy(false);
     }

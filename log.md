@@ -83,3 +83,9 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Verified the two open chezmoi facts: `.chezmoiignore` leaves applied targets in place; `.chezmoiremove` deletes directories — but not when the path is also ignored (silent no-op) or still managed ("inconsistent state"). The 06 skill-toggle mechanism is therefore broken as written; verified replacement is ignore + `run_after` prune script. ADR 0003 addendum added.
 - Also for the spec: applies need `--no-tty --force --parent-dirs`; save-while-drifted force-overwrites late `$HOME` drift; `dynamicSource()` on Next 16.3 confirmed.
 - Filed answer in .scratch/config-system/issues/07-ui-prototype.md; updated map.md; added `tool: tmux` frontmatter to wiki/tmux-pane-keybindings.md.
+
+## [2026-08-26] maintenance | config-system ticket 07: review fixes, merged to main
+
+- Review pass over the prototype branch found ten issues; all fixed: chezmoi/git exit codes now checked (new "chezmoi error" state instead of a false "in sync"), save refused with 409 when the target drifted after load (closes the force-overwrite race), adopt refused for template sources, drift resolution confirms before discarding unsaved editor text, robust JSON/error handling in all client handlers and API routes, `git status -z` parsing for renames/quoted paths, `Object.hasOwn` tool lookup (/config/toString 500 → 404), dead `serve` dependency removed, docs links reuse the loader's `slugify`.
+- Re-verified end to end: regression suite plus new cases (save-while-drifted 409 keeps editor text and source untouched; template adopt 400; malformed body 400; /config/toString 404); typecheck and production build green.
+- Updated ticket 07 answer and map with the hardening notes; merged branch `claude/config-editor-prototype-vecru1` to main.

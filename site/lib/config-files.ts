@@ -82,7 +82,8 @@ export function git(...args: string[]): Promise<ExecResult> {
   return run("git", ["-C", repoRoot, ...args]);
 }
 
-export type FileState = "in-sync" | "drifted" | "not-applied" | "meta";
+export type FileState =
+  "in-sync" | "drifted" | "not-applied" | "meta" | "error";
 
 export interface FileStatus {
   path: string;
@@ -93,11 +94,16 @@ export interface FileStatus {
   /** chezmoi diff output; withheld for templates (would render secrets). */
   diff: string | null;
   isTemplate: boolean;
+  /** Set when state is "error": what chezmoi said. */
+  error: string | null;
 }
 
 /**
  * Read one source file plus its drift state — run on every open and after
- * every save/adopt/overwrite (ADR 0003: drift check on file open).
+ * every save/adopt/overwrite (ADR 0003: drift check on file open). A chezmoi
+ * failure is reported as state "error", never as a guessed state: a swallowed
+ * `diff` failure would show "in sync" and invite a --force save over real
+ * drift.
  */
 export async function fileStatus(rel: string): Promise<FileStatus> {
   const abs = resolveSource(rel);
@@ -107,6 +113,7 @@ export async function fileStatus(rel: string): Promise<FileStatus> {
     content,
     hash: hashContent(content),
     isTemplate: isTemplate(rel),
+    error: null,
   };
 
   if (isChezmoiMeta(rel)) {
@@ -114,10 +121,16 @@ export async function fileStatus(rel: string): Promise<FileStatus> {
   }
 
   const targetRes = await chezmoi("target-path", abs);
-  const target = targetRes.code === 0 ? targetRes.stdout.trim() : null;
-  if (!target) {
-    return { ...base, target: null, state: "meta", diff: null };
+  if (targetRes.code !== 0) {
+    return {
+      ...base,
+      target: null,
+      state: "error",
+      diff: null,
+      error: `chezmoi target-path failed: ${targetRes.stderr.trim()}`,
+    };
   }
+  const target = targetRes.stdout.trim();
 
   const exists = await fs
     .access(target)
@@ -127,7 +140,18 @@ export async function fileStatus(rel: string): Promise<FileStatus> {
     return { ...base, target, state: "not-applied", diff: null };
   }
 
+  // chezmoi diff exits 0 with or without differences; non-zero is a real
+  // failure (verified against v2.72.0).
   const diffRes = await chezmoi("diff", target);
+  if (diffRes.code !== 0) {
+    return {
+      ...base,
+      target,
+      state: "error",
+      diff: null,
+      error: `chezmoi diff failed: ${diffRes.stderr.trim()}`,
+    };
+  }
   const drifted = diffRes.stdout.trim().length > 0;
   return {
     ...base,

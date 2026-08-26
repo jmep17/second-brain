@@ -32,8 +32,12 @@ Yes. The loop open → see badge (in sync / drifted / not applied) → edit → 
 ### What it reveals for the spec (08)
 
 - Server-driven chezmoi needs `--no-tty --force` on every apply (apply prompts interactively when the target was modified) and `--parent-dirs` on single-file applies (fails when the target dir doesn't exist — hit on first apply of a new file). `apply --source-path` and `target-path` (source→target mapping for diff/re-add) work as ADR 0003 assumed.
-- The stale-save hash guards the _source_ file only. Save-while-drifted force-overwrites `$HOME` drift that arrived after the page loaded. Spec: re-check target drift server-side at save time and warn/refuse, or accept the race and say so.
+- The stale-save hash guards the _source_ file only. Save-while-drifted force-overwrites `$HOME` drift that arrived after the page loaded. Resolved in the prototype after review: the save endpoint re-checks target drift at save time and refuses with a 409 (editor text kept; user resolves drift, then saves again). Spec should adopt this save-only-when-in-sync-or-not-applied rule.
 - Commit-box `git status` needs `--untracked-files=all` (porcelain collapses untracked dirs to `dotfiles/`).
 - The Fumadocs loader doesn't expose custom frontmatter; the Docs tab reads `tool:` by scanning `wiki/*.md` directly (cheap, fine to keep).
 - Dropping `output: "export"` was as cheap as 03 predicted; `start` becomes `next start` (the `serve out` flow is gone). Next 16 writes its own `site/AGENTS.md`/`CLAUDE.md` unless `agentRules: false` is set — it is now.
 - Prototype omissions the spec still owes: push from the UI, template (`*.tmpl`) editing, meta-file full-apply exercise, skill-toggle UI, work-Mac read-only wiki mode.
+
+### Post-review hardening (2026-08-26, before merge to main)
+
+A review pass over the branch diff surfaced ten issues; all fixed and re-verified end to end. Worth carrying into the spec: chezmoi/git exit codes must be checked everywhere (a swallowed `chezmoi diff` failure renders as "in sync" and invites a `--force` save over real drift — now a distinct "chezmoi error" state); adopt must be refused for `*.tmpl` sources (`re-add` skips or flattens templates); drift resolution must not silently discard unsaved editor text (confirm first); `git status` parsing needs `-z` for renames/quoted paths; tool-name lookup needs `Object.hasOwn` (`/config/toString` reached `Object.prototype` and 500ed). Plus the save-time drift re-check above.

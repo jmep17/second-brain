@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type FileState = "in-sync" | "drifted" | "not-applied" | "meta";
+type FileState = "in-sync" | "drifted" | "not-applied" | "meta" | "error";
 
 interface FileStatus {
   path: string;
@@ -12,6 +12,7 @@ interface FileStatus {
   state: FileState;
   diff: string | null;
   isTemplate: boolean;
+  error: string | null;
 }
 
 const BADGE: Record<FileState, { label: string; className: string }> = {
@@ -34,12 +35,25 @@ const BADGE: Record<FileState, { label: string; className: string }> = {
     className:
       "bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
   },
+  error: {
+    label: "chezmoi error",
+    className: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+  },
 };
+
+/** Parse a JSON body; error responses may be non-JSON (e.g. a bare 500). */
+async function parseJson(res: Response): Promise<Record<string, unknown>> {
+  try {
+    return await res.json();
+  } catch {
+    return { error: `${res.status} ${res.statusText}` };
+  }
+}
 
 /**
  * Raw text editor over one dotfiles source file, implementing the ADR 0003
- * edit model: drift check on open, stale saves rejected by hash, save =
- * write + apply, apply failure keeps the save.
+ * edit model: drift check on open and again at save time, stale saves
+ * rejected by hash, save = write + apply, apply failure keeps the save.
  */
 export function ConfigEditor({ path }: { path: string }) {
   const [status, setStatus] = useState<FileStatus | null>(null);
@@ -47,22 +61,28 @@ export function ConfigEditor({ path }: { path: string }) {
   const [error, setError] = useState<string | null>(null);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
+  const [driftBlocked, setDriftBlocked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
     setStale(false);
-    const res = await fetch(
-      `/api/config/file?path=${encodeURIComponent(path)}`
-    );
-    if (!res.ok) {
-      setError(`load failed: ${(await res.json()).error}`);
-      return;
+    setDriftBlocked(false);
+    try {
+      const res = await fetch(
+        `/api/config/file?path=${encodeURIComponent(path)}`
+      );
+      const data = await parseJson(res);
+      if (!res.ok) {
+        setError(`load failed: ${data.error}`);
+        return;
+      }
+      setStatus(data as unknown as FileStatus);
+      setText((data as unknown as FileStatus).content);
+    } catch (err) {
+      setError(`load failed: ${String(err)}`);
     }
-    const data: FileStatus = await res.json();
-    setStatus(data);
-    setText(data.content);
   }, [path]);
 
   useEffect(() => {
@@ -74,30 +94,50 @@ export function ConfigEditor({ path }: { path: string }) {
     setBusy(true);
     setError(null);
     setApplyError(null);
+    setDriftBlocked(false);
     try {
       const res = await fetch("/api/config/file", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path, content: text, baseHash: status.hash }),
       });
+      const data = await parseJson(res);
       if (res.status === 409) {
-        setStale(true);
+        if (data.targetDrifted) {
+          // The save was refused, the editor text is kept: show the fresh
+          // drift so the user resolves it, then saves again.
+          setStatus(data as unknown as FileStatus);
+          setDriftBlocked(true);
+        } else {
+          setStale(true);
+        }
         return;
       }
-      const data = await res.json();
       if (!res.ok) {
-        setError(data.error);
+        setError(String(data.error));
         return;
       }
-      setStatus(data);
-      setApplyError(data.applyError);
+      setStatus(data as unknown as FileStatus);
+      setApplyError((data.applyError as string | null) ?? null);
       setSavedAt(Date.now());
+    } catch (err) {
+      setError(`save failed: ${String(err)}`);
     } finally {
       setBusy(false);
     }
   }
 
   async function resolveDrift(action: "adopt" | "overwrite") {
+    if (
+      status &&
+      text !== status.content &&
+      !window.confirm(
+        "You have unsaved edits in the editor; resolving drift will replace " +
+          "the editor content and discard them. Continue?"
+      )
+    ) {
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -106,13 +146,16 @@ export function ConfigEditor({ path }: { path: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path, action }),
       });
-      const data = await res.json();
+      const data = await parseJson(res);
       if (!res.ok) {
-        setError(data.error);
+        setError(String(data.error));
         return;
       }
-      setStatus(data);
-      setText(data.content);
+      setDriftBlocked(false);
+      setStatus(data as unknown as FileStatus);
+      setText((data as unknown as FileStatus).content);
+    } catch (err) {
+      setError(`${action} failed: ${String(err)}`);
     } finally {
       setBusy(false);
     }
@@ -157,6 +200,13 @@ export function ConfigEditor({ path }: { path: string }) {
         </span>
       </header>
 
+      {status.state === "error" && (
+        <div className="border-b border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+          chezmoi could not report this file's state:
+          <pre className="mt-2 overflow-x-auto text-xs">{status.error}</pre>
+        </div>
+      )}
+
       {stale && (
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
           The file changed on disk since you opened it; this save was rejected.{" "}
@@ -178,8 +228,9 @@ export function ConfigEditor({ path }: { path: string }) {
       {status.state === "drifted" && (
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
           <p>
-            The applied file differs from this source (edited directly in{" "}
-            <code>$HOME</code>?).
+            {driftBlocked
+              ? "Save refused: the applied file changed after you opened this page. Resolve the drift, then save again — your editor text is kept."
+              : "The applied file differs from this source (edited directly in $HOME?)."}
           </p>
           {status.diff ? (
             <pre className="mt-2 max-h-48 overflow-auto rounded bg-white/60 p-2 text-xs dark:bg-black/30">
@@ -191,13 +242,15 @@ export function ConfigEditor({ path }: { path: string }) {
             </p>
           )}
           <div className="mt-2 flex gap-2">
-            <button
-              onClick={() => void resolveDrift("adopt")}
-              disabled={busy}
-              className="rounded-md border border-amber-400 px-2 py-1 text-xs font-medium disabled:opacity-40"
-            >
-              Adopt $HOME version
-            </button>
+            {!status.isTemplate && (
+              <button
+                onClick={() => void resolveDrift("adopt")}
+                disabled={busy}
+                className="rounded-md border border-amber-400 px-2 py-1 text-xs font-medium disabled:opacity-40"
+              >
+                Adopt $HOME version
+              </button>
+            )}
             <button
               onClick={() => void resolveDrift("overwrite")}
               disabled={busy}

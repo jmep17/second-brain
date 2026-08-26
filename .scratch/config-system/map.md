@@ -41,7 +41,7 @@ An architecture decision and written spec describing one system that holds the s
 
 - Localhost-only binding + launchd start for the site server: into spec/bootstrap (08). (from 03, 06)
 - `tool:` frontmatter field on wiki pages (links docs to a tool in the UI): add convention to CLAUDE.md in 08. (from 06)
-- Skill toggle must be specced as `.chezmoiignore.tmpl` + `run_after` prune script, not ignore+remove; save-while-drifted race (target drift after load is force-overwritten) needs a spec position; UI applies run `--no-tty --force --parent-dirs`. Into 08. (from 07)
+- Skill toggle must be specced as `.chezmoiignore.tmpl` + `run_after` prune script, not ignore+remove; saves are refused while the target is drifted (re-checked server-side at save time — spec this rule); UI applies run `--no-tty --force --parent-dirs`; adopt is refused for templates; chezmoi/git exit codes always checked. Into 08. (from 07)
 
 - Does "exclude from work" mean "not in `$HOME`" (chezmoiignore suffices) or "not on disk at all" (needs split private repo or encryption with key off work)? Applies to wiki content too, or only dotfiles? Feeds ticket 02. (from 01)
 - Who runs `chezmoi update`/`git pull` on the work Mac (manual vs cron)? Into 08. (from 01)
