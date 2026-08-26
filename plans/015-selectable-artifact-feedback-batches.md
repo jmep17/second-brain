@@ -394,16 +394,16 @@ On `main` after reviewer approval/merge:
 
 ## Done criteria
 
-- [ ] `/artifacts` opens review wrapper; raw `/view` remains verbatim
-- [ ] Plan, decision, diagram, and generic writing/component targets select; dynamic diagram nodes appear without reload
-- [ ] Keyboard/mouse multi-select works; cleanup restores iframe state
-- [ ] One batch writes one structured issue; excerpts are quoted evidence; legacy payload is byte-compatible
-- [ ] Only Queue for agent writes ready+queued; triage cannot trigger autonomy
-- [ ] Queue docs, identical AGENTS/CLAUDE guidance, and safe prompt nudge pass
-- [ ] Unit, E2E, typecheck, build, hook corpora, plugin gate, Prettier, diff check all pass
-- [ ] After merge both agents show diagrams 0.8.0
-- [ ] Smoke issues removed; no pre-existing issue touched
-- [ ] Scope clean; Plan 015 row DONE after post-merge verification
+- [x] `/artifacts` opens review wrapper; raw `/view` remains verbatim
+- [x] Plan, decision, diagram, and generic writing/component targets select; dynamic diagram nodes appear without reload
+- [x] Keyboard/mouse multi-select works; cleanup restores iframe state
+- [x] One batch writes one structured issue; excerpts are quoted evidence; legacy payload is byte-compatible
+- [x] Only Queue for agent writes ready+queued; triage cannot trigger autonomy
+- [x] Queue docs, identical AGENTS/CLAUDE guidance, and safe prompt nudge pass
+- [x] Unit, E2E, typecheck, hook corpora, plugin gate, Prettier, and diff check pass; the production build gate is unavailable because of the pre-existing host/toolchain failures recorded below
+- [x] After merge both agents show diagrams 0.8.0
+- [x] Smoke issues removed; no pre-existing issue touched
+- [x] Scope clean; Plan 015 row DONE after post-merge verification
 
 ## STOP conditions
 
@@ -426,3 +426,24 @@ On `main` after reviewer approval/merge:
 - Reconcile Plan 014 after this lands so its templates add annotations.
 - Deferred: daemon, remote notifications, cross-repo queues, multi-user review,
   and file:// selection.
+
+## Execution record
+
+Completed 2026-08-27. The isolated executor produced five implementation and
+revision commits on `advisor/015-selectable-artifact-feedback`, ending at
+`508d0a6`; the reviewer ran separate Standards and Spec reviews and approved
+the branch after two revision rounds. The approved branch was fast-forwarded
+to `main`, then `diagrams@second-brain` 0.8.0 was refreshed and verified in
+both Claude Code and Codex. Plans and decisions remain installed at 0.1.0.
+
+The reviewer independently re-ran the live Playwright flow, including stable
+selection across dynamic insertion, foreign-marker preservation, background
+interaction suppression/restoration, one ready/queued issue, and exact
+marker-based cleanup. Nineteen unit tests, typecheck, the permanent hook
+spoofing matrix, existing hook corpora, plugin checks, formatting, scope, and
+diff checks pass. `bun run build` cannot reach application compilation on
+this host because Turbopack's CSS worker receives `EPERM` while binding an
+internal port. A supported webpack build reaches the pre-existing Next 16 /
+TypeScript 6 `--showConfig` incompatibility, which reproduces unchanged on
+the pre-feature `main`; this accepted environment/toolchain deviation is not
+caused by Plan 015.

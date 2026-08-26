@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Selectable artifact feedback</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --geist-bg: #fff;
+        --geist-fg: #171717;
+        --accents-1: #fafafa;
+        --accents-2: #eaeaea;
+        --accents-3: #999;
+        --accents-5: #666;
+        --text-warning: #8a4b00;
+        --text-info: #0057b7;
+        --radius: 10px;
+        --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+        --font-mono: "Geist Mono", ui-monospace, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --geist-bg: #000;
+          --geist-fg: #ededed;
+          --accents-1: #111;
+          --accents-2: #333;
+          --accents-3: #888;
+          --accents-5: #a1a1a1;
+          --text-warning: #f5a623;
+          --text-info: #52a8ff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--geist-bg);
+        color: var(--geist-fg);
+        font: 14px/1.6 var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 1100px;
+        margin: auto;
+        padding: 56px 24px 96px;
+      }
+      header {
+        margin-bottom: 28px;
+      }
+      .kicker,
+      .tag {
+        color: var(--accents-3);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: clamp(22px, 4.5vw, 30px);
+        letter-spacing: -0.03em;
+      }
+      .sub {
+        margin: 0;
+        color: var(--accents-5);
+      }
+      figure {
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid var(--accents-2);
+        border-radius: var(--radius);
+        background: var(--accents-1);
+      }
+      .figbar,
+      figcaption {
+        padding: 10px 14px;
+        color: var(--accents-5);
+        font: 11px var(--font-mono);
+      }
+      .figbar {
+        border-bottom: 1px solid var(--accents-2);
+      }
+      figcaption {
+        border-top: 1px solid var(--accents-2);
+      }
+      .stage {
+        overflow: auto;
+        padding: 28px;
+        background: var(--geist-bg);
+      }
+      .mermaid svg {
+        display: block;
+        margin: auto;
+      }
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+        gap: 12px;
+        margin-top: 28px;
+      }
+      .note {
+        padding: 14px 16px;
+        border: 1px solid var(--accents-2);
+        border-radius: var(--radius);
+      }
+      .note .tag {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .note.risk {
+        border-color: color-mix(
+          in srgb,
+          var(--text-warning) 40%,
+          var(--accents-2)
+        );
+      }
+      .note.risk .tag {
+        color: var(--text-warning);
+      }
+      .note.open {
+        border-color: color-mix(
+          in srgb,
+          var(--text-info) 40%,
+          var(--accents-2)
+        );
+      }
+      .note.open .tag {
+        color: var(--text-info);
+      }
+      code {
+        padding: 1px 5px;
+        border: 1px solid var(--accents-2);
+        border-radius: 4px;
+        background: var(--accents-1);
+        font: 12.5px var(--font-mono);
+      }
+      .err {
+        padding: 14px;
+        border: 1px solid var(--text-warning);
+        border-radius: 8px;
+        color: var(--text-warning);
+        font-family: var(--font-mono);
+        white-space: pre-wrap;
+      }
+      .feedback {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+        padding: 14px 16px;
+        border: 1px solid var(--accents-2);
+        border-radius: 8px;
+      }
+      .fbhead,
+      .fbrow {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .fbhead {
+        justify-content: space-between;
+      }
+      .fbstatus {
+        color: var(--accents-5);
+        font: 11px var(--font-mono);
+      }
+      .feedback input[type="text"],
+      .feedback textarea {
+        width: 100%;
+        padding: 8px 10px;
+        resize: vertical;
+        border: 1px solid var(--accents-2);
+        border-radius: 6px;
+        background: var(--geist-bg);
+        color: var(--geist-fg);
+        font: inherit;
+      }
+      .feedback button {
+        padding: 6px 14px;
+        cursor: pointer;
+        border: 1px solid var(--accents-2);
+        border-radius: 8px;
+        background: var(--geist-bg);
+        color: var(--geist-fg);
+        font: 12px var(--font-mono);
+      }
+      @media (max-width: 640px) {
+        main {
+          padding: 36px 16px 72px;
+        }
+        .stage {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="kicker">Execution complete · 2026-08-27 · approved</div>
+        <h1>Selectable artifact feedback</h1>
+        <p class="sub">
+          Selectable batch feedback is merged, installed, and independently
+          verified.
+        </p>
+      </header>
+      <figure>
+        <div class="figbar">flowchart · reviewed delivery</div>
+        <div class="stage">
+          <pre class="mermaid">
+flowchart TD
+  A["Plan 015 scoped"] --> B["Isolated executor"]
+  B --> C["Standards + spec review"]
+  C --> D["Round 1: harden trust and selection"]
+  D --> E["Round 2: preserve legacy + cleanup"]
+  E --> F["Independent browser and security gates"]
+  F --> G["Approved at 508d0a6"]
+  G --> H["Fast-forward to main"]
+  H --> I["Claude + Codex diagrams 0.8.0"]
+  I --> J["Plan 015 DONE"]
+        </pre>
+        </div>
+        <figcaption>
+          Two review rounds closed every Standards and Spec finding before the
+          implementation reached main.
+        </figcaption>
+      </figure>
+      <section class="notes">
+        <div class="note">
+          <span class="tag">Merged</span>Approved implementation
+          <code>508d0a6</code> is on <code>main</code>.
+        </div>
+        <div class="note">
+          <span class="tag">Interaction</span>Select components, writing, plan
+          steps, decisions, and diagram nodes; annotate them as one batch.
+        </div>
+        <div class="note risk">
+          <span class="tag">Trust</span>Only a structurally valid explicit queue
+          action creates ready/queued authorization; spoof fixtures stay silent.
+        </div>
+        <div class="note open">
+          <span class="tag">Host note</span>Change-sensitive gates pass. The
+          production build remains blocked by pre-existing host/toolchain
+          failures reproduced on unchanged main.
+        </div>
+      </section>
+      <!-- feedback-widget:start -->
+      <section
+        class="feedback"
+        id="feedback"
+        data-artifact="artifacts/diagrams/2026-08-26-selectable-artifact-feedback.html"
+      >
+        <div class="fbhead">
+          <span class="tag">Feedback</span
+          ><span class="fbstatus" id="fbstatus"></span>
+        </div>
+        <div class="fbrow">
+          <label
+            ><input type="radio" name="fbkind" value="feedback" checked />
+            Feedback</label
+          ><label><input type="radio" name="fbkind" value="rfc" /> RFC</label>
+        </div>
+        <input
+          id="fbtitle"
+          type="text"
+          placeholder="One-line title"
+          maxlength="120"
+        />
+        <textarea
+          id="fbbody"
+          rows="4"
+          placeholder="What would you change, and why?"
+        ></textarea>
+        <div class="fbrow">
+          <button id="fbsubmit" type="button">Submit</button>
+        </div>
+      </section>
+      <script>
+        (() => {
+          const section = document.getElementById("feedback");
+          const status = document.getElementById("fbstatus");
+          const submit = document.getElementById("fbsubmit");
+          const isFile = location.protocol === "file:";
+          if (isFile) submit.textContent = "copy as issue";
+          submit.addEventListener("click", async () => {
+            const kind = document.querySelector(
+              'input[name="fbkind"]:checked'
+            ).value;
+            const title = document.getElementById("fbtitle").value.trim();
+            const body = document.getElementById("fbbody").value.trim();
+            if (!title || !body) {
+              status.textContent = "title and body required";
+              return;
+            }
+            const artifact = section.dataset.artifact;
+            if (isFile) {
+              const date = new Date().toISOString().slice(0, 10);
+              const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
+              try {
+                await navigator.clipboard.writeText(md);
+                status.textContent =
+                  "copied — paste into .scratch/artifact-feedback/issues/";
+              } catch (e) {
+                status.textContent = `copy failed: ${e?.message ?? e}`;
+              }
+              return;
+            }
+            try {
+              const res = await fetch("/api/artifacts/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ artifact, kind, title, body }),
+              });
+              const data = await res.json();
+              status.textContent = res.ok
+                ? `filed: ${data.filed}`
+                : `error: ${data.error ?? res.status}`;
+            } catch (e) {
+              status.textContent = `request failed: ${e?.message ?? e}`;
+            }
+          });
+        })();
+      </script>
+      <!-- feedback-widget:end -->
+    </main>
+    <script type="module">
+      const pre = document.querySelector("pre.mermaid");
+      const source = pre.textContent;
+      const token = (name) =>
+        getComputedStyle(document.documentElement)
+          .getPropertyValue(name)
+          .trim();
+      try {
+        const mermaid = (
+          await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")
+        ).default;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "neo",
+          themeVariables: {
+            fontFamily: "Geist, system-ui, sans-serif",
+            background: token("--geist-bg"),
+            primaryColor: token("--accents-1"),
+            primaryTextColor: token("--geist-fg"),
+            primaryBorderColor: token("--accents-2"),
+            lineColor: token("--accents-3"),
+          },
+          flowchart: { curve: "linear", useMaxWidth: false, htmlLabels: true },
+        });
+        await document.fonts.ready;
+        const { svg } = await mermaid.render("selectable-feedback", source);
+        pre.outerHTML = `<div class="mermaid">${svg}</div>`;
+      } catch (e) {
+        pre.outerHTML = `<div class="err">Diagram could not render.\n${e?.message ?? e}</div>`;
+      }
+    </script>
+  </body>
+</html>

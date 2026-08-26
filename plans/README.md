@@ -23,7 +23,7 @@ conditions, and update your row when done.
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | DONE   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | DONE   |
 | 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
-| 015  | Select artifact targets, batch feedback, and queue it for autonomous agents                                    | P1       | L      | 012–013    | TODO   |
+| 015  | Select artifact targets, batch feedback, and queue it for autonomous agents                                    | P1       | L      | 012–013    | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -580,3 +580,21 @@ Post-merge Step 7 also completed: Claude Code has `diagrams@second-brain`
 and enabled; Codex has the same three installed and enabled at the same
 versions. `bash tools/check-plugins.sh` passes on `main`. Review artifact:
 `artifacts/diagrams/2026-08-26-plan-013-execution-review.html`.
+
+Plan 015 completed on 2026-08-27. A dispatched executor implemented the
+same-origin artifact reviewer and autonomous feedback queue on
+`advisor/015-selectable-artifact-feedback`; the approved commits
+`e732a7d`, `c1f98a2`, `942bf93`, `913421a`, and `508d0a6` were
+fast-forwarded to `main`. Two review rounds closed queue-metadata spoofing,
+dynamic target-ID drift, foreign-marker mutation, incomplete interaction
+suppression, failure-unsafe smoke cleanup, the missing shared site layout,
+and a legacy-compatibility regression. Independent verification covered the
+live two-target browser flow and cleanup, 19 unit tests, typecheck, the
+permanent queue-hook security matrix, existing hook corpora, plugin gates,
+formatting, scope, and diff checks. The exact Turbopack production command
+remains blocked before application compilation by this host's internal-port
+`EPERM`; the supported webpack fallback fails identically on unchanged
+`main` because Next cannot parse TypeScript 6's `--showConfig`, so neither is
+a Plan 015 regression. Post-merge, Claude Code and Codex both report
+`diagrams@second-brain` 0.8.0; plans and decisions remain 0.1.0. Review
+artifact: `artifacts/diagrams/2026-08-26-selectable-artifact-feedback.html`.
