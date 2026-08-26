@@ -4,7 +4,9 @@ A Claude Code plugin marketplace. Currently one plugin:
 
 ## diagram-plans
 
-When you ask Claude Code to plan, brainstorm, compare options, sketch an architecture, or lay out a roadmap, it answers with a **Mermaid mindmap / flowchart** in a standalone HTML page styled on [Vercel's Geist design system](https://vercel.com/geist) instead of paragraphs. The file is saved to a directory you choose and opened in your browser.
+When you ask Claude Code to plan, brainstorm, compare options, sketch an architecture, or lay out a roadmap, it answers with a **Mermaid diagram** in a standalone HTML page styled on [Vercel's Geist design system](https://vercel.com/geist) instead of paragraphs. The file is saved to a directory you choose and opened in your browser.
+
+The page reads two ways: a **document** by default — diagram in a figure, notes underneath — and a **canvas** one click away, taking the diagram full-bleed with pan and zoom for when it is too big to read in place. Geist tokens drive the diagram itself, not just the page around it, and the layout engine is [ELK](https://github.com/kieler/elkjs).
 
 Two parts:
 
