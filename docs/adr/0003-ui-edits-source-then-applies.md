@@ -15,3 +15,22 @@ The UI must let the owner change tool configuration and have it take effect, whi
 - The server binds `127.0.0.1` only; it runs unauthenticated as the user.
 
 Evidence: `.scratch/config-system/issues/06-ui-edit-model.md`.
+
+## Addendum (2026-08-26, prototype ticket 07)
+
+Tested against chezmoi v2.72.0:
+
+- The skill-removal half of the toggle mechanism does not work as written: a
+  path listed in both `.chezmoiignore` and `.chezmoiremove` is silently **not**
+  removed (ignore wins), and a path in `.chezmoiremove` that is still managed
+  in the source errors with "inconsistent state". `.chezmoiremove` only deletes
+  a directory when the path is neither ignored nor managed. Revised mechanism,
+  verified: `.chezmoiignore.tmpl` for not-installing plus a
+  `run_after_*.sh.tmpl` script (generated from `.chezmoidata/skills.toml`) that
+  prunes disabled skill directories — chezmoi still does the deleting, not the
+  UI. The spec (ticket 08) should adopt this.
+- Server-driven applies need `--no-tty --force` (apply prompts on modified
+  targets) and `--parent-dirs` (a single-file apply fails when the target's
+  directory does not exist yet).
+
+Evidence: `.scratch/config-system/issues/07-ui-prototype.md`.
