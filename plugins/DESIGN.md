@@ -81,10 +81,101 @@ path, the opener status, and ONE open question. No summaries, no restating
 the content in prose. An explicit user request for prose overrides
 everything.
 
-## 8. Feedback affordance (placeholder)
+## 8. Feedback affordance
 
-Every artifact page reserves a feedback affordance; its concrete widget and
-API contract are defined by plan 012 and appended to this document then.
+Every artifact page ends `<main>` with a delimited feedback section, marked
+between `<!-- feedback-widget:start -->` and `<!-- feedback-widget:end -->`
+so templates can find and preserve it. Fields: `kind` (`feedback`/`rfc`),
+`title`, `body`. The section carries the page's repo-relative artifact path
+in `data-artifact`.
+
+Behaviour is dual-mode, keyed off `location.protocol`:
+
+- **Served over http(s)** — the widget POSTs `{ artifact, kind, title, body }`
+  to `/api/artifacts/feedback` (same origin — the site that serves the page
+  also files the issue) and shows the returned `filed` path inline.
+- **Opened from `file://`** — no server to POST to, so the submit button is
+  replaced by "copy as issue": it puts the exact tracker-format markdown
+  (the same shape the API route writes) on the clipboard for the reader to
+  hand to an agent or paste into `.scratch/artifact-feedback/issues/`
+  themselves. This is the accepted `file://` degradation; an offline
+  submission queue was considered and rejected (2026-08-26) — do not build
+  queueing.
+
+All controls are styled from the tokens in §2–4: mono labels, `--accents-2`
+borders, 6–8px radius, AA text. Below is the full snippet — HTML, CSS, and
+script — verbatim. New artifact types embed it unmodified; fix wording or
+behaviour here first, then re-sync every template.
+
+<!-- feedback-widget:start -->
+```html
+<section class="feedback" id="feedback" data-artifact="artifacts/diagrams/YYYY-MM-DD-<kebab-slug>.html">
+  <div class="fbhead">
+    <span class="tag">Feedback</span>
+    <span class="fbstatus" id="fbstatus"></span>
+  </div>
+  <div class="fbrow">
+    <label><input type="radio" name="fbkind" value="feedback" checked> Feedback</label>
+    <label><input type="radio" name="fbkind" value="rfc"> RFC</label>
+  </div>
+  <input class="fbtitle" id="fbtitle" type="text" placeholder="One-line title" maxlength="120">
+  <textarea class="fbbody" id="fbbody" rows="4" placeholder="What would you change, and why?"></textarea>
+  <div class="fbrow">
+    <button class="fbsubmit" id="fbsubmit" type="button">Submit</button>
+  </div>
+</section>
+```
+
+```css
+.feedback { margin-top: 20px; border: 1px solid var(--accents-2); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.feedback .fbhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.feedback .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+.feedback .fbstatus { font-family: var(--font-mono); font-size: 11px; color: var(--accents-5); }
+.feedback .fbrow { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+.feedback input[type="text"], .feedback textarea { font: inherit; font-size: 13px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 6px; padding: 8px 10px; width: 100%; resize: vertical; box-sizing: border-box; }
+.feedback button { font-family: var(--font-mono); font-size: 12px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+.feedback button:hover { border-color: var(--accents-3); }
+```
+
+```js
+(() => {
+  const section = document.getElementById("feedback");
+  const status = document.getElementById("fbstatus");
+  const submit = document.getElementById("fbsubmit");
+  const isFile = location.protocol === "file:";
+  if (isFile) submit.textContent = "copy as issue";
+  submit.addEventListener("click", async () => {
+    const kind = document.querySelector('input[name="fbkind"]:checked').value;
+    const title = document.getElementById("fbtitle").value.trim();
+    const body = document.getElementById("fbbody").value.trim();
+    if (!title || !body) { status.textContent = "title and body required"; return; }
+    const artifact = section.dataset.artifact;
+    if (isFile) {
+      const date = new Date().toISOString().slice(0, 10);
+      const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
+      try {
+        await navigator.clipboard.writeText(md);
+        status.textContent = "copied — paste into .scratch/artifact-feedback/issues/";
+      } catch (e) {
+        status.textContent = `copy failed: ${e?.message ?? e}`;
+      }
+      return;
+    }
+    try {
+      const res = await fetch("/api/artifacts/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artifact, kind, title, body }),
+      });
+      const data = await res.json();
+      status.textContent = res.ok ? `filed: ${data.filed}` : `error: ${data.error ?? res.status}`;
+    } catch (e) {
+      status.textContent = `request failed: ${e?.message ?? e}`;
+    }
+  });
+})();
+```
+<!-- feedback-widget:end -->
 
 ## 9. Conforming instance
 

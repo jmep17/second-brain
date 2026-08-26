@@ -192,6 +192,72 @@ flowchart TD
     <div class="note risk"><span class="tag">Risk</span>A risk, stated once.</div>
     <div class="note open"><span class="tag">Open</span>The decision the reader must make.</div>
   </section>
+
+  <!-- feedback-widget:start -->
+  <section class="feedback" id="feedback" data-artifact="artifacts/diagrams/YYYY-MM-DD-<kebab-slug>.html">
+    <div class="fbhead">
+      <span class="tag">Feedback</span>
+      <span class="fbstatus" id="fbstatus"></span>
+    </div>
+    <div class="fbrow">
+      <label><input type="radio" name="fbkind" value="feedback" checked> Feedback</label>
+      <label><input type="radio" name="fbkind" value="rfc"> RFC</label>
+    </div>
+    <input class="fbtitle" id="fbtitle" type="text" placeholder="One-line title" maxlength="120">
+    <textarea class="fbbody" id="fbbody" rows="4" placeholder="What would you change, and why?"></textarea>
+    <div class="fbrow">
+      <button class="fbsubmit" id="fbsubmit" type="button">Submit</button>
+    </div>
+  </section>
+  <style>
+    .feedback { margin-top: 20px; border: 1px solid var(--accents-2); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+    .feedback .fbhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .feedback .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+    .feedback .fbstatus { font-family: var(--font-mono); font-size: 11px; color: var(--accents-5); }
+    .feedback .fbrow { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .feedback input[type="text"], .feedback textarea { font: inherit; font-size: 13px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 6px; padding: 8px 10px; width: 100%; resize: vertical; box-sizing: border-box; }
+    .feedback button { font-family: var(--font-mono); font-size: 12px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+    .feedback button:hover { border-color: var(--accents-3); }
+  </style>
+  <script>
+    (() => {
+      const section = document.getElementById("feedback");
+      const status = document.getElementById("fbstatus");
+      const submit = document.getElementById("fbsubmit");
+      const isFile = location.protocol === "file:";
+      if (isFile) submit.textContent = "copy as issue";
+      submit.addEventListener("click", async () => {
+        const kind = document.querySelector('input[name="fbkind"]:checked').value;
+        const title = document.getElementById("fbtitle").value.trim();
+        const body = document.getElementById("fbbody").value.trim();
+        if (!title || !body) { status.textContent = "title and body required"; return; }
+        const artifact = section.dataset.artifact;
+        if (isFile) {
+          const date = new Date().toISOString().slice(0, 10);
+          const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
+          try {
+            await navigator.clipboard.writeText(md);
+            status.textContent = "copied — paste into .scratch/artifact-feedback/issues/";
+          } catch (e) {
+            status.textContent = `copy failed: ${e?.message ?? e}`;
+          }
+          return;
+        }
+        try {
+          const res = await fetch("/api/artifacts/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact, kind, title, body }),
+          });
+          const data = await res.json();
+          status.textContent = res.ok ? `filed: ${data.filed}` : `error: ${data.error ?? res.status}`;
+        } catch (e) {
+          status.textContent = `request failed: ${e?.message ?? e}`;
+        }
+      });
+    })();
+  </script>
+  <!-- feedback-widget:end -->
 </main>
 
 <div class="zoombar" id="zoombar">
