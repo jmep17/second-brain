@@ -21,7 +21,7 @@ conditions, and update your row when done.
 | 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE   |
 | 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | DONE   |
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | DONE   |
-| 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
+| 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | DONE   |
 | 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
@@ -553,3 +553,19 @@ on the main checkout (watcher-only concern; routes unaffected). NOT MERGED
 refresh both agents to 0.6.0; plan 013 unblocks. Completed 2026-08-26:
 merged as `67a4ee0`; Codex re-snapshotted and Claude Code updated headlessly
 — both agents at `0.6.0` (Claude Code applies on next session start).
+
+Plan 013 completed on 2026-08-26. A dispatched executor implemented the two
+plugins in the isolated `/tmp/second-brain-plan-013` worktree and committed
+`ea267c6` on `advisor/013-plan-decision-types`. The reviewer independently
+verified the 16-file scope, both executable opener copies, manifest and
+marketplace version sync, both offline templates and their feedback defaults,
+all seven hook probes (2 fire / 5 quiet), the shared plugin checker including
+its deliberate mismatch failure, `bun run test`, Prettier, and a clean
+worktree. The repo-side commit was APPROVED and fast-forwarded to `main` as
+`ea267c6` with the owner's explicit authorization.
+
+Post-merge Step 7 also completed: Claude Code has `diagrams@second-brain`
+0.7.0, `plans@second-brain` 0.1.0, and `decisions@second-brain` 0.1.0 installed
+and enabled; Codex has the same three installed and enabled at the same
+versions. `bash tools/check-plugins.sh` passes on `main`. Review artifact:
+`artifacts/diagrams/2026-08-26-plan-013-execution-review.html`.
