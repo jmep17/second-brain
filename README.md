@@ -39,7 +39,7 @@ python3 -c 'import json;print(json.load(open("$HOME/.claude/plugins/installed_pl
 ```
 
 **When contributing**: any change to the plugin's files must bump the version in
-*both* `plugins/diagram-plans/.claude-plugin/plugin.json` and
+_both_ `plugins/diagram-plans/.claude-plugin/plugin.json` and
 `.claude-plugin/marketplace.json`. Run `bash tools/check-version-sync.sh`
 to confirm they agree. Without a bump, existing installs keep serving the old
 cached copy.
@@ -57,10 +57,10 @@ Set env vars in `~/.claude/settings.json` (global) or `.claude/settings.json` (p
 }
 ```
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `DIAGRAM_PLANS_DIR` | `.claude/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
-| `DIAGRAM_PLANS_OPEN` | `1` | Open the file in your default browser when created (WSL, Linux, macOS). `0` disables. |
+| Variable             | Default            | Meaning                                                                                     |
+| -------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
+| `DIAGRAM_PLANS_DIR`  | `.claude/diagrams` | Where HTML files are written. Absolute, or relative to the project root. Created on demand. |
+| `DIAGRAM_PLANS_OPEN` | `1`                | Open the file in your default browser when created (WSL, Linux, macOS). `0` disables.       |
 
 Files are named `YYYY-MM-DD-<topic-slug>.html`. Each page loads Mermaid from jsDelivr and the Geist fonts from Google Fonts, follows your OS light/dark scheme, and otherwise has no dependencies.
 
