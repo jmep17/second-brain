@@ -60,8 +60,24 @@ try {
 
   const dynamicNode = frame.locator("g.node#synthetic-review-node");
   await dynamicNode.waitFor();
-  await dynamicNode.getAttribute("data-artifact-review-target", {
-    timeout: 5_000,
+  await dynamicNode.evaluate((node) => {
+    if (node.hasAttribute("data-artifact-review-target")) return;
+    return new Promise((resolve, reject) => {
+      const observer = new MutationObserver(() => {
+        if (!node.hasAttribute("data-artifact-review-target")) return;
+        observer.disconnect();
+        clearTimeout(timeout);
+        resolve();
+      });
+      const timeout = setTimeout(() => {
+        observer.disconnect();
+        reject(new Error("review marker did not appear within 5 seconds"));
+      }, 5_000);
+      observer.observe(node, {
+        attributes: true,
+        attributeFilter: ["data-artifact-review-target"],
+      });
+    });
   });
   assert(
     await dynamicNode.getAttribute("data-artifact-review-target"),
