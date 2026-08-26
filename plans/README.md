@@ -19,7 +19,7 @@ conditions, and update your row when done.
 | 008  | Restyle the config editor onto Fumadocs theme tokens                                                           | P3       | M      | 006 (DONE) | DONE   |
 | 009  | Move claude-diagrams into `plugins/diagrams`; second-brain is the marketplace; output in `artifacts/diagrams/` | P2       | M      | —          | DONE   |
 | 010  | Diagrams plugin installs into Codex (and other agents); enforcement incl. plans written by any skill           | P2       | M      | —          | DONE   |
-| 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | DONE (awaiting merge) |
+| 011  | Normative Geist design contract for all artifact types; "the artifact IS the response" enforcement             | P1       | S      | 010 (rec.) | DONE   |
 | 012  | Interactive artifacts: site serves them; feedback/RFC widget files into the issue tracker                      | P1       | M      | 011        | TODO   |
 | 013  | Two new artifact types — plan pages and decision/RFC pages — as marketplace plugins                            | P2       | L      | 010–012    | TODO   |
 | 014  | Artifact types for every mattpocock/improve output shape — boards, reviews, questionnaires, reports            | P2       | L      | 011–013    | TODO   |
@@ -521,4 +521,6 @@ unnumbered scope line, shifting section numbers — plans 012/014 now cite
 DESIGN.md sections by name instead of §-number. NOT MERGED — owner's
 decision, presented in
 `artifacts/reviews/2026-08-26-plan-011-execution-review.html`. Post-merge:
-refresh both agents to 0.5.0.
+refresh both agents to 0.5.0. Completed 2026-08-26: merged as `87eac00`;
+Codex re-snapshotted and Claude Code updated headlessly — both agents at
+`0.5.0` (Claude Code applies on next session start). Plan 012 is unblocked.

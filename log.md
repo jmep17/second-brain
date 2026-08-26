@@ -210,3 +210,16 @@ Append-only record of wiki operations. Newest entries at the bottom.
 - Codex moved from the retired `claude-diagrams` marketplace (v0.2.0) to
   `diagrams@second-brain`; enforcement verified end-to-end via `codex exec`
   smoke test. Both agents at v0.4.1 (`bf038d1`). Plans 011–014 filed and TODO.
+
+## [2026-08-26] maintenance | Plan 011 — Geist design contract and artifact-response enforcement
+
+- Executed by a dispatched worktree executor, reviewed and approved off
+  `artifacts/reviews/2026-08-26-plan-011-execution-review.html`, merged as
+  `87eac00`.
+- `plugins/DESIGN.md` is now the normative Geist contract for every artifact
+  plugin (tokens-not-identity, color/typography/materials/grid rules, page
+  contract, "the artifact IS the response" reply contract, feedback
+  placeholder for plan 012). CLAUDE.md/AGENTS.md gained the `## Artifact
+  responses` rule; artifacts/README.md lists the three-type taxonomy; the
+  nudge message and SKILL.md step 5 now say "present an artifact / reply =
+  path + one question". Both agents refreshed to v0.5.0. Plans 012–014 next.
