@@ -5,6 +5,7 @@ import {
   isTemplate,
   resolveSource,
 } from "@/lib/config-files";
+import { isLocalRequest } from "@/lib/request-origin";
 
 /**
  * POST /api/config/drift — resolve drift on one file: {path, action}.
@@ -12,6 +13,10 @@ import {
  * "overwrite" = the source wins (`chezmoi apply`). ADR 0003.
  */
 export async function POST(req: NextRequest) {
+  if (!isLocalRequest(req)) {
+    return NextResponse.json({ error: "forbidden origin" }, { status: 403 });
+  }
+
   let body: { path?: unknown; action?: unknown };
   try {
     body = await req.json();

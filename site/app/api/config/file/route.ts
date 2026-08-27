@@ -8,6 +8,7 @@ import {
   isChezmoiMeta,
   resolveSource,
 } from "@/lib/config-files";
+import { isLocalRequest } from "@/lib/request-origin";
 
 /** GET /api/config/file?path=<dotfiles-relative> — content + hash + drift state. */
 export async function GET(req: NextRequest) {
@@ -29,6 +30,10 @@ export async function GET(req: NextRequest) {
  * Once written, the save is kept even when the apply fails (ADR 0003).
  */
 export async function PUT(req: NextRequest) {
+  if (!isLocalRequest(req)) {
+    return NextResponse.json({ error: "forbidden origin" }, { status: 403 });
+  }
+
   let body: { path?: unknown; content?: unknown; baseHash?: unknown };
   try {
     body = await req.json();

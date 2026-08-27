@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { git } from "@/lib/config-files";
+import { isLocalRequest } from "@/lib/request-origin";
 
 /** GET /api/config/git — dirty files under dotfiles/**. */
 export async function GET() {
@@ -33,6 +34,10 @@ export async function GET() {
  * One commit for everything dirty; push is out of scope for the prototype.
  */
 export async function POST(req: NextRequest) {
+  if (!isLocalRequest(req)) {
+    return NextResponse.json({ error: "forbidden origin" }, { status: 403 });
+  }
+
   let body: { message?: unknown };
   try {
     body = await req.json();

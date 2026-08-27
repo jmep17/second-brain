@@ -8,6 +8,7 @@ import {
   renderFeedbackIssue,
 } from "@/lib/artifact-feedback";
 import { dispatchRun } from "@/lib/artifact-run";
+import { isLocalRequest } from "@/lib/request-origin";
 
 /**
  * POST /api/artifacts/feedback — file a needs-triage issue into the local
@@ -16,6 +17,10 @@ import { dispatchRun } from "@/lib/artifact-run";
  * acceptable at this scale (single owner, localhost) — no locking.
  */
 export async function POST(req: NextRequest) {
+  if (!isLocalRequest(req)) {
+    return NextResponse.json({ error: "forbidden origin" }, { status: 403 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
