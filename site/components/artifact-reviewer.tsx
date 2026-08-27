@@ -936,46 +936,23 @@ export function ArtifactReviewer({
         aria-label="Artifact review tray"
         className="flex max-h-[60vh] flex-col overflow-hidden border-t bg-fd-card lg:max-h-none lg:w-[26rem] lg:shrink-0 lg:border-t-0 lg:border-l"
       >
-        <header className="shrink-0 border-b px-5 py-4">
+        <header className="shrink-0 border-b px-5 py-3">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-fd-muted-foreground font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
-                Annotation desk
-              </p>
-              <h1 className="mt-1 text-xl font-semibold tracking-tight">
-                Review batch
-              </h1>
-            </div>
+            <h1 className="text-fd-muted-foreground font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
+              Review batch
+            </h1>
             <span className="bg-fd-background text-fd-muted-foreground rounded-full border px-2.5 py-1 font-mono text-[10px]">
               {targets.length} {targets.length === 1 ? "target" : "targets"}
             </span>
           </div>
-          <p className="text-fd-muted-foreground mt-2 text-sm leading-5">
-            One coherent instruction, anchored to exact parts of the artifact.
-          </p>
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-5">
           {targets.length === 0 ? (
-            <section className="rounded-xl border border-dashed p-4">
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  className="relative block h-7 w-14 -rotate-2 rounded-sm bg-indigo-500/20"
-                >
-                  <span className="absolute right-0 bottom-0 left-0 h-0.5 bg-indigo-500" />
-                </span>
-                <div>
-                  <h2 className="text-sm font-medium">
-                    Mark what should change
-                  </h2>
-                  <p className="text-fd-muted-foreground mt-0.5 text-xs leading-5">
-                    Start review mode, then drag across words or click an
-                    element.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <p className="text-fd-muted-foreground rounded-xl border border-dashed p-4 text-sm leading-6">
+              Start review mode, then click an element or drag across words.
+              Your marks collect here.
+            </p>
           ) : (
             <div className="space-y-3">
               {targets.map((target) => {
@@ -1064,138 +1041,143 @@ export function ArtifactReviewer({
             </div>
           )}
 
-          <div className="space-y-4 border-t pt-5">
-            <label className="block text-sm font-medium">
-              Batch title
-              <input
-                required
-                maxLength={120}
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Summarize this review"
-                className="bg-fd-background mt-1.5 w-full rounded-lg border px-3 py-2.5 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
-              />
-            </label>
-            <label className="block text-sm font-medium">
-              Overall instruction
-              <textarea
-                required
-                maxLength={10_000}
-                rows={4}
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                placeholder="Explain how these changes should work together…"
-                className="bg-fd-background mt-1.5 w-full resize-y rounded-lg border p-3 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
-              />
-            </label>
-            <fieldset>
-              <legend className="text-sm font-medium">Issue kind</legend>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                {(["feedback", "rfc"] as const).map((value) => (
-                  <label
-                    key={value}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
-                      kind === value
-                        ? "border-indigo-500/40 bg-indigo-500/[0.07]"
-                        : "bg-fd-background hover:bg-fd-accent"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="review-kind"
-                      value={value}
-                      checked={kind === value}
-                      onChange={() => setKind(value)}
-                      className="accent-indigo-600"
-                    />
-                    {value === "feedback" ? "Feedback" : "RFC"}
+          {targets.length > 0 && (
+            <div className="space-y-4 border-t pt-5">
+              <label className="block text-sm font-medium">
+                Batch title
+                <input
+                  required
+                  maxLength={120}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="Summarize this review"
+                  className="bg-fd-background mt-1.5 w-full rounded-lg border px-3 py-2.5 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                />
+              </label>
+              <label className="block text-sm font-medium">
+                Overall instruction
+                <textarea
+                  required
+                  maxLength={10_000}
+                  rows={4}
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  placeholder="Explain how these changes should work together…"
+                  className="bg-fd-background mt-1.5 w-full resize-y rounded-lg border p-3 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                />
+              </label>
+              <fieldset>
+                <legend className="text-xs font-medium">Kind</legend>
+                <div className="mt-2 flex gap-2">
+                  {(["feedback", "rfc"] as const).map((value) => (
+                    <label
+                      key={value}
+                      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                        kind === value
+                          ? "border-indigo-500/40 bg-indigo-500/[0.07]"
+                          : "bg-fd-background hover:bg-fd-accent"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="review-kind"
+                        value={value}
+                        checked={kind === value}
+                        onChange={() => setKind(value)}
+                        className="accent-indigo-600"
+                      />
+                      {value === "feedback" ? "Feedback" : "RFC"}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              <details>
+                <summary className="text-fd-muted-foreground hover:text-fd-foreground cursor-pointer text-xs font-medium select-none">
+                  Run models · {executorModel} → {reviewerModel}
+                </summary>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <label className="block text-xs font-medium">
+                    Executor
+                    <select
+                      value={executorModel}
+                      onChange={(event) =>
+                        setExecutorModel(event.target.value as RunModel)
+                      }
+                      className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                    >
+                      {RUN_MODELS.map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
                   </label>
-                ))}
+                  <label className="block text-xs font-medium">
+                    Reviewer
+                    <select
+                      value={reviewerModel}
+                      onChange={(event) =>
+                        setReviewerModel(event.target.value as RunModel)
+                      }
+                      className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                    >
+                      {RUN_MODELS.map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </details>
+
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  disabled={!valid || busy}
+                  onClick={() => void submit("run")}
+                  className="w-full rounded-lg bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Approve · run now
+                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={!valid || busy}
+                    onClick={() => void submit("queue")}
+                    className="bg-fd-background rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Queue for agent
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!valid || busy}
+                    onClick={() => void submit("triage")}
+                    className="bg-fd-background rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Save for triage
+                  </button>
+                </div>
               </div>
-            </fieldset>
-
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="block text-xs font-medium">
-                Executor model
-                <select
-                  value={executorModel}
-                  onChange={(event) =>
-                    setExecutorModel(event.target.value as RunModel)
-                  }
-                  className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
-                >
-                  {RUN_MODELS.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block text-xs font-medium">
-                Reviewer model
-                <select
-                  value={reviewerModel}
-                  onChange={(event) =>
-                    setReviewerModel(event.target.value as RunModel)
-                  }
-                  className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
-                >
-                  {RUN_MODELS.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p className="text-fd-muted-foreground text-xs sm:col-span-2">
-                Used by "Approve · run now": the executor does the work, the
-                reviewer verifies and may amend.
-              </p>
             </div>
-
-            <div className="grid gap-2 sm:grid-cols-3">
-              <button
-                type="button"
-                disabled={!valid || busy}
-                onClick={() => void submit("run")}
-                className="rounded-lg bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Approve · run now
-              </button>
-              <button
-                type="button"
-                disabled={!valid || busy}
-                onClick={() => void submit("queue")}
-                className="bg-fd-background rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Queue for agent
-              </button>
-              <button
-                type="button"
-                disabled={!valid || busy}
-                onClick={() => void submit("triage")}
-                className="bg-fd-background rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Save for triage
-              </button>
-            </div>
-            {status && (
-              <p
-                role="status"
-                className="text-fd-success rounded-lg border border-current/20 p-3 text-sm"
-              >
-                {status}
-              </p>
-            )}
-            {error && (
-              <p
-                role="alert"
-                className="text-fd-error rounded-lg border border-current/20 p-3 text-sm"
-              >
-                {error}
-              </p>
-            )}
-          </div>
+          )}
+          {status && (
+            <p
+              role="status"
+              className="text-fd-success rounded-lg border border-current/20 p-3 text-sm"
+            >
+              {status}
+            </p>
+          )}
+          {error && (
+            <p
+              role="alert"
+              className="text-fd-error rounded-lg border border-current/20 p-3 text-sm"
+            >
+              {error}
+            </p>
+          )}
         </div>
       </aside>
     </main>
