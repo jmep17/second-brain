@@ -214,6 +214,21 @@ try {
   await page.getByRole("button", { name: "Start review mode" }).click();
 
   await waitForReviewMarker(interactionBackground);
+  const toolbarBox = await page.locator("[data-review-toolbar]").boundingBox();
+  const artifactTitleBox = await frame.locator("h1").boundingBox();
+  assert(toolbarBox, "review toolbar has no bounding box");
+  assert(artifactTitleBox, "artifact title has no bounding box");
+  assert(
+    toolbarBox.y + toolbarBox.height <= artifactTitleBox.y,
+    "review toolbar overlaps the artifact title"
+  );
+  const highlightCss = await frame
+    .locator("[data-artifact-review-highlight]")
+    .textContent();
+  assert(
+    highlightCss?.includes("text-decoration-line: underline"),
+    "text selections do not receive the persistent annotation treatment"
+  );
   assert(
     (await page.locator("[data-artifact-review-target]").count()) === 0,
     "review markers escaped the artifact iframe into the outer UI"

@@ -80,6 +80,7 @@ const TEXT_CONTAINER_SELECTOR = [
 const TEXT_RANGE_ID_PREFIX = "text-range-";
 const TEXT_HIGHLIGHT_NAME = "artifact-review-text";
 const REVIEW_OWNER_ATTRIBUTE = "data-artifact-review-owned";
+const REVIEW_ACCENT = "rgb(99, 102, 241)";
 const EXCLUDED_SELECTOR = [
   ".feedback",
   "script",
@@ -154,6 +155,10 @@ function syncTextHighlights(doc: Document | null | undefined, ranges: Range[]) {
     return;
   }
   registry.set(TEXT_HIGHLIGHT_NAME, new Highlight(...ranges));
+}
+
+function isTextSelection(target: ArtifactReviewSelection) {
+  return target.id.startsWith(TEXT_RANGE_ID_PREFIX);
 }
 
 function targetLabel(element: Element, excerpt: string): string {
@@ -520,9 +525,9 @@ export function ArtifactReviewer({
       const isSelected = Boolean(selectedRef.current[target.id]);
       element.setAttribute("aria-selected", String(isSelected));
       element.style.outline = isSelected
-        ? "3px solid rgb(0, 112, 243)"
+        ? `3px solid ${REVIEW_ACCENT}`
         : highlighted
-          ? "2px solid rgb(0, 112, 243)"
+          ? `2px solid ${REVIEW_ACCENT}`
           : "";
       element.style.outlineOffset = isSelected || highlighted ? "3px" : "";
     };
@@ -643,7 +648,20 @@ export function ArtifactReviewer({
     });
     const highlightStyle = doc.createElement("style");
     highlightStyle.setAttribute("data-artifact-review-highlight", "true");
-    highlightStyle.textContent = `::highlight(${TEXT_HIGHLIGHT_NAME}) { background: rgba(0, 112, 243, .28); color: inherit; }`;
+    highlightStyle.textContent = `
+      ::selection {
+        background: rgba(99, 102, 241, .32);
+        color: inherit;
+      }
+      ::highlight(${TEXT_HIGHLIGHT_NAME}) {
+        background: rgba(99, 102, 241, .24);
+        color: inherit;
+        text-decoration-line: underline;
+        text-decoration-color: ${REVIEW_ACCENT};
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+      }
+    `;
     doc.head?.append(highlightStyle);
     syncTextHighlights(
       doc,
@@ -710,7 +728,7 @@ export function ArtifactReviewer({
       if (!id) continue;
       const isSelected = Boolean(selected[id]);
       element.setAttribute("aria-selected", String(isSelected));
-      element.style.outline = isSelected ? "3px solid rgb(0, 112, 243)" : "";
+      element.style.outline = isSelected ? `3px solid ${REVIEW_ACCENT}` : "";
       element.style.outlineOffset = isSelected ? "3px" : "";
     }
     syncTextHighlights(
@@ -771,159 +789,300 @@ export function ArtifactReviewer({
 
   return (
     <main className="flex min-h-[calc(100dvh-4rem)] flex-col bg-fd-background lg:h-[calc(100dvh-4rem)] lg:flex-row">
-      <section className="flex min-h-[65vh] min-w-0 flex-1 flex-col lg:min-h-0">
-        <header className="flex items-center gap-3 border-b bg-fd-card px-4 py-3">
-          <button
-            type="button"
-            aria-pressed={reviewMode}
-            onClick={() => setReviewMode((enabled) => !enabled)}
-            className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-fd-accent disabled:opacity-50"
-          >
-            {reviewMode ? "Exit review mode" : "Start review mode"}
-          </button>
-          <span className="text-fd-muted-foreground text-sm">
-            {reviewMode
-              ? "Click an element, or drag across one or more words."
-              : "The artifact is interactive until review mode starts."}
-          </span>
+      <section className="isolate flex min-h-[65vh] min-w-0 flex-1 flex-col overflow-hidden lg:min-h-0">
+        <header
+          data-review-toolbar
+          className={`relative shrink-0 border-b px-4 py-3 transition-colors sm:px-5 ${
+            reviewMode
+              ? "border-indigo-500/30 bg-indigo-500/[0.06]"
+              : "bg-fd-card"
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span
+                aria-hidden="true"
+                className={`grid size-8 shrink-0 place-items-center rounded-full border ${
+                  reviewMode
+                    ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                    : "text-fd-muted-foreground bg-fd-background"
+                }`}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="size-4"
+                >
+                  <path d="m4 19 4.3-1 9.9-9.9a2.1 2.1 0 0 0-3-3L5.3 15Z" />
+                  <path d="m13.7 6.6 3 3M4 19l1.2-4" />
+                </svg>
+              </span>
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] font-medium tracking-[0.12em] text-indigo-600 uppercase dark:text-indigo-300">
+                  {reviewMode ? "Review mode active" : "Artifact preview"}
+                </p>
+                <p className="text-fd-muted-foreground truncate text-sm">
+                  {reviewMode
+                    ? "Drag over exact words, or click any element."
+                    : "Read and interact normally until review mode starts."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <span
+                aria-live="polite"
+                className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-medium tracking-wide uppercase ${
+                  targets.length > 0
+                    ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-200"
+                    : "text-fd-muted-foreground bg-fd-background"
+                }`}
+              >
+                {targets.length} selected
+              </span>
+              <button
+                type="button"
+                aria-pressed={reviewMode}
+                onClick={() => setReviewMode((enabled) => !enabled)}
+                className={`rounded-lg border px-3.5 py-2 text-sm font-medium shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none ${
+                  reviewMode
+                    ? "border-fd-border bg-fd-background text-fd-foreground hover:bg-fd-accent"
+                    : "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-500"
+                }`}
+              >
+                {reviewMode ? "Exit review mode" : "Start review mode"}
+              </button>
+            </div>
+          </div>
         </header>
         <iframe
           ref={iframeRef}
           src={src}
           title="Artifact under review"
           onLoad={recordIframeLoad}
-          className="min-h-0 w-full flex-1 border-0 bg-white"
+          className="block min-h-0 w-full flex-1 border-0 bg-white"
         />
       </section>
 
       <aside
         aria-label="Artifact review tray"
-        className="max-h-[60vh] overflow-y-auto border-t bg-fd-card p-4 lg:max-h-none lg:w-96 lg:shrink-0 lg:border-t-0 lg:border-l"
+        className="flex max-h-[60vh] flex-col overflow-hidden border-t bg-fd-card lg:max-h-none lg:w-[26rem] lg:shrink-0 lg:border-t-0 lg:border-l"
       >
-        <h1 className="text-xl font-semibold">Review batch</h1>
-        <p className="text-fd-muted-foreground mt-1 text-sm">
-          Group feedback into one issue for triage or explicit agent execution.
-        </p>
-
-        <div className="mt-5 space-y-4">
-          {targets.length === 0 ? (
-            <p className="text-fd-muted-foreground rounded-md border border-dashed p-3 text-sm">
-              Start review mode, then select one or more targets.
-            </p>
-          ) : (
-            targets.map((target) => (
-              <section
-                key={target.id}
-                data-selected-target={target.id}
-                className="rounded-lg border bg-fd-background p-3"
-              >
-                <div className="flex items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="truncate text-sm font-medium">
-                      {target.label}
-                    </h2>
-                    <p className="text-fd-muted-foreground text-xs">
-                      {target.kind}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleTarget(target)}
-                    className="text-fd-muted-foreground rounded px-2 py-1 text-xs underline"
-                  >
-                    Remove
-                  </button>
-                </div>
-                <p className="text-fd-muted-foreground mt-2 line-clamp-3 text-xs">
-                  {target.excerpt}
-                </p>
-                <label className="mt-3 block text-xs font-medium">
-                  Requested change
-                  <textarea
-                    required
-                    maxLength={5_000}
-                    value={comments[target.id] ?? ""}
-                    onChange={(event) =>
-                      setComments((current) => ({
-                        ...current,
-                        [target.id]: event.target.value,
-                      }))
-                    }
-                    rows={3}
-                    className="mt-1 w-full rounded-md border bg-fd-card p-2 text-sm"
-                  />
-                </label>
-              </section>
-            ))
-          )}
-
-          <label className="block text-sm font-medium">
-            Batch title
-            <input
-              required
-              maxLength={120}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="mt-1 w-full rounded-md border bg-fd-background px-3 py-2"
-            />
-          </label>
-          <label className="block text-sm font-medium">
-            Overall instruction
-            <textarea
-              required
-              maxLength={10_000}
-              rows={4}
-              value={body}
-              onChange={(event) => setBody(event.target.value)}
-              className="mt-1 w-full rounded-md border bg-fd-background p-3"
-            />
-          </label>
-          <fieldset>
-            <legend className="text-sm font-medium">Issue kind</legend>
-            <div className="mt-2 flex gap-4 text-sm">
-              {(["feedback", "rfc"] as const).map((value) => (
-                <label key={value} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="review-kind"
-                    value={value}
-                    checked={kind === value}
-                    onChange={() => setKind(value)}
-                  />
-                  {value === "feedback" ? "Feedback" : "RFC"}
-                </label>
-              ))}
+        <header className="shrink-0 border-b px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-fd-muted-foreground font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
+                Annotation desk
+              </p>
+              <h1 className="mt-1 text-xl font-semibold tracking-tight">
+                Review batch
+              </h1>
             </div>
-          </fieldset>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={!valid || busy}
-              onClick={() => void submit(true)}
-              className="rounded-md bg-fd-primary px-3 py-2 text-sm font-medium text-fd-primary-foreground disabled:opacity-50"
-            >
-              Queue for agent
-            </button>
-            <button
-              type="button"
-              disabled={!valid || busy}
-              onClick={() => void submit(false)}
-              className="rounded-md border px-3 py-2 text-sm font-medium disabled:opacity-50"
-            >
-              Save for triage
-            </button>
+            <span className="bg-fd-background text-fd-muted-foreground rounded-full border px-2.5 py-1 font-mono text-[10px]">
+              {targets.length} {targets.length === 1 ? "target" : "targets"}
+            </span>
           </div>
-          {status && (
-            <p role="status" className="text-fd-success text-sm">
-              {status}
-            </p>
+          <p className="text-fd-muted-foreground mt-2 text-sm leading-5">
+            One coherent instruction, anchored to exact parts of the artifact.
+          </p>
+        </header>
+
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-5">
+          {targets.length === 0 ? (
+            <section className="rounded-xl border border-dashed p-4">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className="relative block h-7 w-14 -rotate-2 rounded-sm bg-indigo-500/20"
+                >
+                  <span className="absolute right-0 bottom-0 left-0 h-0.5 bg-indigo-500" />
+                </span>
+                <div>
+                  <h2 className="text-sm font-medium">
+                    Mark what should change
+                  </h2>
+                  <p className="text-fd-muted-foreground mt-0.5 text-xs leading-5">
+                    Start review mode, then drag across words or click an
+                    element.
+                  </p>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <div className="space-y-3">
+              {targets.map((target) => {
+                const textSelection = isTextSelection(target);
+                return (
+                  <section
+                    key={target.id}
+                    data-selected-target={target.id}
+                    className={`overflow-hidden rounded-xl border shadow-sm ${
+                      textSelection
+                        ? "border-indigo-500/30 bg-indigo-500/[0.04]"
+                        : "bg-fd-background"
+                    }`}
+                  >
+                    <div className="p-3.5">
+                      <div className="flex items-start gap-3">
+                        <span
+                          aria-hidden="true"
+                          className={`mt-1 block size-2 shrink-0 rounded-full ${
+                            textSelection
+                              ? "bg-indigo-500 shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
+                              : "bg-fd-muted-foreground/50"
+                          }`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`font-mono text-[10px] font-medium tracking-[0.1em] uppercase ${
+                              textSelection
+                                ? "text-indigo-600 dark:text-indigo-300"
+                                : "text-fd-muted-foreground"
+                            }`}
+                          >
+                            {textSelection ? "Text selection" : target.kind}
+                          </p>
+                          <h2
+                            className={
+                              textSelection
+                                ? "sr-only"
+                                : "mt-1 line-clamp-2 text-sm font-medium leading-5"
+                            }
+                          >
+                            {target.label}
+                          </h2>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleTarget(target)}
+                          className="text-fd-muted-foreground hover:text-fd-foreground rounded-md px-2 py-1 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      {target.excerpt &&
+                        (textSelection ? (
+                          <blockquote className="mt-3 border-l-2 border-indigo-500 bg-indigo-500/[0.06] px-3 py-2 text-sm leading-5">
+                            “{target.excerpt}”
+                          </blockquote>
+                        ) : (
+                          <p className="text-fd-muted-foreground mt-3 line-clamp-3 text-xs leading-5">
+                            {target.excerpt}
+                          </p>
+                        ))}
+
+                      <label className="mt-3 block text-xs font-medium">
+                        Requested change
+                        <textarea
+                          required
+                          maxLength={5_000}
+                          value={comments[target.id] ?? ""}
+                          onChange={(event) =>
+                            setComments((current) => ({
+                              ...current,
+                              [target.id]: event.target.value,
+                            }))
+                          }
+                          rows={3}
+                          placeholder="Describe the change you want…"
+                          className="bg-fd-card mt-1.5 w-full resize-y rounded-lg border p-2.5 text-sm leading-5 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                        />
+                      </label>
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           )}
-          {error && (
-            <p role="alert" className="text-fd-error text-sm">
-              {error}
-            </p>
-          )}
+
+          <div className="space-y-4 border-t pt-5">
+            <label className="block text-sm font-medium">
+              Batch title
+              <input
+                required
+                maxLength={120}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Summarize this review"
+                className="bg-fd-background mt-1.5 w-full rounded-lg border px-3 py-2.5 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              Overall instruction
+              <textarea
+                required
+                maxLength={10_000}
+                rows={4}
+                value={body}
+                onChange={(event) => setBody(event.target.value)}
+                placeholder="Explain how these changes should work together…"
+                className="bg-fd-background mt-1.5 w-full resize-y rounded-lg border p-3 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+              />
+            </label>
+            <fieldset>
+              <legend className="text-sm font-medium">Issue kind</legend>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                {(["feedback", "rfc"] as const).map((value) => (
+                  <label
+                    key={value}
+                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
+                      kind === value
+                        ? "border-indigo-500/40 bg-indigo-500/[0.07]"
+                        : "bg-fd-background hover:bg-fd-accent"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="review-kind"
+                      value={value}
+                      checked={kind === value}
+                      onChange={() => setKind(value)}
+                      className="accent-indigo-600"
+                    />
+                    {value === "feedback" ? "Feedback" : "RFC"}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                disabled={!valid || busy}
+                onClick={() => void submit(true)}
+                className="rounded-lg bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Queue for agent
+              </button>
+              <button
+                type="button"
+                disabled={!valid || busy}
+                onClick={() => void submit(false)}
+                className="bg-fd-background rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Save for triage
+              </button>
+            </div>
+            {status && (
+              <p
+                role="status"
+                className="text-fd-success rounded-lg border border-current/20 p-3 text-sm"
+              >
+                {status}
+              </p>
+            )}
+            {error && (
+              <p
+                role="alert"
+                className="text-fd-error rounded-lg border border-current/20 p-3 text-sm"
+              >
+                {error}
+              </p>
+            )}
+          </div>
         </div>
       </aside>
     </main>
