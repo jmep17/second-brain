@@ -9,15 +9,19 @@
 |---|---|---|
 | "ideas for", "brainstorm", "break down", "what goes into" | `flowchart TD` with one `subgraph` per branch | Radial mindmaps cannot be themed or laid out; a subgraphed flowchart says the same thing and obeys ELK |
 | "plan", "steps", "how should we", "decision" | `flowchart TD` | Ordered, with branches on decisions |
-| "options", "compare", "trade-offs", "A vs B" | `flowchart LR` with one `subgraph` per option; `quadrantChart` when two axes matter | Side-by-side, same shape per option |
+| "options", "compare", "trade-offs", "A vs B" | `flowchart TD` with one `subgraph` per option; `quadrantChart` when two axes matter | Stacked, same shape per option |
 | "roadmap", "phases", "quarter", "milestones" | `timeline` (no dates) or `gantt` (dates) | Time on one axis |
-| "architecture", "components", "how it fits" | `flowchart LR` | Boxes and arrows |
+| "architecture", "components", "how it fits" | `flowchart TD` | Boxes and arrows |
 | "what calls what", "request flow" | `sequenceDiagram` | Ordered messages between parties |
 | "states", "lifecycle" | `stateDiagram-v2` | Transitions |
 
 `mindmap` is not in this table on purpose. It ignores `themeVariables`, cannot
 use the ELK layout engine, and collides its own branches past ~12 nodes. Use a
 `flowchart TD` with a subgraph per branch instead.
+
+Every flowchart is vertical: `flowchart TD` at top level, `direction TB`
+inside subgraphs. `LR` is not used — wide layouts force sideways scrolling
+and break responsive scaling on narrow screens.
 
 ## The page has two modes
 
@@ -88,7 +92,7 @@ notes; leave the rest.
   .figbar button:hover { border-color: var(--accents-3); }
   .stage { overflow: auto; padding: 28px; background: var(--geist-bg); }
   .pan { transform-origin: 0 0; }
-  .mermaid svg { display: block; margin: 0 auto; }   /* useMaxWidth off -> real size */
+  .mermaid svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }   /* real size, capped at the stage width */
   figcaption { padding: 12px 14px; border-top: 1px solid var(--accents-2); color: var(--accents-5); font-size: 13px; }
 
   /* ---- notes ---- */
@@ -123,7 +127,7 @@ notes; leave the rest.
   body[data-mode="canvas"] .stage.dragging { cursor: grabbing; }
   body[data-mode="canvas"] .stage svg { -webkit-user-drag: none; }
   body[data-mode="canvas"] .pan { position: absolute; top: 0; left: 0; will-change: transform; }
-  body[data-mode="canvas"] .mermaid svg { margin: 0; }
+  body[data-mode="canvas"] .mermaid svg { margin: 0; max-width: none; }
 
   body[data-mode="canvas"] .notes {
     position: fixed; z-index: 45; display: block; margin: 0; overflow: auto;
@@ -459,9 +463,11 @@ stateDiagram-v2
 - **ELK degrades, it does not fail.** If the layout package will not load the
   page falls back to dagre and still renders. If you are judging layout
   quality, check the console first.
-- **`useMaxWidth: false` is deliberate.** Mermaid's default shrinks a wide
-  diagram to the container and takes the labels below legibility with it. The
-  stage scrolls instead, and canvas mode exists for when scrolling is not enough.
+- **`useMaxWidth: false` plus CSS `max-width: 100%` is deliberate.** Mermaid
+  renders at real size and document mode scales the svg down responsively
+  (`height: auto` keeps the aspect). Vertical-only layout is what keeps that
+  scaling legible; canvas mode exists for when a diagram is too tall to read
+  in place.
 - **Fonts are awaited before render.** Mermaid measures label boxes at render
   time; measuring against a fallback font is what makes labels overflow their
   boxes once Geist arrives.

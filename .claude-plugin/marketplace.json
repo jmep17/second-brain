@@ -4,28 +4,28 @@
     "name": "Jorden Parker"
   },
   "metadata": {
-    "description": "Claude Code plugins that produce artifacts stored in the second-brain repo — one plugin per artifact type."
+    "description": "Claude Code plugins that produce artifacts stored in the second-brain repo \u2014 one plugin per artifact type."
   },
   "plugins": [
     {
       "name": "diagrams",
       "source": "./plugins/diagrams",
       "description": "Plans, brainstorms, and design discussions become a Mermaid diagram in a Geist-styled HTML page saved under artifacts/diagrams/ and opened in the browser.",
-      "version": "0.8.0",
+      "version": "0.10.0",
       "category": "productivity"
     },
     {
       "name": "plans",
       "source": "./plugins/plans",
       "description": "Plan and specification artifacts rendered as standalone Geist-styled HTML pages.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "productivity"
     },
     {
       "name": "decisions",
       "source": "./plugins/decisions",
       "description": "Decision and RFC artifacts rendered as standalone Geist-styled HTML pages.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "productivity"
     }
   ]

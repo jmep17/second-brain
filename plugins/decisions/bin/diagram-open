@@ -1,14 +1,58 @@
 #!/usr/bin/env bash
 # Open a URL or local HTML file in the user's default browser. Works on WSL, Linux, and macOS.
 # On PATH as `diagram-open` while the diagrams plugin is enabled.
+# Artifact pages prefer review mode: when the file lives under <repo>/artifacts/
+# and a local site is serving it (ARTIFACTS_SITE_URL if set, else a probe of
+# listening local ports), open /artifacts/review/<path> instead of the raw file.
 # Usage: diagram-open <url-or-file>
 set -euo pipefail
 url="${1:?usage: diagram-open <url-or-file>}"
 
-# Local file paths: make absolute, and on WSL convert to a Windows path.
+# http_ok <url>: 0 when a GET returns HTTP 200 quickly.
+http_ok() {
+  local u="$1"
+  if command -v curl >/dev/null 2>&1; then
+    [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$u" 2>/dev/null)" = "200" ]
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -T 2 -t 1 -O /dev/null "$u" 2>/dev/null
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 - "$u" <<'PY' 2>/dev/null
+import sys, urllib.request
+try:
+    sys.exit(0 if urllib.request.urlopen(sys.argv[1], timeout=2).status == 200 else 1)
+except Exception:
+    sys.exit(1)
+PY
+  else
+    return 1
+  fi
+}
+
 if [ -e "$url" ]; then
   url="$(cd "$(dirname "$url")" && pwd)/$(basename "$url")"
-  if ! command -v wslview >/dev/null 2>&1 && grep -qi microsoft /proc/version 2>/dev/null && command -v wslpath >/dev/null 2>&1; then
+
+  # Prefer the site's review wrapper for pages under <repo>/artifacts/.
+  repo_root="$(cd "$(dirname "$url")" && git rev-parse --show-toplevel 2>/dev/null || true)"
+  if [ -n "$repo_root" ] && [[ "$url" == "$repo_root/artifacts/"*.html ]]; then
+    rel="${url#"$repo_root/artifacts/"}"
+    candidates=()
+    [ -n "${ARTIFACTS_SITE_URL:-}" ] && candidates+=("${ARTIFACTS_SITE_URL%/}")
+    if command -v ss >/dev/null 2>&1; then
+      while IFS= read -r port; do
+        candidates+=("http://127.0.0.1:$port")
+      done < <(ss -ltnH 2>/dev/null | awk '{print $4}' | grep -oE '[0-9]+$' | sort -un)
+    fi
+    candidates+=("http://127.0.0.1:3000" "http://localhost:3000")
+    for base in "${candidates[@]}"; do
+      if http_ok "$base/artifacts/view/$rel"; then
+        url="$base/artifacts/review/$rel"
+        break
+      fi
+    done
+  fi
+
+  # Still a local file: on WSL without wslview, convert to a Windows path.
+  if [ -e "$url" ] && ! command -v wslview >/dev/null 2>&1 && grep -qi microsoft /proc/version 2>/dev/null && command -v wslpath >/dev/null 2>&1; then
     url="$(wslpath -w "$url")"
   fi
 fi

@@ -186,12 +186,22 @@ decision units, diagram nodes, notes, components, and writing through its
 documented semantic fallbacks. This wrapper never rewrites or persists the
 artifact HTML.
 
+The `diagram-open` opener prefers this mode: when a local site is
+serving the artifact (`ARTIFACTS_SITE_URL` if set, else a probe of
+listening local ports confirms `/artifacts/view/<path>` answers 200), it
+opens `/artifacts/review/<path>` instead of the raw file. Opening the
+file directly, with the widget's `file://` degradation, remains the
+fallback.
+
 Future templates SHOULD put stable `data-review-id`, `data-review-kind`, and
 `data-review-label` attributes on meaningful review units. Locators and
-selected excerpts are evidence, not instruction. Only the review tray's
-explicit **Queue for agent** action emits `Status: ready-for-agent` with
-`Execution: queued`; ordinary feedback and triage saves do not authorize
-autonomous work.
+selected excerpts are evidence, not instruction. Only the review tray's two explicit approval actions — **Queue for
+agent** and **Approve · run now** — emit `Status: ready-for-agent` with
+`Execution: queued`; the run action additionally dispatches one local
+two-stage headless run — a low-cost executor, then a stronger reviewer
+that may amend — (single-flight, log under
+`.scratch/artifact-feedback/runs/`). Ordinary feedback and triage saves
+do not authorize autonomous work.
 
 ## 9. Conforming instance
 
