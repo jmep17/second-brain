@@ -1,225 +1,136 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Artifacts workflow: next moves</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --geist-bg: #fff;
-        --geist-fg: #171717;
-        --accents-1: #fafafa;
-        --accents-2: #eaeaea;
-        --accents-3: #999;
-        --accents-5: #666;
-        --text-warning: #8a4b00;
-        --text-info: #0057b7;
-        --radius: 10px;
-        --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-        --font-mono: "Geist Mono", ui-monospace, monospace;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --geist-bg: #000;
-          --geist-fg: #ededed;
-          --accents-1: #111;
-          --accents-2: #333;
-          --accents-3: #888;
-          --accents-5: #a1a1a1;
-          --text-warning: #f5a623;
-          --text-info: #52a8ff;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: var(--geist-bg);
-        color: var(--geist-fg);
-        font: 14px/1.6 var(--font-sans);
-        -webkit-font-smoothing: antialiased;
-      }
-      main {
-        max-width: 1100px;
-        margin: auto;
-        padding: 56px 24px 96px;
-      }
-      header {
-        margin-bottom: 28px;
-      }
-      .kicker,
-      .tag {
-        color: var(--accents-3);
-        font-family: var(--font-mono);
-        font-size: 10.5px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-      h1 {
-        margin: 8px 0;
-        font-size: clamp(22px, 4.5vw, 30px);
-        letter-spacing: -0.03em;
-      }
-      .sub {
-        margin: 0;
-        color: var(--accents-5);
-      }
-      figure {
-        margin: 0;
-        overflow: hidden;
-        border: 1px solid var(--accents-2);
-        border-radius: var(--radius);
-        background: var(--accents-1);
-      }
-      .figbar,
-      figcaption {
-        padding: 10px 14px;
-        color: var(--accents-5);
-        font: 11px var(--font-mono);
-      }
-      .figbar {
-        border-bottom: 1px solid var(--accents-2);
-      }
-      figcaption {
-        border-top: 1px solid var(--accents-2);
-      }
-      .stage {
-        overflow: auto;
-        padding: 28px;
-        background: var(--geist-bg);
-      }
-      .mermaid svg {
-        display: block;
-        margin: auto;
-        max-width: 100%;
-        height: auto;
-      }
-      .notes {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-        grid-auto-rows: 1fr;
-        gap: 12px;
-        margin-top: 28px;
-      }
-      .note {
-        padding: 14px 16px;
-        border: 1px solid var(--accents-2);
-        border-radius: var(--radius);
-        min-width: 0;
-        overflow-wrap: anywhere;
-      }
-      .note .tag {
-        display: block;
-        margin-bottom: 6px;
-      }
-      .note.risk {
-        border-color: color-mix(
-          in srgb,
-          var(--text-warning) 40%,
-          var(--accents-2)
-        );
-      }
-      .note.risk .tag {
-        color: var(--text-warning);
-      }
-      .note.open {
-        border-color: color-mix(
-          in srgb,
-          var(--text-info) 40%,
-          var(--accents-2)
-        );
-      }
-      .note.open .tag {
-        color: var(--text-info);
-      }
-      code {
-        padding: 1px 5px;
-        border: 1px solid var(--accents-2);
-        border-radius: 4px;
-        background: var(--accents-1);
-        font: 12.5px var(--font-mono);
-      }
-      .err {
-        padding: 14px;
-        border: 1px solid var(--text-warning);
-        border-radius: 8px;
-        color: var(--text-warning);
-        font-family: var(--font-mono);
-        white-space: pre-wrap;
-      }
-      .feedback {
-        display: grid;
-        gap: 10px;
-        margin-top: 20px;
-        padding: 14px 16px;
-        border: 1px solid var(--accents-2);
-        border-radius: 8px;
-      }
-      .fbhead,
-      .fbrow {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .fbhead {
-        justify-content: space-between;
-      }
-      .fbstatus {
-        color: var(--accents-5);
-        font: 11px var(--font-mono);
-      }
-      .feedback input[type="text"],
-      .feedback textarea {
-        width: 100%;
-        padding: 8px 10px;
-        resize: vertical;
-        border: 1px solid var(--accents-2);
-        border-radius: 6px;
-        background: var(--geist-bg);
-        color: var(--geist-fg);
-        font: inherit;
-      }
-      .feedback button {
-        padding: 6px 14px;
-        cursor: pointer;
-        border: 1px solid var(--accents-2);
-        border-radius: 8px;
-        background: var(--geist-bg);
-        color: var(--geist-fg);
-        font: 12px var(--font-mono);
-      }
-      @media (max-width: 640px) {
-        main {
-          padding: 36px 16px 72px;
-        }
-        .stage {
-          padding: 16px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <header>
-        <div class="kicker">Direction · 2026-08-27 · options</div>
-        <h1>Artifacts workflow: next moves</h1>
-        <p class="sub">
-          Direction audit (improve, next variant): five grounded options for
-          Geist polish and an ADHD-friendly review loop. Plans 014/015 stay as
-          decided; nothing here re-plans them.
-        </p>
-      </header>
-      <figure>
-        <div class="figbar">flowchart · 5 options, dotted = data dependency</div>
-        <div class="stage">
-          <pre class="mermaid">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artifacts workflow: next moves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --geist-bg: #ffffff; --geist-fg: #171717;
+    --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
+    /* Text tones, not brand fills: both clear WCAG AA on --geist-bg. */
+    --text-warning: #8a4b00; --text-info: #0057b7;
+    --radius: 10px;
+    --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --geist-bg: #000000; --geist-fg: #ededed;
+      --accents-1: #111111; --accents-2: #333333; --accents-3: #888888; --accents-5: #a1a1a1;
+      --text-warning: #f5a623; --text-info: #52a8ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--geist-bg); color: var(--geist-fg);
+    font-family: var(--font-sans); font-size: 14px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  header { margin-bottom: 28px; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accents-3); margin-bottom: 10px; }
+  h1 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 600; letter-spacing: -.03em; margin: 0 0 8px; }
+  .sub { color: var(--accents-5); max-width: 62ch; margin: 0; }
+
+  /* ---- figure: the diagram's home in document mode ---- */
+  figure { margin: 0; border: 1px solid var(--accents-2); border-radius: var(--radius); background: var(--accents-1); overflow: hidden; }
+  .figbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; row-gap: 4px; padding: 10px 14px; border-bottom: 1px solid var(--accents-2); font-family: var(--font-mono); font-size: 11px; color: var(--accents-5); }
+  .figbar button { font: inherit; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .figbar button:hover { border-color: var(--accents-3); }
+  .stage { overflow: auto; padding: 28px; background: var(--geist-bg); }
+  .pan { transform-origin: 0 0; }
+  .mermaid svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }   /* real size, capped at the stage width */
+  figcaption { padding: 12px 14px; border-top: 1px solid var(--accents-2); color: var(--accents-5); font-size: 13px; }
+
+  /* ---- notes ---- */
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); grid-auto-rows: 1fr; gap: 12px; margin-top: 28px; }
+  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; min-width: 0; overflow-wrap: anywhere; }
+  .note .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 6px; color: var(--accents-3); }
+  .note.risk { border-color: color-mix(in srgb, var(--text-warning) 40%, var(--accents-2)); }
+  .note.risk .tag { color: var(--text-warning); }
+  .note.open { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
+  .note.open .tag { color: var(--text-info); }
+
+  code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  .err { font-family: var(--font-mono); font-size: 12.5px; white-space: pre-wrap; color: #ee0000; border: 1px solid #ee0000; border-radius: 8px; padding: 12px 14px; }
+
+  .zoombar, .railtitle { display: none; }
+
+  /* ================= canvas mode ==========================================
+     The figure is promoted to full-bleed and the notes become a rail. Layout
+     regime is chosen in JS and published as data-layout, so the CSS and the
+     fit maths read the same value instead of duplicating breakpoints.
+     ====================================================================== */
+  body[data-mode="canvas"] { overflow: hidden; }
+  body[data-mode="canvas"] main { max-width: none; padding: 0; }
+  body[data-mode="canvas"] header, body[data-mode="canvas"] figcaption { display: none; }
+  body[data-mode="canvas"] figure { position: fixed; inset: 0; z-index: 40; border: 0; border-radius: 0; background: var(--accents-1); display: flex; flex-direction: column; }
+  body[data-mode="canvas"] .figbar { position: relative; z-index: 45; background: var(--geist-bg); }
+  body[data-mode="canvas"] .stage {
+    flex: 1; overflow: hidden; padding: 0; position: relative; cursor: grab;
+    /* dragging a canvas must not sweep-select the diagram labels */
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  body[data-mode="canvas"] .stage.dragging { cursor: grabbing; }
+  body[data-mode="canvas"] .stage svg { -webkit-user-drag: none; }
+  body[data-mode="canvas"] .pan { position: absolute; top: 0; left: 0; will-change: transform; }
+  body[data-mode="canvas"] .mermaid svg { margin: 0; max-width: none; }
+
+  body[data-mode="canvas"] .notes {
+    position: fixed; z-index: 45; display: block; margin: 0; overflow: auto;
+    background: var(--geist-bg); border: 1px solid var(--accents-2);
+    border-radius: var(--radius); box-shadow: 0 4px 16px rgb(0 0 0 / .06);
+  }
+  body[data-mode="canvas"] .note { border: 0; border-top: 1px solid var(--accents-2); border-radius: 0; padding: 10px 14px; font-size: 13px; }
+  body[data-mode="canvas"] .note:first-of-type { border-top: 0; }
+  body[data-mode="canvas"] .railtitle {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid var(--accents-2); cursor: pointer;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accents-5);
+  }
+  body[data-mode="canvas"] .notes.collapsed .note { display: none; }
+  body[data-mode="canvas"] .zoombar { display: flex; gap: 6px; position: fixed; z-index: 45; }
+  body[data-mode="canvas"] .zoombar button { font-family: var(--font-mono); font-size: 12px; background: var(--geist-bg); color: var(--geist-fg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+
+  /* regime: wide (>860w & >560h) — rail is a full-height right column */
+  body[data-mode="canvas"][data-layout="wide"] .notes { top: 68px; right: 20px; bottom: 20px; width: 300px; }
+  body[data-mode="canvas"][data-layout="wide"] .zoombar { left: 20px; bottom: 20px; }
+  /* regime: short (<=560h & >=600w) — landscape phone, narrow right column */
+  body[data-mode="canvas"][data-layout="short"] .notes { top: 56px; right: 12px; bottom: 12px; width: 240px; font-size: 12px; }
+  body[data-mode="canvas"][data-layout="short"] .zoombar { left: 12px; bottom: 12px; }
+  /* regime: stacked — rail collapses to a bar at the bottom */
+  body[data-mode="canvas"][data-layout="stacked"] .notes { left: 12px; right: 12px; bottom: 12px; max-height: 40vh; }
+  body[data-mode="canvas"][data-layout="stacked"] .zoombar { right: 12px; top: 60px; }
+
+  @media (max-width: 640px) {
+    main { padding: 36px 16px 72px; }
+    .stage { padding: 16px; }
+  }
+</style>
+</head>
+<body data-mode="document">
+<main>
+  <header>
+    <div class="kicker">Direction · 2026-08-27 · options</div>
+    <h1>Artifacts workflow: next moves</h1>
+    <p class="sub">Direction audit (improve, next variant): five grounded options for Geist polish and an ADHD-friendly review loop. Plans 014/015 stay as decided.</p>
+  </header>
+
+  <figure>
+    <div class="figbar">
+      <span>flowchart · elk · neo</span>
+      <button id="mode" type="button" aria-pressed="false">⛶ canvas</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="pan" id="pan">
+        <pre class="mermaid">
 flowchart TD
   subgraph s1["1 · Geist review chrome — M"]
     direction TB
@@ -254,179 +165,222 @@ flowchart TD
   q(["? open: which become plans"])
   s4 ~~~ q
         </pre>
-        </div>
-        <figcaption>
-          Inside an option, arrows order the work. Dotted arrows say which
-          options share data: status chips and the now strip read the same
-          queue the inbox reads.
-        </figcaption>
-      </figure>
-      <section class="notes">
-        <div class="note">
-          <span class="tag">1 · Geist chrome — M</span>The review tray runs on
-          Tailwind indigo (<code>artifact-reviewer.tsx:92</code>
-          <code>REVIEW_ACCENT</code>, indigo buttons/pills/focus rings) and
-          Fumadocs <code>fd-*</code> tokens, plus <code>shadow-sm</code> on
-          flat cards — while DESIGN.md §2/§4 mandates the neutral scale, two AA
-          semantic tones, and shadows only on floating layers. Restyle tray +
-          <code>/artifacts</code> index onto the contract so the wrapper
-          matches the pages it hosts.
-        </div>
-        <div class="note">
-          <span class="tag">2 · Dashboard index — M</span>ADHD re-entry
-          surface. <code>artifacts/page.tsx:29-38</code> renders a bare
-          underlined link list; <code>lib/artifacts.ts:30-35</code> strips the
-          date and guesses the title from the filename. Add a small
-          machine-readable meta block to the templates (DESIGN.md first, then
-          re-sync per §8), parse it server-side, and render kicker + date +
-          type cards, newest first across types.
-        </div>
-        <div class="note">
-          <span class="tag">3 · Review inbox — M</span>ADHD: out of sight is
-          out of mind. The queue is visible only to the agent
-          (<code>ready-feedback-nudge.sh</code>); the site writes
-          <code>.scratch/artifact-feedback/issues/</code> but never reads it.
-          A read-only inbox page with per-batch status
-          (needs-triage/queued/claimed/resolved/blocked) and artifact↔issue
-          links shows outcomes and closes the loop. Keeps plan 015's boundary:
-          no new autonomous authorization paths.
-        </div>
-        <div class="note">
-          <span class="tag">4 · Question on page — S</span>The "one open
-          question" lives only in the chat reply (DESIGN.md §7) while the
-          reader's attention is in the browser. Make it a first-class
-          decision-needed banner on the page, with one-click answer buttons
-          that file through the existing feedback API — the action lands where
-          the attention already is.
-        </div>
-        <div class="note">
-          <span class="tag">5 · Now strip — S</span>One glanceable "next
-          action" strip on the site home: queued feedback batches, TODO plans
-          (002, 007, 014), newest artifact. Cheap once 3 exists; build last.
-        </div>
-        <div class="note risk">
-          <span class="tag">Risk</span>Token split: decide once whether site
-          review chrome adopts Geist tokens outright or maps the values into
-          Fumadocs variables — half-and-half reads as broken. And plan 014
-          adds four templates soon: land the meta block + banner in DESIGN.md
-          before 014 executes, or four more templates need re-syncing.
-        </div>
-        <div class="note open">
-          <span class="tag">Open</span>Which options become plans?
-          Recommended: 1 + 2 + 4 first (largest look-and-feel and ADHD win per
-          effort), then 3, then 5.
-        </div>
-      </section>
-      <!-- feedback-widget:start -->
-      <section
-        class="feedback"
-        id="feedback"
-        data-artifact="artifacts/diagrams/2026-08-27-artifacts-workflow-direction.html"
-      >
-        <div class="fbhead">
-          <span class="tag">Feedback</span
-          ><span class="fbstatus" id="fbstatus"></span>
-        </div>
-        <div class="fbrow">
-          <label
-            ><input type="radio" name="fbkind" value="feedback" checked />
-            Feedback</label
-          ><label><input type="radio" name="fbkind" value="rfc" /> RFC</label>
-        </div>
-        <input
-          id="fbtitle"
-          type="text"
-          placeholder="One-line title"
-          maxlength="120"
-        />
-        <textarea
-          id="fbbody"
-          rows="4"
-          placeholder="What would you change, and why?"
-        ></textarea>
-        <div class="fbrow">
-          <button id="fbsubmit" type="button">Submit</button>
-        </div>
-      </section>
-      <script>
-        (() => {
-          const section = document.getElementById("feedback");
-          const status = document.getElementById("fbstatus");
-          const submit = document.getElementById("fbsubmit");
-          const isFile = location.protocol === "file:";
-          if (isFile) submit.textContent = "copy as issue";
-          submit.addEventListener("click", async () => {
-            const kind = document.querySelector(
-              'input[name="fbkind"]:checked'
-            ).value;
-            const title = document.getElementById("fbtitle").value.trim();
-            const body = document.getElementById("fbbody").value.trim();
-            if (!title || !body) {
-              status.textContent = "title and body required";
-              return;
-            }
-            const artifact = section.dataset.artifact;
-            if (isFile) {
-              const date = new Date().toISOString().slice(0, 10);
-              const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
-              try {
-                await navigator.clipboard.writeText(md);
-                status.textContent =
-                  "copied — paste into .scratch/artifact-feedback/issues/";
-              } catch (e) {
-                status.textContent = `copy failed: ${e?.message ?? e}`;
-              }
-              return;
-            }
-            try {
-              const res = await fetch("/api/artifacts/feedback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ artifact, kind, title, body }),
-              });
-              const data = await res.json();
-              status.textContent = res.ok
-                ? `filed: ${data.filed}`
-                : `error: ${data.error ?? res.status}`;
-            } catch (e) {
-              status.textContent = `request failed: ${e?.message ?? e}`;
-            }
+      </div>
+    </div>
+    <figcaption>Inside an option, arrows order the work. Dotted arrows say which options share data: status chips and the now strip read the same queue the inbox reads.</figcaption>
+  </figure>
+
+  <section class="notes" id="notes">
+    <div class="railtitle" id="railtitle"><span>Notes</span><span class="chev">–</span></div>
+    <div class="note"><span class="tag">1 · Geist chrome — M</span>The review tray runs on Tailwind indigo (<code>artifact-reviewer.tsx:92</code> <code>REVIEW_ACCENT</code>, indigo buttons/pills/focus rings) and Fumadocs <code>fd-*</code> tokens, plus <code>shadow-sm</code> on flat cards — while DESIGN.md §2/§4 mandates the neutral scale, two AA semantic tones, and shadows only on floating layers. Restyle tray + <code>/artifacts</code> index onto the contract so the wrapper matches the pages it hosts.</div>
+    <div class="note"><span class="tag">2 · Dashboard index — M</span>ADHD re-entry surface. <code>artifacts/page.tsx:29-38</code> renders a bare underlined link list; <code>lib/artifacts.ts:30-35</code> strips the date and guesses the title from the filename. Add a small machine-readable meta block to the templates (DESIGN.md first, then re-sync per §8), parse it server-side, and render kicker + date + type cards, newest first across types.</div>
+    <div class="note"><span class="tag">3 · Review inbox — M</span>ADHD: out of sight is out of mind. The queue is visible only to the agent (<code>ready-feedback-nudge.sh</code>); the site writes <code>.scratch/artifact-feedback/issues/</code> but never reads it. A read-only inbox page with per-batch status (needs-triage/queued/claimed/resolved/blocked) and artifact↔issue links shows outcomes and closes the loop. Keeps plan 015's boundary: no new autonomous authorization paths.</div>
+    <div class="note"><span class="tag">4 · Question on page — S</span>The "one open question" lives only in the chat reply (DESIGN.md §7) while the reader's attention is in the browser. Make it a first-class decision-needed banner on the page, with one-click answer buttons that file through the existing feedback API — the action lands where the attention already is.</div>
+    <div class="note"><span class="tag">5 · Now strip — S</span>One glanceable "next action" strip on the site home: queued feedback batches, TODO plans (002, 007, 014), newest artifact. Cheap once 3 exists; build last.</div>
+    <div class="note risk"><span class="tag">Risk</span>Token split: decide once whether site review chrome adopts Geist tokens outright or maps the values into Fumadocs variables — half-and-half reads as broken. And plan 014 adds four templates soon: land the meta block + banner in DESIGN.md before 014 executes, or four more templates need re-syncing.</div>
+    <div class="note open"><span class="tag">Open</span>Which options become plans? Recommended: 1 + 2 + 4 first (largest look-and-feel and ADHD win per effort), then 3, then 5.</div>
+  </section>
+
+  <!-- feedback-widget:start -->
+  <section class="feedback" id="feedback" data-artifact="artifacts/diagrams/2026-08-27-artifacts-workflow-direction.html">
+    <div class="fbhead">
+      <span class="tag">Feedback</span>
+      <span class="fbstatus" id="fbstatus"></span>
+    </div>
+    <div class="fbrow">
+      <label><input type="radio" name="fbkind" value="feedback" checked> Feedback</label>
+      <label><input type="radio" name="fbkind" value="rfc"> RFC</label>
+    </div>
+    <input class="fbtitle" id="fbtitle" type="text" placeholder="One-line title" maxlength="120">
+    <textarea class="fbbody" id="fbbody" rows="4" placeholder="What would you change, and why?"></textarea>
+    <div class="fbrow">
+      <button class="fbsubmit" id="fbsubmit" type="button">Submit</button>
+    </div>
+  </section>
+  <style>
+    .feedback { margin-top: 20px; border: 1px solid var(--accents-2); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+    .feedback .fbhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .feedback .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accents-3); }
+    .feedback .fbstatus { font-family: var(--font-mono); font-size: 11px; color: var(--accents-5); }
+    .feedback .fbrow { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .feedback input[type="text"], .feedback textarea { font: inherit; font-size: 13px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 6px; padding: 8px 10px; width: 100%; resize: vertical; box-sizing: border-box; }
+    .feedback button { font-family: var(--font-mono); font-size: 12px; color: var(--geist-fg); background: var(--geist-bg); border: 1px solid var(--accents-2); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+    .feedback button:hover { border-color: var(--accents-3); }
+  </style>
+  <script>
+    (() => {
+      const section = document.getElementById("feedback");
+      const status = document.getElementById("fbstatus");
+      const submit = document.getElementById("fbsubmit");
+      const isFile = location.protocol === "file:";
+      if (isFile) submit.textContent = "copy as issue";
+      submit.addEventListener("click", async () => {
+        const kind = document.querySelector('input[name="fbkind"]:checked').value;
+        const title = document.getElementById("fbtitle").value.trim();
+        const body = document.getElementById("fbbody").value.trim();
+        if (!title || !body) { status.textContent = "title and body required"; return; }
+        const artifact = section.dataset.artifact;
+        if (isFile) {
+          const date = new Date().toISOString().slice(0, 10);
+          const md = `# ${title}\n\nStatus: needs-triage\nKind: ${kind}\nArtifact: ${artifact}\nDate: ${date}\n\n${body}\n\n## Comments\n`;
+          try {
+            await navigator.clipboard.writeText(md);
+            status.textContent = "copied — paste into .scratch/artifact-feedback/issues/";
+          } catch (e) {
+            status.textContent = `copy failed: ${e?.message ?? e}`;
+          }
+          return;
+        }
+        try {
+          const res = await fetch("/api/artifacts/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact, kind, title, body }),
           });
-        })();
-      </script>
-      <!-- feedback-widget:end -->
-    </main>
-    <script type="module">
-      const pre = document.querySelector("pre.mermaid");
-      const source = pre.textContent;
-      const token = (name) =>
-        getComputedStyle(document.documentElement)
-          .getPropertyValue(name)
-          .trim();
-      try {
-        const mermaid = (
-          await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")
-        ).default;
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: "base",
-          look: "neo",
-          themeVariables: {
-            fontFamily: "Geist, system-ui, sans-serif",
-            background: token("--geist-bg"),
-            primaryColor: token("--accents-1"),
-            primaryTextColor: token("--geist-fg"),
-            primaryBorderColor: token("--accents-2"),
-            lineColor: token("--accents-3"),
-          },
-          flowchart: { curve: "linear", useMaxWidth: false, htmlLabels: true },
-        });
-        await document.fonts.ready;
-        const { svg } = await mermaid.render("artifacts-direction", source);
-        pre.outerHTML = `<div class="mermaid">${svg}</div>`;
-      } catch (e) {
-        pre.outerHTML = `<div class="err">Diagram could not render.\n${e?.message ?? e}</div>`;
-      }
-    </script>
-  </body>
+          const data = await res.json();
+          status.textContent = res.ok ? `filed: ${data.filed}` : `error: ${data.error ?? res.status}`;
+        } catch (e) {
+          status.textContent = `request failed: ${e?.message ?? e}`;
+        }
+      });
+    })();
+  </script>
+  <!-- feedback-widget:end -->
+</main>
+
+<div class="zoombar" id="zoombar">
+  <button data-zoom="out" type="button">−</button>
+  <button data-zoom="fit" type="button">fit</button>
+  <button data-zoom="in" type="button">+</button>
+</div>
+
+<script type="module">
+  const $ = (s) => document.querySelector(s);
+  const stage = $("#stage"), pan = $("#pan"), notes = $("#notes"), modeBtn = $("#mode");
+  const src = $("pre.mermaid").textContent;
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  let mermaid, elkOk = false;
+  try {
+    mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+    try {
+      const elk = await import("https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0/dist/mermaid-layout-elk.esm.min.mjs");
+      mermaid.registerLayoutLoaders(elk.default ?? elk);
+      elkOk = true;
+    } catch { /* optional: fall back to dagre rather than failing the page */ }
+  } catch (e) {
+    $("pre.mermaid").outerHTML = `<div class="err">Mermaid could not be loaded from the CDN.\n${e}\nThis page needs network access on first view.</div>`;
+  }
+
+  async function render() {
+    if (!mermaid) return;
+    const cfg = {
+      startOnLoad: false, theme: "base", look: "neo",
+      themeVariables: {
+        fontFamily: "Geist, system-ui, sans-serif", fontSize: "14px",
+        background: token("--geist-bg"), primaryColor: token("--accents-1"),
+        primaryTextColor: token("--geist-fg"), primaryBorderColor: token("--accents-2"),
+        secondaryColor: token("--geist-bg"), tertiaryColor: token("--geist-bg"),
+        lineColor: token("--accents-3"), textColor: token("--geist-fg"),
+        clusterBkg: "transparent", clusterBorder: token("--accents-2"),
+        nodeBorder: token("--accents-2"), edgeLabelBackground: token("--geist-bg"),
+        titleColor: token("--geist-fg")
+      },
+      flowchart: { curve: "linear", padding: 14, nodeSpacing: 44, rankSpacing: 56, useMaxWidth: false, htmlLabels: true }
+    };
+    if (elkOk) { cfg.layout = "elk"; cfg.elk = { mergeEdges: false, nodePlacementStrategy: "BRANDES_KOEPF" }; }
+    try {
+      await document.fonts.ready;          // measure labels against Geist, not a fallback
+      mermaid.initialize(cfg);
+      const { svg } = await mermaid.render(`d-${mq.matches ? "dark" : "light"}`, src);
+      pan.innerHTML = `<div class="mermaid">${svg}</div>`;
+    } catch (e) {
+      pan.innerHTML = `<div class="err">Diagram failed to render.\n${e?.message ?? e}</div>`;
+    }
+    if (document.body.dataset.mode === "canvas") fit();
+  }
+
+  /* ---- canvas: regimes, pan, zoom ---- */
+  let tx = 0, ty = 0, scale = 1;
+  const apply = () => { pan.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; };
+
+  function layout() {
+    const W = innerWidth, H = innerHeight;
+    const mode = (W > 860 && H > 560) ? "wide" : (H <= 560 && W >= 600) ? "short" : "stacked";
+    document.body.dataset.layout = mode;
+    if (!notes.dataset.touched) notes.classList.toggle("collapsed", mode !== "wide");
+    return mode;
+  }
+  function insets() {
+    const mode = layout(), gap = 16;
+    const r = notes.getBoundingClientRect();
+    const live = r.width > 0 && r.height > 0;
+    if (mode === "stacked") return { top: 56, right: 12, bottom: (live ? innerHeight - r.top : 60) + gap, left: 12 };
+    return { top: mode === "short" ? 56 : 68, right: live ? Math.max(20, innerWidth - r.left + gap) : 20, bottom: 20, left: 20 };
+  }
+  function fit() {
+    const svg = pan.querySelector("svg"); if (!svg) return;
+    const b = svg.getBoundingClientRect(), w = b.width / scale, h = b.height / scale;
+    if (!w || !h) return;
+    const i = insets();
+    /* never let the chrome starve the canvas entirely */
+    const aw = Math.max(innerWidth * 0.5, innerWidth - i.left - i.right);
+    const ah = Math.max(innerHeight * 0.4, innerHeight - i.top - i.bottom);
+    scale = Math.min(1.15, aw / w, ah / h);
+    tx = i.left + (aw - w * scale) / 2; ty = i.top + (ah - h * scale) / 2;
+    apply();
+  }
+  const canvas = () => document.body.dataset.mode === "canvas";
+  function setMode(m) {
+    document.body.dataset.mode = m;
+    modeBtn.setAttribute("aria-pressed", String(m === "canvas"));
+    modeBtn.textContent = m === "canvas" ? "✕ close" : "⛶ canvas";
+    if (m === "canvas") { layout(); fit(); }
+    else { pan.style.transform = ""; tx = ty = 0; scale = 1; }
+  }
+  modeBtn.addEventListener("click", () => setMode(canvas() ? "document" : "canvas"));
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && canvas()) setMode("document"); });
+  $("#railtitle").addEventListener("click", () => {
+    notes.dataset.touched = "1"; notes.classList.toggle("collapsed");
+    notes.querySelector(".chev").textContent = notes.classList.contains("collapsed") ? "+" : "–";
+    if (canvas()) fit();
+  });
+  stage.addEventListener("wheel", (e) => {
+    if (!canvas()) return;
+    e.preventDefault();
+    const next = Math.min(3, Math.max(.2, scale * Math.exp(-e.deltaY * .0015)));
+    tx = e.clientX - (e.clientX - tx) * (next / scale);
+    ty = e.clientY - (e.clientY - ty) * (next / scale);
+    scale = next; apply();
+  }, { passive: false });
+  let drag = false, sx = 0, sy = 0;
+  stage.addEventListener("pointerdown", (e) => {
+    if (!canvas() || e.button !== 0) return;
+    e.preventDefault();                      // suppress the native select/drag gesture
+    drag = true; sx = e.clientX - tx; sy = e.clientY - ty;
+    stage.classList.add("dragging"); stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", (e) => { if (drag) { tx = e.clientX - sx; ty = e.clientY - sy; apply(); } });
+  const endDrag = () => {
+    drag = false; stage.classList.remove("dragging");
+    const s = getSelection(); if (s && !s.isCollapsed && stage.contains(s.anchorNode)) s.removeAllRanges();
+  };
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("dragstart", (e) => e.preventDefault());
+  $("#zoombar").addEventListener("click", (e) => {
+    const k = e.target.dataset.zoom; if (!k) return;
+    if (k === "fit") return fit();
+    const next = Math.min(3, Math.max(.2, scale * (k === "in" ? 1.2 : 1 / 1.2)));
+    const cx = innerWidth / 2, cy = innerHeight / 2;
+    tx = cx - (cx - tx) * (next / scale); ty = cy - (cy - ty) * (next / scale);
+    scale = next; apply();
+  });
+  let t = null;
+  addEventListener("resize", () => { if (canvas()) { clearTimeout(t); t = setTimeout(fit, 120); } });
+  mq.addEventListener("change", render);
+  render();
+</script>
+</body>
 </html>
