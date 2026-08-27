@@ -41,8 +41,8 @@ Write the same file either way. The mode is a reading choice, not an authoring o
 A complete, standalone document. Geist Sans / Geist Mono, the neutral scale,
 1px borders, 6–10px radii, black-on-white with a dark scheme, and the same
 tokens driving the *diagram* rather than only the page chrome. Mermaid and the
-ELK layout engine come from jsDelivr. Replace `TOPIC`, the diagram, and the
-notes; leave the rest.
+ELK layout engine come from jsDelivr. Replace `TOPIC`, the TL;DR, the
+diagram, and the notes; leave the rest.
 
 ```html
 <!doctype html>
@@ -56,6 +56,7 @@ notes; leave the rest.
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light dark;
     --geist-bg: #ffffff; --geist-fg: #171717;
     --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
     /* Text tones, not brand fills: both clear WCAG AA on --geist-bg. */
@@ -77,6 +78,7 @@ notes; leave the rest.
     margin: 0; background: var(--geist-bg); color: var(--geist-fg);
     font-family: var(--font-sans); font-size: 14px; line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    accent-color: var(--geist-fg);
   }
   main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
 
@@ -84,6 +86,12 @@ notes; leave the rest.
   .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accents-3); margin-bottom: 10px; }
   h1 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 600; letter-spacing: -.03em; margin: 0 0 8px; }
   .sub { color: var(--accents-5); max-width: 62ch; margin: 0; }
+
+  /* ---- tldr: the skim layer above the figure ---- */
+  .tldr { border: 1px solid color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); border-radius: var(--radius); background: var(--accents-1); padding: 14px 16px; margin-bottom: 20px; }
+  .tldr .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-info); display: block; margin-bottom: 6px; }
+  .tldr p { margin: 0; }
+  .tldr .next { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-info); margin-top: 8px; }
 
   /* ---- figure: the diagram's home in document mode ---- */
   figure { margin: 0; border: 1px solid var(--accents-2); border-radius: var(--radius); background: var(--accents-1); overflow: hidden; }
@@ -104,7 +112,7 @@ notes; leave the rest.
   .note.open { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
   .note.open .tag { color: var(--text-info); }
 
-  code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; overflow-wrap: anywhere; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .err { font-family: var(--font-mono); font-size: 12.5px; white-space: pre-wrap; color: #ee0000; border: 1px solid #ee0000; border-radius: 8px; padding: 12px 14px; }
 
   .zoombar, .railtitle { display: none; }
@@ -117,6 +125,7 @@ notes; leave the rest.
   body[data-mode="canvas"] { overflow: hidden; }
   body[data-mode="canvas"] main { max-width: none; padding: 0; }
   body[data-mode="canvas"] header, body[data-mode="canvas"] figcaption { display: none; }
+  body[data-mode="canvas"] .tldr { display: none; }
   body[data-mode="canvas"] figure { position: fixed; inset: 0; z-index: 40; border: 0; border-radius: 0; background: var(--accents-1); display: flex; flex-direction: column; }
   body[data-mode="canvas"] .figbar { position: relative; z-index: 45; background: var(--geist-bg); }
   body[data-mode="canvas"] .stage {
@@ -169,6 +178,12 @@ notes; leave the rest.
     <h1>TOPIC</h1>
     <p class="sub">One sentence on what the diagram claims. Delete if the title says it.</p>
   </header>
+
+  <section class="tldr" aria-label="Summary">
+    <span class="tag">TL;DR</span>
+    <p>What the diagram shows and the single takeaway a skimmer should keep.</p>
+    <p class="next">Next → the branch or node to look at first.</p>
+  </section>
 
   <figure>
     <div class="figbar">

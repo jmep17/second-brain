@@ -11,6 +11,6 @@ pattern='\b(plan|planning|brainstorm|ideate|ideas? for|options?|approach(es)?|ar
 
 if printf '%s' "$prompt" | grep -qiE "$pattern"; then
   dir="${DIAGRAMS_DIR:-artifacts/diagrams}"
-  echo "diagram-plans: this prompt is a plan/brainstorm/design request. Present an artifact, not a prose answer — invoke the diagrams:diagram-plans skill, then reply with only the artifact path and at most one open question. Save dir: ${dir}."
+  echo "diagram-plans: this prompt is a plan/brainstorm/design request. Present an artifact, not a prose answer — invoke the diagrams:diagram-plans skill, then reply with only the artifact path and at most one open question. Save dir: ${dir}. Follow docs/agents/adhd-writing.md: conclusion first, one next action, chunked."
 fi
 exit 0
