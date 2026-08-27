@@ -9,7 +9,7 @@
 |---|---|---|
 | "ideas for", "brainstorm", "break down", "what goes into" | `flowchart TD` with one `subgraph` per branch | Radial mindmaps cannot be themed or laid out; a subgraphed flowchart says the same thing and obeys ELK |
 | "plan", "steps", "how should we", "decision" | `flowchart TD` | Ordered, with branches on decisions |
-| "options", "compare", "trade-offs", "A vs B" | `flowchart TD` with one `subgraph` per option; `quadrantChart` when two axes matter | Stacked, same shape per option |
+| "options", "compare", "trade-offs", "A vs B" | prefer the decisions plugin's `decision-pages` (option cards); here, `quadrantChart` when two axes matter | Cards beat subgraphs for comparisons |
 | "roadmap", "phases", "quarter", "milestones" | `timeline` (no dates) or `gantt` (dates) | Time on one axis |
 | "architecture", "components", "how it fits" | `flowchart TD` | Boxes and arrows |
 | "what calls what", "request flow" | `sequenceDiagram` | Ordered messages between parties |

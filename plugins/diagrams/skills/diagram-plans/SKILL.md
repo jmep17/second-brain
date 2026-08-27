@@ -10,7 +10,7 @@ Plans and brainstorms are trees and graphs, not prose. Draw the structure; keep 
 1. **Pick the shape.** Match the request to one diagram (see the table in [`MERMAID.md`](MERMAID.md)):
    - brainstorm / ideas / breakdown → `flowchart TD` with one subgraph per branch
    - plan / sequence of work / decision path → `flowchart TD`
-   - options with trade-offs → `flowchart TD` with one subgraph per option, or `quadrantChart`
+   - options with trade-offs → hand off to the `decision-pages` skill (option cards beat a flowchart for comparisons); stay here only when the options' structure — dependencies, flows — is the content, or use `quadrantChart` when two axes matter
    - roadmap / phases with time → `gantt` or `timeline`
    - components talking to each other → `flowchart TD` (or `sequenceDiagram` for call order)
 2. **Gather the content first.** Read the code, files, or prior context the plan depends on; the diagram carries every branch you would otherwise have written as a paragraph. Done when each node's claim is grounded in something you actually looked at, not guessed.
@@ -32,6 +32,7 @@ Done when: the file exists at the configured path, the opener script reported `o
 - Contradictions, risks, and unknowns are nodes too (`⚠ risk: …`, `? open: …`), never hidden in prose.
 - When the user then asks to "expand X" or "change Y", edit the same file; the browser tab refreshes to the new version.
 - Explicit request for prose ("write it up", "in paragraphs", "as a doc") overrides this skill.
+- Not everything needs a diagram. Comparisons and option lists read better as decision pages (`decision-pages`); use this skill when structure — flow, dependencies, architecture, time — carries the content.
 - When any skill or workflow has just produced a plan, spec, or tickets
   document (e.g. a file under `plans/`, `.scratch/`, `specs/`, `tickets/` —
   the plan-artifact hook will remind you), render that document's structure
