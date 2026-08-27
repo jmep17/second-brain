@@ -1,8 +1,21 @@
 import path from "node:path";
+import type { ReactNode } from "react";
 import { dynamicLoader } from "fumadocs-core/source";
 import type * as PageTree from "fumadocs-core/page-tree";
 import { obsidian } from "fumadocs-obsidian";
 import { slug } from "github-slugger";
+import {
+  BookOpen,
+  ClipboardList,
+  FileCode2,
+  FileText,
+  FlaskConical,
+  History,
+  Inbox,
+  Info,
+  LayoutGrid,
+  Settings,
+} from "lucide-react";
 import { remarkLooseLinks } from "@/lib/remark-loose-links";
 import { titleFromHeading } from "@/lib/title-from-heading";
 import { TOOLS } from "@/lib/config-files";
@@ -19,6 +32,7 @@ export const vault = obsidian({
   // on their own.
   include: [
     "*.md",
+    "!AGENTS.md", // byte-identical sync copy of CLAUDE.md for non-Claude agents; not a distinct page
     "wiki/**/*.md",
     "!wiki/index.md", // replaced by the home page TOC (plan 003)
     "raw/**/*.md",
@@ -63,6 +77,20 @@ const FOLDER_LABELS: Record<string, string> = {
   ".scratch": "Scratch (issues & research)",
 };
 
+const FOLDER_ICONS: Record<string, ReactNode> = {
+  wiki: <BookOpen className="size-4" />,
+  raw: <Inbox className="size-4" />,
+  plans: <ClipboardList className="size-4" />,
+  docs: <FileText className="size-4" />,
+  ".scratch": <FlaskConical className="size-4" />,
+};
+
+const ROOT_PAGE_ICONS: Record<string, ReactNode> = {
+  "CLAUDE.md": <FileCode2 className="size-4" />,
+  "CONTEXT.md": <Info className="size-4" />,
+  "log.md": <History className="size-4" />,
+};
+
 /**
  * Sidebar entry for the config editor: one page per TOOLS entry. `defaultOpen`
  * matters — a collapsed folder does not render its children into the HTML at
@@ -73,6 +101,7 @@ function configFolder(): PageTree.Folder {
     type: "folder",
     name: "Config",
     $id: "config",
+    icon: <Settings className="size-4" />,
     defaultOpen: true,
     children: Object.entries(TOOLS).map(([tool, { label }]) => ({
       type: "page" as const,
@@ -93,6 +122,7 @@ function artifactsFolder(): PageTree.Folder {
     type: "folder",
     name: "Artifacts",
     $id: "artifacts",
+    icon: <LayoutGrid className="size-4" />,
     defaultOpen: true,
     children: [
       {
@@ -122,7 +152,12 @@ const loader = dynamicLoader(vault.dynamicSource(), {
       {
         folder(node, folderPath) {
           const label = FOLDER_LABELS[folderPath];
-          return label ? { ...node, name: label } : node;
+          const icon = FOLDER_ICONS[folderPath];
+          return { ...node, ...(label && { name: label }), ...(icon && { icon }) };
+        },
+        file(node, filePath) {
+          const icon = ROOT_PAGE_ICONS[filePath ?? ""];
+          return icon ? { ...node, icon } : node;
         },
         /**
          * The config editor is a hand-built route with no file in the vault,
