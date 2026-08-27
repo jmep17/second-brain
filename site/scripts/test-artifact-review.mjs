@@ -100,6 +100,42 @@ async function dispatchInteractionSentinels(locator) {
   });
 }
 
+async function reviewToolbarOverlaps(page) {
+  return page.locator("[data-review-toolbar]").evaluate((toolbar) => {
+    const toolbarBox = toolbar.getBoundingClientRect();
+    return Array.from(document.querySelectorAll("button, a"))
+      .filter((element) => !toolbar.contains(element))
+      .filter((element) => {
+        for (let current = element; current; current = current.parentElement) {
+          const style = getComputedStyle(current);
+          if (
+            style.display === "none" ||
+            style.visibility === "hidden" ||
+            Number(style.opacity) === 0
+          ) {
+            return false;
+          }
+        }
+        const box = element.getBoundingClientRect();
+        return (
+          box.width > 0 &&
+          box.height > 0 &&
+          box.left < toolbarBox.right &&
+          box.right > toolbarBox.left &&
+          box.top < toolbarBox.bottom &&
+          box.bottom > toolbarBox.top
+        );
+      })
+      .map(
+        (element) =>
+          element.getAttribute("aria-label") ||
+          element.getAttribute("title") ||
+          element.textContent?.trim() ||
+          element.tagName
+      );
+  });
+}
+
 async function dragSelectText(page, iframe, locator, needle) {
   await locator.scrollIntoViewIfNeeded();
   const iframeBox = await iframe.boundingBox();
@@ -166,10 +202,34 @@ const preExistingIssueNames = new Set(await issueNames());
 
 try {
   browser = await chromium.launch({ headless: true });
+  const mobilePage = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+  });
+  await mobilePage.goto(`${baseUrl}${reviewPath}`);
+  const mobileChromeOverlaps = await reviewToolbarOverlaps(mobilePage);
+  assert(
+    mobileChromeOverlaps.length === 0,
+    `mobile site controls overlap the review toolbar: ${mobileChromeOverlaps.join(", ")}`
+  );
+  await mobilePage.close();
+
   const page = await browser.newPage();
   await page.goto(`${baseUrl}/artifacts`);
   await page.locator(`a[href="${reviewPath}"]`).click();
   await page.waitForURL(`**${reviewPath}`);
+  await page
+    .locator("#nd-sidebar")
+    .getByRole("button", { name: "Collapse Sidebar" })
+    .click();
+  await page
+    .locator('#nd-docs-layout[data-sidebar-collapsed="true"]')
+    .waitFor();
+  await page.waitForTimeout(300);
+  const collapsedChromeOverlaps = await reviewToolbarOverlaps(page);
+  assert(
+    collapsedChromeOverlaps.length === 0,
+    `collapsed sidebar controls overlap the review toolbar: ${collapsedChromeOverlaps.join(", ")}`
+  );
 
   const frame = page.frameLocator('iframe[title="Artifact under review"]');
   const iframe = page.locator('iframe[title="Artifact under review"]');

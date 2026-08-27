@@ -788,11 +788,11 @@ export function ArtifactReviewer({
   }
 
   return (
-    <main className="flex min-h-[calc(100dvh-4rem)] flex-col bg-fd-background lg:h-[calc(100dvh-4rem)] lg:flex-row">
+    <main className="flex min-h-[calc(var(--fd-docs-height)-var(--fd-header-height))] min-w-0 flex-col bg-fd-background [grid-area:main] lg:h-(--fd-docs-height) lg:flex-row">
       <section className="isolate flex min-h-[65vh] min-w-0 flex-1 flex-col overflow-hidden lg:min-h-0">
         <header
           data-review-toolbar
-          className={`relative shrink-0 border-b px-4 py-3 transition-colors sm:px-5 ${
+          className={`relative shrink-0 border-b px-4 py-3 transition-[color,background-color,border-color,margin] sm:px-5 md:[[data-sidebar-collapsed=true]_&]:mt-14 ${
             reviewMode
               ? "border-indigo-500/30 bg-indigo-500/[0.06]"
               : "bg-fd-card"
