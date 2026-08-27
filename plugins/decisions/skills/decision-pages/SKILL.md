@@ -25,3 +25,6 @@ Done when the page exists at the configured path, the opener reports `opened` or
 - Keep every asset inline except Google Fonts. The page renders fully offline with fallback fonts.
 - Preserve the feedback widget from the template with RFC selected. Change its `data-artifact` path to the final repo-relative artifact path.
 - When revising the same topic, edit the existing file instead of making a duplicate.
+- Option cards are clickable: the template's selection script composes the picked options into the feedback widget's title/body. Preserve it, and keep option `<h2>` text short — it becomes the approval text.
+- The template omits DESIGN.md §5 guide lines; add them only when the options form a clean 2×2 grid — stray guide stubs read as visual noise on any other layout.
+- When the options propose UI changes, offer to spin up wireframes (quick mock pages or the prototype skill) before the decision is locked; put that offer in the reply's open question.

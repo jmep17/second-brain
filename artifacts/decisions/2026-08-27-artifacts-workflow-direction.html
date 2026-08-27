@@ -128,24 +128,6 @@
       .options-wrap {
         position: relative;
       }
-      .guide {
-        position: absolute;
-        background: var(--accents-5);
-        opacity: 0.85;
-        pointer-events: none;
-      }
-      .guide.horizontal {
-        left: -12px;
-        right: -12px;
-        top: 50%;
-        height: 1px;
-      }
-      .guide.vertical {
-        top: -12px;
-        bottom: -12px;
-        left: 50%;
-        width: 1px;
-      }
       .options {
         position: relative;
         display: grid;
@@ -159,6 +141,18 @@
         border-radius: var(--radius);
         background: var(--accents-1);
         padding: 16px;
+        cursor: pointer;
+      }
+      .option:hover {
+        border-color: var(--accents-3);
+      }
+      .option.selected {
+        border-color: var(--text-info);
+        box-shadow: inset 0 0 0 1px var(--text-info);
+      }
+      .option.selected .section-label::after {
+        content: " · selected";
+        color: var(--text-info);
       }
       .option h2 {
         font-size: 15px;
@@ -239,9 +233,6 @@
         main {
           padding: 36px 16px 72px;
         }
-        .guide {
-          display: none;
-        }
       }
     </style>
   </head>
@@ -271,8 +262,6 @@
       </section>
 
       <div class="options-wrap">
-        <span class="guide horizontal" aria-hidden="true"></span>
-        <span class="guide vertical" aria-hidden="true"></span>
         <section class="options" aria-label="Options">
           <article class="option">
             <span class="section-label">Option 1 · effort M</span>
@@ -557,6 +546,43 @@
         })();
       </script>
       <!-- feedback-widget:end -->
+      <script>
+        (() => {
+          const options = Array.from(document.querySelectorAll(".option"));
+          const title = document.getElementById("fbtitle");
+          const body = document.getElementById("fbbody");
+          if (!options.length || !title || !body) return;
+          const sync = () => {
+            const picked = options
+              .filter((option) => option.classList.contains("selected"))
+              .map((option) => option.querySelector("h2")?.textContent.trim())
+              .filter(Boolean);
+            if (!picked.length) return;
+            title.value = `Approve: ${picked.join(", ")}`.slice(0, 120);
+            body.value = `Approved options: ${picked.join("; ")}. Turn these into plans.`;
+          };
+          options.forEach((option) => {
+            option.setAttribute("role", "button");
+            option.tabIndex = 0;
+            option.setAttribute("aria-pressed", "false");
+            const toggle = () => {
+              option.classList.toggle("selected");
+              option.setAttribute(
+                "aria-pressed",
+                String(option.classList.contains("selected"))
+              );
+              sync();
+            };
+            option.addEventListener("click", toggle);
+            option.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggle();
+              }
+            });
+          });
+        })();
+      </script>
     </main>
   </body>
 </html>
