@@ -1,6 +1,6 @@
 {
   "name": "decisions",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Decisions and RFCs become standalone Geist-styled HTML pages saved under artifacts/decisions/ and opened in the browser.",
   "author": {
     "name": "Jorden Parker"

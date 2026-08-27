@@ -56,6 +56,7 @@ diagram, and the notes; leave the rest.
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light dark;
     --geist-bg: #ffffff; --geist-fg: #171717;
     --accents-1: #fafafa; --accents-2: #eaeaea; --accents-3: #999999; --accents-5: #666666;
     /* Text tones, not brand fills: both clear WCAG AA on --geist-bg. */
@@ -77,6 +78,7 @@ diagram, and the notes; leave the rest.
     margin: 0; background: var(--geist-bg); color: var(--geist-fg);
     font-family: var(--font-sans); font-size: 14px; line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    accent-color: var(--geist-fg);
   }
   main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
 
@@ -110,7 +112,7 @@ diagram, and the notes; leave the rest.
   .note.open { border-color: color-mix(in srgb, var(--text-info) 40%, var(--accents-2)); }
   .note.open .tag { color: var(--text-info); }
 
-  code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; }
+  code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accents-1); border: 1px solid var(--accents-2); border-radius: 4px; padding: 1px 5px; overflow-wrap: anywhere; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .err { font-family: var(--font-mono); font-size: 12.5px; white-space: pre-wrap; color: #ee0000; border: 1px solid #ee0000; border-radius: 8px; padding: 12px 14px; }
 
   .zoombar, .railtitle { display: none; }

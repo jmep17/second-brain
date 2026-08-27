@@ -1,6 +1,6 @@
 {
   "name": "diagrams",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "description": "Plans, brainstorms, and design discussions become a Mermaid diagram in a Geist-styled HTML page saved under artifacts/diagrams/ and opened in the browser.",
   "author": {
     "name": "Jorden Parker"

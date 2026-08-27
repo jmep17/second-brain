@@ -68,6 +68,12 @@ Every artifact page:
 - Is a standalone HTML file. Network is allowed ONLY for Google Fonts and
   (where needed) the jsDelivr Mermaid/ELK CDN; everything else is inline.
 - Supports light + dark via `prefers-color-scheme`.
+- Declares `color-scheme: light dark` in `:root` and
+  `accent-color: var(--geist-fg)` on `body`, so native form controls
+  follow the theme. Inline `code` sets `overflow-wrap: anywhere` plus
+  `box-decoration-break: clone` so long mono tokens wrap without breaking
+  the chip outline. Status/progress chips keep their top-right slot at
+  every viewport width — never reflowed below the text they label.
 - Has a header: mono kicker (`TYPE · YYYY-MM-DD · <shape>`) + h1 + optional
   one-line sub.
 - Puts content on raised-surface cards.

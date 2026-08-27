@@ -17,6 +17,7 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
     />
     <style>
       :root {
+        color-scheme: light dark;
         --geist-bg: #ffffff;
         --geist-fg: #171717;
         --accents-1: #fafafa;
@@ -58,6 +59,7 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
         font-size: 14px;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
+        accent-color: var(--geist-fg);
       }
       main {
         max-width: 1000px;
@@ -272,6 +274,9 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
         border: 1px solid var(--accents-2);
         border-radius: 4px;
         padding: 1px 5px;
+        overflow-wrap: anywhere;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
       }
       @media (max-width: 640px) {
         main {

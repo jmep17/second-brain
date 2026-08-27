@@ -11,21 +11,21 @@
       "name": "diagrams",
       "source": "./plugins/diagrams",
       "description": "Plans, brainstorms, and design discussions become a Mermaid diagram in a Geist-styled HTML page saved under artifacts/diagrams/ and opened in the browser.",
-      "version": "0.13.2",
+      "version": "0.13.3",
       "category": "productivity"
     },
     {
       "name": "plans",
       "source": "./plugins/plans",
       "description": "Plan and specification artifacts rendered as standalone Geist-styled HTML pages.",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "category": "productivity"
     },
     {
       "name": "decisions",
       "source": "./plugins/decisions",
       "description": "Decision and RFC artifacts rendered as standalone Geist-styled HTML pages.",
-      "version": "0.6.1",
+      "version": "0.6.2",
       "category": "productivity"
     }
   ]
