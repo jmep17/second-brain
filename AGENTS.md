@@ -98,6 +98,13 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+### ADHD-friendly writing
+
+Every document written for the human — plans, specs, tickets, wiki pages,
+answers, artifact pages, index files — follows `docs/agents/adhd-writing.md`:
+conclusion first, one visible next action, chunked sections, stated-point
+headings, effort tags, visible progress, layered depth.
+
 ## Artifact responses
 
 For any planning, decision, brainstorming, or architecture request, the
