@@ -113,3 +113,15 @@ response is an artifact — a Geist-styled HTML page under `artifacts/`
 browser. Do not answer these requests in prose: the chat reply is the
 artifact path plus at most one open question. An explicit request for
 prose ("write it up", "in paragraphs") overrides this.
+
+## Verification
+
+`bun run verify` at the repo root is the single gate: site typecheck, site
+unit tests (`bun test`), plugin manifest/shell checks, and the diagrams
+plugin's hook regression suite. Run it before claiming any change works.
+(`cd site && bun run test:artifact-review` is the manual Playwright pass;
+it needs a running server and `ARTIFACT_REVIEW_BASE_URL`.)
+
+Pre-commit is deliberately left as-is (prettier + plugin checks): `verify`
+runs a full typecheck and can take tens of seconds, which is hostile as a
+commit-time gate. The tradeoff is documented here instead of enforced.
