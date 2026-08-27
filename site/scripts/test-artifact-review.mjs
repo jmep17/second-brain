@@ -41,7 +41,24 @@ async function waitForReviewMarker(locator) {
       });
       const timeout = setTimeout(() => {
         observer.disconnect();
-        reject(new Error("review marker did not appear within 5 seconds"));
+        const ancestors = [];
+        let ancestor = node.parentElement;
+        while (ancestor && ancestors.length < 6) {
+          ancestors.push({
+            tag: ancestor.tagName,
+            id: ancestor.id,
+            marker: ancestor.getAttribute("data-artifact-review-target"),
+          });
+          ancestor = ancestor.parentElement;
+        }
+        reject(
+          new Error(
+            `review marker did not appear within 5 seconds: ${JSON.stringify({
+              connected: node.isConnected,
+              ancestors,
+            })}`
+          )
+        );
       }, 5_000);
       observer.observe(node, {
         attributes: true,
@@ -54,6 +71,7 @@ async function waitForReviewMarker(locator) {
 async function foreignMarkerState(locator) {
   return locator.evaluate((element) => ({
     marker: element.getAttribute("data-artifact-review-target"),
+    owner: element.getAttribute("data-artifact-review-owned"),
     ariaSelected: element.getAttribute("aria-selected"),
     style: element.getAttribute("style"),
   }));
@@ -82,6 +100,68 @@ async function dispatchInteractionSentinels(locator) {
   });
 }
 
+async function dragSelectText(page, iframe, locator, needle) {
+  await locator.scrollIntoViewIfNeeded();
+  const iframeBox = await iframe.boundingBox();
+  assert(iframeBox, "artifact iframe has no bounding box");
+  const points = await locator.evaluate((element, selectedText) => {
+    const fullText = element.textContent ?? "";
+    const startIndex = fullText.indexOf(selectedText);
+    if (startIndex < 0) {
+      throw new Error(`could not find ${JSON.stringify(selectedText)}`);
+    }
+    const endIndex = startIndex + selectedText.length;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let consumed = 0;
+    let startBoundary;
+    let endBoundary;
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const length = node.textContent?.length ?? 0;
+      if (!startBoundary && startIndex <= consumed + length) {
+        startBoundary = { node, offset: startIndex - consumed };
+      }
+      if (endIndex <= consumed + length) {
+        endBoundary = { node, offset: endIndex - consumed };
+        break;
+      }
+      consumed += length;
+    }
+    if (!startBoundary || !endBoundary) {
+      throw new Error(
+        `could not map ${JSON.stringify(selectedText)} to text nodes`
+      );
+    }
+    const range = document.createRange();
+    range.setStart(startBoundary.node, startBoundary.offset);
+    range.setEnd(endBoundary.node, endBoundary.offset);
+    const rects = Array.from(range.getClientRects());
+    const first = rects[0];
+    const last = rects.at(-1);
+    if (!first || !last) throw new Error("selected text has no client rect");
+    return {
+      start: { x: first.left + 0.25, y: first.top + first.height / 2 },
+      end: { x: last.right - 0.25, y: last.top + last.height / 2 },
+    };
+  }, needle);
+  await page.mouse.move(
+    iframeBox.x + points.start.x,
+    iframeBox.y + points.start.y
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    iframeBox.x + points.end.x,
+    iframeBox.y + points.end.y,
+    { steps: 12 }
+  );
+  await page.mouse.up();
+  const card = page
+    .locator("[data-selected-target]")
+    .filter({ hasText: `Selected text: ${needle}` });
+  await card.waitFor();
+  return card;
+}
+
 const preExistingIssueNames = new Set(await issueNames());
 
 try {
@@ -92,6 +172,7 @@ try {
   await page.waitForURL(`**${reviewPath}`);
 
   const frame = page.frameLocator('iframe[title="Artifact under review"]');
+  const iframe = page.locator('iframe[title="Artifact under review"]');
   await frame.locator("header").waitFor();
 
   await frame.locator("body").evaluate((body) => {
@@ -131,6 +212,20 @@ try {
   );
 
   await page.getByRole("button", { name: "Start review mode" }).click();
+
+  await waitForReviewMarker(interactionBackground);
+  assert(
+    (await page.locator("[data-artifact-review-target]").count()) === 0,
+    "review markers escaped the artifact iframe into the outer UI"
+  );
+  await interactionBackground.click();
+  const fallbackId = await interactionBackground.getAttribute(
+    "data-artifact-review-target"
+  );
+  assert(fallbackId, "arbitrary artifact element did not receive a review ID");
+  const fallbackCard = page.locator(`[data-selected-target="${fallbackId}"]`);
+  await fallbackCard.waitFor();
+  await fallbackCard.getByRole("button", { name: "Remove" }).click();
 
   const header = frame.locator("header");
   await waitForReviewMarker(header);
@@ -189,6 +284,33 @@ try {
     "reviewer mutated a pre-existing foreign review marker"
   );
 
+  const subtitle = frame.locator("header .sub");
+  const singleWordCard = await dragSelectText(
+    page,
+    iframe,
+    subtitle,
+    "Repo-side"
+  );
+  await singleWordCard
+    .getByLabel("Requested change")
+    .fill("Use a less technical opening word.");
+  const multiWordCard = await dragSelectText(
+    page,
+    iframe,
+    subtitle,
+    "machine installs"
+  );
+  await multiWordCard
+    .getByLabel("Requested change")
+    .fill("Clarify which machines this refers to.");
+  const highlightedRangeCount = await frame.locator("body").evaluate(() => {
+    return CSS.highlights?.get("artifact-review-text")?.size ?? 0;
+  });
+  assert(
+    highlightedRangeCount === 2,
+    `expected two persistent text highlights, got ${highlightedRangeCount}`
+  );
+
   const diagram = frame.locator(".mermaid svg").first();
   await diagram.waitFor();
   await diagram.evaluate((svg) => {
@@ -222,11 +344,11 @@ try {
 
   const selected = page.locator("[data-selected-target]");
   assert(
-    (await selected.count()) === 2,
-    "expected exactly two selected targets"
+    (await selected.count()) === 4,
+    "expected one component, two text ranges, and one diagram node"
   );
   await selected
-    .nth(1)
+    .filter({ hasText: "diagram-node" })
     .getByLabel("Requested change")
     .fill("Rename the dynamic node.");
 
@@ -254,6 +376,13 @@ try {
     JSON.stringify(await foreignMarkerState(foreignMarker)) ===
       JSON.stringify(foreignBefore),
     "review cleanup mutated a pre-existing foreign review marker"
+  );
+  const highlightAfterCleanup = await frame.locator("body").evaluate(() => {
+    return CSS.highlights?.get("artifact-review-text")?.size ?? 0;
+  });
+  assert(
+    highlightAfterCleanup === 0,
+    "text range highlights survived review-mode cleanup"
   );
   assert(
     JSON.stringify(
@@ -291,10 +420,15 @@ try {
     "Status: ready-for-agent",
     "Execution: queued",
     "Kind: component",
+    "Kind: writing",
     "Kind: diagram-node",
     "Tighten the header summary.",
+    "Use a less technical opening word.",
+    "Clarify which machines this refers to.",
     "Rename the dynamic node.",
     runMarker,
+    "> Repo-side",
+    "> machine installs",
     "> Synthetic dynamic node",
   ]) {
     assert(

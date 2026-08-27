@@ -7,6 +7,7 @@ interface DecoratedState {
   tabIndex: string | null;
   ariaSelected: string | null;
   marker: string | null;
+  owner: string | null;
   outline: string;
   outlineOffset: string;
   cursor: string;
@@ -37,7 +38,48 @@ const GENERIC_SELECTOR = [
   "li",
 ].join(",");
 
-const WRITING_TAGS = new Set(["H2", "H3", "P", "LI"]);
+const WRITING_TAGS = new Set([
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "P",
+  "LI",
+  "SPAN",
+  "STRONG",
+  "EM",
+  "CODE",
+  "TD",
+  "TH",
+  "FIGCAPTION",
+  "TEXT",
+  "TSPAN",
+]);
+const ALL_ARTIFACT_SELECTOR = "body *";
+const TEXT_CONTAINER_SELECTOR = [
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "p",
+  "li",
+  "td",
+  "th",
+  "figcaption",
+  "blockquote",
+  "pre",
+  "code",
+  "span",
+  "text",
+  "tspan",
+].join(",");
+const TEXT_RANGE_ID_PREFIX = "text-range-";
+const TEXT_HIGHLIGHT_NAME = "artifact-review-text";
+const REVIEW_OWNER_ATTRIBUTE = "data-artifact-review-owned";
 const EXCLUDED_SELECTOR = [
   ".feedback",
   "script",
@@ -55,6 +97,63 @@ function textExcerpt(element: Element): string {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 1_000);
+}
+
+function selectionExcerpt(value: string): string {
+  return value.replace(/\s+/g, " ").trim().slice(0, 1_000);
+}
+
+function selectionHash(value: string): string {
+  let hash = 2_166_136_261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16_777_619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function elementForNode(node: Node): Element | null {
+  return node.nodeType === Node.ELEMENT_NODE
+    ? (node as Element)
+    : node.parentElement;
+}
+
+function textOffsetWithin(container: Element, node: Node, offset: number) {
+  const probe = container.ownerDocument.createRange();
+  probe.selectNodeContents(container);
+  probe.setEnd(node, offset);
+  return probe.toString().length;
+}
+
+interface HighlightRegistry {
+  set(name: string, highlight: unknown): void;
+  delete(name: string): boolean;
+}
+
+interface HighlightConstructor {
+  new (...ranges: Range[]): unknown;
+}
+
+function highlightApi(doc: Document) {
+  const view = doc.defaultView as
+    (Window & { Highlight?: HighlightConstructor }) | null;
+  const css = (
+    view as
+      | (Window & { CSS?: typeof CSS & { highlights?: HighlightRegistry } })
+      | null
+  )?.CSS;
+  return { registry: css?.highlights, Highlight: view?.Highlight };
+}
+
+function syncTextHighlights(doc: Document | null | undefined, ranges: Range[]) {
+  if (!doc) return;
+  const { registry, Highlight } = highlightApi(doc);
+  if (!registry || !Highlight) return;
+  if (ranges.length === 0) {
+    registry.delete(TEXT_HIGHLIGHT_NAME);
+    return;
+  }
+  registry.set(TEXT_HIGHLIGHT_NAME, new Highlight(...ranges));
 }
 
 function targetLabel(element: Element, excerpt: string): string {
@@ -103,6 +202,14 @@ function isExcluded(
   decorated: WeakMap<Element, DecoratedState>
 ) {
   if (element.closest(EXCLUDED_SELECTOR)) return true;
+  const markedAncestor = element.closest("[data-artifact-review-target]");
+  if (
+    markedAncestor &&
+    !decorated.has(markedAncestor) &&
+    markedAncestor.getAttribute(REVIEW_OWNER_ATTRIBUTE) !== "true"
+  ) {
+    return true;
+  }
   return (
     element.hasAttribute("data-artifact-review-target") &&
     !decorated.has(element)
@@ -140,6 +247,13 @@ function discoverTargets(
       (ancestor) => ancestor !== element && ancestor.contains(element)
     );
     if (nestedInPriority && !WRITING_TAGS.has(element.tagName)) continue;
+    candidates.push({
+      element,
+      inferredKind: WRITING_TAGS.has(element.tagName) ? "writing" : "component",
+    });
+  }
+
+  for (const element of doc.querySelectorAll(ALL_ARTIFACT_SELECTOR)) {
     candidates.push({
       element,
       inferredKind: WRITING_TAGS.has(element.tagName) ? "writing" : "component",
@@ -201,6 +315,7 @@ export function ArtifactReviewer({
   const iframeDocumentRef = useRef<Document | null>(null);
   const selectedRef = useRef<Record<string, ArtifactReviewSelection>>({});
   const ownedElementsRef = useRef<Set<HTMLElement | SVGElement>>(new Set());
+  const textRangesRef = useRef<Map<string, Range>>(new Map());
   const [loadCount, setLoadCount] = useState(0);
   const [reviewMode, setReviewMode] = useState(false);
   const [selected, setSelected] = useState<
@@ -223,6 +338,9 @@ export function ArtifactReviewer({
       if (current[target.id]) {
         const next = { ...current };
         delete next[target.id];
+        if (target.id.startsWith(TEXT_RANGE_ID_PREFIX)) {
+          textRangesRef.current.delete(target.id);
+        }
         return next;
       }
       return { ...current, [target.id]: target };
@@ -235,6 +353,21 @@ export function ArtifactReviewer({
     const doc = iframeRef.current?.contentDocument;
     if (!doc || doc === iframeDocumentRef.current) return;
     iframeDocumentRef.current = doc;
+    textRangesRef.current.clear();
+    setSelected((current) =>
+      Object.fromEntries(
+        Object.entries(current).filter(
+          ([id]) => !id.startsWith(TEXT_RANGE_ID_PREFIX)
+        )
+      )
+    );
+    setComments((current) =>
+      Object.fromEntries(
+        Object.entries(current).filter(
+          ([id]) => !id.startsWith(TEXT_RANGE_ID_PREFIX)
+        )
+      )
+    );
     setLoadCount((count) => count + 1);
   }, []);
 
@@ -250,6 +383,12 @@ export function ArtifactReviewer({
     const idsByElement = new WeakMap<Element, string>();
     const assignedIds = new Set<string>();
     const fallbackCounters = new Map<string, number>();
+    const textIdsBySignature = new Map<string, string>();
+    for (const [id, target] of Object.entries(selectedRef.current)) {
+      if (!id.startsWith(TEXT_RANGE_ID_PREFIX)) continue;
+      assignedIds.add(id);
+      textIdsBySignature.set(`${target.selector}\u0000${target.excerpt}`, id);
+    }
     for (const element of doc.querySelectorAll(
       "[data-artifact-review-target]"
     )) {
@@ -259,6 +398,7 @@ export function ArtifactReviewer({
     ownedElementsRef.current = decoratedElements;
     let byElement = new Map<Element, ArtifactReviewSelection>();
     let frame = 0;
+    let capturedTextOnMouseUp = false;
 
     const claimUniqueId = (base: string) => {
       const normalized = base.slice(0, 200) || "target";
@@ -294,6 +434,63 @@ export function ArtifactReviewer({
       return id;
     };
 
+    const addTextSelection = () => {
+      const selection = doc.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return false;
+      }
+      const sourceRange = selection.getRangeAt(0);
+      const startElement = elementForNode(sourceRange.startContainer);
+      const endElement = elementForNode(sourceRange.endContainer);
+      if (
+        !startElement ||
+        !endElement ||
+        isExcluded(startElement, decorated) ||
+        isExcluded(endElement, decorated)
+      ) {
+        return false;
+      }
+      const excerpt = selectionExcerpt(selection.toString());
+      if (!excerpt) return false;
+
+      const commonElement = elementForNode(sourceRange.commonAncestorContainer);
+      if (!commonElement || !doc.body?.contains(commonElement)) return false;
+      const container =
+        commonElement.closest(TEXT_CONTAINER_SELECTOR) ?? commonElement;
+      const start = textOffsetWithin(
+        container,
+        sourceRange.startContainer,
+        sourceRange.startOffset
+      );
+      const end = textOffsetWithin(
+        container,
+        sourceRange.endContainer,
+        sourceRange.endOffset
+      );
+      const locator = `${selectorFor(container)}::text(${start}-${end})`.slice(
+        0,
+        500
+      );
+      const signature = `${locator}\u0000${excerpt}`;
+      const id =
+        textIdsBySignature.get(signature) ||
+        claimUniqueId(`${TEXT_RANGE_ID_PREFIX}${selectionHash(signature)}`);
+      textIdsBySignature.set(signature, id);
+      textRangesRef.current.set(id, sourceRange.cloneRange());
+      const target: ArtifactReviewSelection = {
+        id,
+        kind: "writing",
+        label: `Selected text: ${excerpt}`.slice(0, 200),
+        selector: locator,
+        excerpt,
+      };
+      setSelected((current) => ({ ...current, [id]: target }));
+      setStatus(null);
+      setError(null);
+      selection.removeAllRanges();
+      return true;
+    };
+
     const restoreElement = (element: HTMLElement | SVGElement) => {
       const original = decorated.get(element);
       if (!original) return;
@@ -305,6 +502,9 @@ export function ArtifactReviewer({
       if (original.marker === null)
         element.removeAttribute("data-artifact-review-target");
       else element.setAttribute("data-artifact-review-target", original.marker);
+      if (original.owner === null)
+        element.removeAttribute(REVIEW_OWNER_ATTRIBUTE);
+      else element.setAttribute(REVIEW_OWNER_ATTRIBUTE, original.owner);
       element.style.outline = original.outline;
       element.style.outlineOffset = original.outlineOffset;
       element.style.cursor = original.cursor;
@@ -360,15 +560,17 @@ export function ArtifactReviewer({
             tabIndex: element.getAttribute("tabindex"),
             ariaSelected: element.getAttribute("aria-selected"),
             marker: element.getAttribute("data-artifact-review-target"),
+            owner: element.getAttribute(REVIEW_OWNER_ATTRIBUTE),
             outline: element.style.outline,
             outlineOffset: element.style.outlineOffset,
             cursor: element.style.cursor,
           });
         }
         decoratedElements.add(element);
+        element.setAttribute(REVIEW_OWNER_ATTRIBUTE, "true");
         element.setAttribute("data-artifact-review-target", target.id);
         element.setAttribute("tabindex", "0");
-        element.style.cursor = "pointer";
+        element.style.cursor = target.kind === "writing" ? "text" : "pointer";
         updateVisual(element);
       }
     };
@@ -381,6 +583,13 @@ export function ArtifactReviewer({
     const eventTarget = (event: Event) => {
       const node = event.target;
       if (!(node instanceof doc.defaultView!.Element)) return null;
+      const diagramTarget = node.closest(".mermaid g.node, .mermaid g.cluster");
+      if (
+        diagramTarget?.getAttribute(REVIEW_OWNER_ATTRIBUTE) === "true" &&
+        byElement.has(diagramTarget)
+      ) {
+        return diagramTarget as SVGElement;
+      }
       return node.closest("[data-artifact-review-target]") as
         HTMLElement | SVGElement | null;
     };
@@ -388,6 +597,11 @@ export function ArtifactReviewer({
     const onClick = (event: Event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (capturedTextOnMouseUp) {
+        capturedTextOnMouseUp = false;
+        return;
+      }
+      if (addTextSelection()) return;
       const element = eventTarget(event);
       if (!element) return;
       const target = byElement.get(element);
@@ -405,6 +619,14 @@ export function ArtifactReviewer({
     const stopArtifactInteraction = (event: Event) => {
       event.stopImmediatePropagation();
     };
+    const onMouseDown = (event: MouseEvent) => {
+      capturedTextOnMouseUp = false;
+      event.stopImmediatePropagation();
+    };
+    const onMouseUp = (event: MouseEvent) => {
+      event.stopImmediatePropagation();
+      capturedTextOnMouseUp = addTextSelection();
+    };
     const onHighlight = (event: Event) => {
       const element = eventTarget(event);
       if (element) updateVisual(element, true);
@@ -419,6 +641,16 @@ export function ArtifactReviewer({
     feedback.forEach((element) => {
       element.style.display = "none";
     });
+    const highlightStyle = doc.createElement("style");
+    highlightStyle.setAttribute("data-artifact-review-highlight", "true");
+    highlightStyle.textContent = `::highlight(${TEXT_HIGHLIGHT_NAME}) { background: rgba(0, 112, 243, .28); color: inherit; }`;
+    doc.head?.append(highlightStyle);
+    syncTextHighlights(
+      doc,
+      Array.from(textRangesRef.current.entries())
+        .filter(([id]) => Boolean(selectedRef.current[id]))
+        .map(([, range]) => range)
+    );
 
     refresh();
     const observer = new MutationObserver(scheduleRefresh);
@@ -431,6 +663,9 @@ export function ArtifactReviewer({
     doc.addEventListener("pointercancel", stopArtifactInteraction, true);
     doc.addEventListener("dblclick", stopArtifactInteraction, true);
     doc.addEventListener("dragstart", stopArtifactInteraction, true);
+    doc.addEventListener("mousedown", onMouseDown, true);
+    doc.addEventListener("mousemove", stopArtifactInteraction, true);
+    doc.addEventListener("mouseup", onMouseUp, true);
     doc.addEventListener("wheel", stopArtifactInteraction, true);
     doc.addEventListener("mouseover", onHighlight, true);
     doc.addEventListener("mouseout", onUnhighlight, true);
@@ -448,6 +683,9 @@ export function ArtifactReviewer({
       doc.removeEventListener("pointercancel", stopArtifactInteraction, true);
       doc.removeEventListener("dblclick", stopArtifactInteraction, true);
       doc.removeEventListener("dragstart", stopArtifactInteraction, true);
+      doc.removeEventListener("mousedown", onMouseDown, true);
+      doc.removeEventListener("mousemove", stopArtifactInteraction, true);
+      doc.removeEventListener("mouseup", onMouseUp, true);
       doc.removeEventListener("wheel", stopArtifactInteraction, true);
       doc.removeEventListener("mouseover", onHighlight, true);
       doc.removeEventListener("mouseout", onUnhighlight, true);
@@ -458,6 +696,8 @@ export function ArtifactReviewer({
       feedback.forEach((element, index) => {
         element.style.display = feedbackDisplays[index];
       });
+      highlightApi(doc).registry?.delete(TEXT_HIGHLIGHT_NAME);
+      highlightStyle.remove();
       if (ownedElementsRef.current === decoratedElements) {
         ownedElementsRef.current = new Set();
       }
@@ -473,6 +713,12 @@ export function ArtifactReviewer({
       element.style.outline = isSelected ? "3px solid rgb(0, 112, 243)" : "";
       element.style.outlineOffset = isSelected ? "3px" : "";
     }
+    syncTextHighlights(
+      iframeRef.current?.contentDocument,
+      Array.from(textRangesRef.current.entries())
+        .filter(([id]) => Boolean(selected[id]))
+        .map(([, range]) => range)
+    );
   }, [selected]);
 
   const targets = Object.values(selected);
@@ -509,6 +755,7 @@ export function ArtifactReviewer({
         return;
       }
       setStatus(`Filed ${String(data.filed)}`);
+      textRangesRef.current.clear();
       setSelected({});
       setComments({});
       setTitle("");
@@ -536,7 +783,7 @@ export function ArtifactReviewer({
           </button>
           <span className="text-fd-muted-foreground text-sm">
             {reviewMode
-              ? "Select components or writing in the artifact."
+              ? "Click an element, or drag across one or more words."
               : "The artifact is interactive until review mode starts."}
           </span>
         </header>
