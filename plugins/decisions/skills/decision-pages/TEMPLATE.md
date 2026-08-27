@@ -1,6 +1,6 @@
 # Geist decision page template
 
-Copy this complete document. Replace `TOPIC`, dates, status, paths, and example content; repeat or remove option and note cards as needed. Preserve the tokens, guide treatment, and feedback widget.
+Copy this complete document. Replace `TOPIC`, dates, status, paths, and example content; repeat or remove option and note cards as needed. Preserve the tokens, guide treatment, and feedback widget. State the recommendation in the TL;DR even though it repeats below.
 
 ```html
 <!doctype html>
@@ -97,6 +97,43 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
         color: var(--accents-5);
         max-width: 62ch;
         margin: 0;
+      }
+      .tldr {
+        border: 1px solid color-mix(
+          in srgb,
+          var(--text-info) 40%,
+          var(--accents-2)
+        );
+        border-radius: var(--radius);
+        background: var(--accents-1);
+        padding: 14px 16px;
+        margin-bottom: 20px;
+      }
+      .tldr .tag {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-info);
+        display: block;
+        margin-bottom: 6px;
+      }
+      .tldr p {
+        margin: 0;
+      }
+      .tldr .next {
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+        color: var(--text-info);
+        margin-top: 8px;
+      }
+      details.depth {
+        margin-top: 8px;
+      }
+      details.depth summary {
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--accents-5);
       }
       .context,
       .recommendation {
@@ -253,6 +290,18 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
         <h1>TOPIC</h1>
         <p class="sub">One sentence naming the decision boundary.</p>
       </header>
+
+      <section class="tldr" aria-label="Summary">
+        <span class="tag">TL;DR</span>
+        <p>
+          Recommendation: <strong>First option</strong> — one clause on why.
+          The options grid below carries the evidence.
+        </p>
+        <p class="next">
+          Next → accept the recommendation, or open the option
+          that contradicts it.
+        </p>
+      </section>
 
       <section class="context">
         <span class="section-label">Context</span>

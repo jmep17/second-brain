@@ -229,3 +229,25 @@ implementation. Its `--accents-1/2/3/5` map to the gray-scale roles above
 (bg-100 / border-400 / text-secondary / text-primary-muted), and its
 `--radius: 10px` sits inside the 6–12px card band. New types copy its token
 block verbatim unless this document says otherwise.
+
+## 10. ADHD-friendly reading contract
+
+Maps `docs/agents/adhd-writing.md` onto artifact pages. Every page:
+
+- Opens `<main>` content (directly after `header`) with a **TL;DR card**
+(`.tldr`): mono tag `TL;DR`, ≤3 plain sentences stating the conclusion,
+then one **next-action line** (`.next`, info tone, mono) naming exactly
+one action for the reader. A decision page's TL;DR states the
+recommendation; a plan page's states outcome + first open step; a
+diagram page's states what the diagram shows and the one takeaway.
+- Shows **progress in the kicker** when the page has stateful units
+(plan steps): `· N/M done`, updated on every re-render.
+- **Folds depth**: content beyond the skim layer goes inside
+`<details class="depth">` with a one-line `<summary>` that states the
+point of what it hides. Never fold the TL;DR, next action, steps list,
+or Notes.
+- **Chunk budget**: ≤7 step/option cards per section; a card's visible
+copy is one line, overflow goes into its `details`. Headings state the
+point, never tease it.
+- Emphasis stays on budget (§2 color rules apply): the next-action line is
+the only info-tone text added by this contract.

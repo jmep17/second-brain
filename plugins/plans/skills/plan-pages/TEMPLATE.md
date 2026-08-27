@@ -1,6 +1,6 @@
 # Geist plan page template
 
-Copy this complete document. Replace `TOPIC`, dates, paths, and example content; repeat or remove step, dependency, and note cards as needed. Preserve the tokens and feedback widget.
+Copy this complete document. Replace `TOPIC`, dates, paths, and example content; repeat or remove step, dependency, and note cards as needed. Preserve the tokens and feedback widget. Fill the TL;DR and its Next → line, keep the kicker's N/M done count true, cap steps at 7 (fold overflow into `details.depth`), and give steps stated-point titles.
 
 ```html
 <!doctype html>
@@ -85,6 +85,43 @@ Copy this complete document. Replace `TOPIC`, dates, paths, and example content;
         color: var(--accents-5);
         max-width: 62ch;
         margin: 0;
+      }
+      .tldr {
+        border: 1px solid color-mix(
+          in srgb,
+          var(--text-info) 40%,
+          var(--accents-2)
+        );
+        border-radius: var(--radius);
+        background: var(--accents-1);
+        padding: 14px 16px;
+        margin-bottom: 20px;
+      }
+      .tldr .tag {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-info);
+        display: block;
+        margin-bottom: 6px;
+      }
+      .tldr p {
+        margin: 0;
+      }
+      .tldr .next {
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+        color: var(--text-info);
+        margin-top: 8px;
+      }
+      details.depth {
+        margin-top: 8px;
+      }
+      details.depth summary {
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--accents-5);
       }
       .steps {
         display: grid;
@@ -234,10 +271,19 @@ Copy this complete document. Replace `TOPIC`, dates, paths, and example content;
   <body>
     <main>
       <header>
-        <div class="kicker">Plan · YYYY-MM-DD · ordered steps</div>
+        <div class="kicker">Plan · YYYY-MM-DD · ordered steps · 1/3 done</div>
         <h1>TOPIC</h1>
         <p class="sub">One sentence defining the outcome and boundary.</p>
       </header>
+
+      <section class="tldr" aria-label="Summary">
+        <span class="tag">TL;DR</span>
+        <p>
+          Two or three sentences: the outcome, the state of play, the risk
+          that matters. Written so a 10-second read suffices.
+        </p>
+        <p class="next">Next → the single action the reader should take.</p>
+      </section>
 
       <section class="steps" aria-label="Plan steps">
         <article class="step">
@@ -245,6 +291,10 @@ Copy this complete document. Replace `TOPIC`, dates, paths, and example content;
           <div>
             <h2>First step</h2>
             <p>One-line detail describing the observable result.</p>
+            <details class="depth">
+              <summary>Why this step is safe to run first</summary>
+              <p>Longer rationale lives here, out of the skim path.</p>
+            </details>
           </div>
           <span class="status done">done</span>
         </article>
