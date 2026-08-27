@@ -339,6 +339,7 @@ export function ArtifactReviewer({
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [filedPath, setFiledPath] = useState<string | null>(null);
   const [watchIssue, setWatchIssue] = useState<string | null>(null);
 
   useEffect(() => {
@@ -800,6 +801,7 @@ export function ArtifactReviewer({
     setBusy(true);
     setError(null);
     setStatus(null);
+    setFiledPath(null);
     try {
       const response = await fetch("/api/artifacts/feedback", {
         method: "POST",
@@ -839,6 +841,7 @@ export function ArtifactReviewer({
       } else {
         setStatus(`Filed ${String(data.filed)}`);
       }
+      if (typeof data.filed === "string") setFiledPath(data.filed);
       textRangesRef.current.clear();
       setSelected({});
       setComments({});
@@ -1169,6 +1172,26 @@ export function ArtifactReviewer({
             >
               {status}
             </p>
+          )}
+          {filedPath && (
+            <button
+              type="button"
+              onClick={() => {
+                void navigator.clipboard
+                  .writeText(
+                    `Read the artifact feedback issue at ${filedPath} and act on it per docs/agents/issue-tracker.md.`
+                  )
+                  .then(() =>
+                    setStatus(
+                      "Prompt copied — paste it into any Claude session."
+                    )
+                  )
+                  .catch(() => setError("Could not copy to clipboard."));
+              }}
+              className="bg-fd-background w-full rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none"
+            >
+              Copy prompt for a new session
+            </button>
           )}
           {error && (
             <p

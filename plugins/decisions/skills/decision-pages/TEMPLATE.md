@@ -446,9 +446,25 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
                 body: JSON.stringify({ artifact, kind, title, body }),
               });
               const data = await res.json();
-              status.textContent = res.ok
-                ? `filed: ${data.filed}`
-                : `error: ${data.error ?? res.status}`;
+              if (res.ok) {
+                status.textContent = `filed: ${data.filed}`;
+                const copy = document.createElement("button");
+                copy.type = "button";
+                copy.textContent = "copy prompt";
+                copy.addEventListener("click", async () => {
+                  try {
+                    await navigator.clipboard.writeText(
+                      `Read the artifact feedback issue at ${data.filed} and act on it per docs/agents/issue-tracker.md.`
+                    );
+                    copy.textContent = "copied";
+                  } catch {
+                    copy.textContent = "copy failed";
+                  }
+                });
+                status.append(" ", copy);
+              } else {
+                status.textContent = `error: ${data.error ?? res.status}`;
+              }
             } catch (e) {
               status.textContent = `request failed: ${e?.message ?? e}`;
             }
