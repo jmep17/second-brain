@@ -1,4 +1,4 @@
-// @ts-nocheck -- Bun supplies bun:test at runtime; the site omits Bun globals.
+/// <reference types="bun-types" />
 import { describe, expect, test } from "bun:test";
 import {
   parseFeedbackPayload,
