@@ -2,7 +2,8 @@
   "name": "second-brain",
   "private": true,
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "verify": "cd site && bun run typecheck && bun test && cd .. && bash tools/check-plugins.sh && bash plugins/diagrams/test/ready-feedback-nudge.sh"
   },
   "devDependencies": {
     "husky": "^9.1.7",
