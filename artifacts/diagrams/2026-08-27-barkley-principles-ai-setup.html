@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Artifacts workflow: next moves</title>
+<title>Barkley principles applied to the AI-engineering setup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
       --text-warning: #f5a623; --text-info: #52a8ff;
     }
   }
-  * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accents-2) transparent; }
+  * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
     margin: 0; background: var(--geist-bg); color: var(--geist-fg);
@@ -49,8 +49,8 @@
   figcaption { padding: 12px 14px; border-top: 1px solid var(--accents-2); color: var(--accents-5); font-size: 13px; }
 
   /* ---- notes ---- */
-  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); grid-auto-rows: 1fr; gap: 12px; margin-top: 28px; }
-  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; min-width: 0; overflow-wrap: anywhere; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin-top: 28px; }
+  .note { border: 1px solid var(--accents-2); border-radius: var(--radius); padding: 14px 16px; }
   .note .tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 6px; color: var(--accents-3); }
   .note.risk { border-color: color-mix(in srgb, var(--text-warning) 40%, var(--accents-2)); }
   .note.risk .tag { color: var(--text-warning); }
@@ -118,9 +118,9 @@
 <body data-mode="document">
 <main>
   <header>
-    <div class="kicker">Direction · 2026-08-27 · options</div>
-    <h1>Artifacts workflow: next moves</h1>
-    <p class="sub">Direction audit (improve, next variant): five grounded options for Geist polish and an ADHD-friendly review loop. Plans 014/015 stay as decided.</p>
+    <div class="kicker">Brainstorm · 2026-08-27 · flowchart</div>
+    <h1>Barkley principles applied to the AI-engineering setup</h1>
+    <p class="sub">Each branch: a Barkley principle, what this repo's tooling already does for it, and candidate improvements. Source: wiki/barkley-adhd-recommendations.md.</p>
   </header>
 
   <figure>
@@ -132,57 +132,98 @@
       <div class="pan" id="pan">
         <pre class="mermaid">
 flowchart TD
-  subgraph s1["1 · Geist review chrome — M"]
+  M["ADHD = performance, not knowledge<br/><small>fix the environment at the point of performance</small>"]
+
+  subgraph S1["Point of performance"]
     direction TB
-    a1["Today: indigo accent, fd tokens"] --> a2["Adopt DESIGN.md token roles"]
-    a2 --> a3["Neutral scale, sparse semantic tones"]
-    a2 --> a4["Flat cards, contract radii"]
-    a2 --> r1["⚠ risk: two token systems"]
+    P1["Help where the work happens"]
+    P1a["Have: hook nudges at prompt time"]
+    P1b["Idea: CLAUDE.md rules become hooks"]
+    P1c["Idea: push only at blocking decisions"]
+    P1 --> P1a
+    P1a --> P1b
+    P1a --> P1c
   end
-  subgraph s2["2 · Dashboard index — M"]
+
+  subgraph S2["Externalized working memory"]
     direction TB
-    b1["Meta block in every template"] --> b2["Parse title, date, type"]
-    b2 --> b3["Card grid, newest first"]
-    b3 --> b4["Per-artifact status chips"]
+    P2["Rely on storage, not recall"]
+    P2a["Have: wiki + log + issue tracker"]
+    P2b["Idea: zero-friction capture inbox"]
+    P2c["Idea: re-entry recap on session start"]
+    P2 --> P2a
+    P2a --> P2b
+    P2a --> P2c
   end
-  subgraph s3["3 · Review inbox — M"]
+
+  subgraph S3["Externalized time"]
     direction TB
-    c1["Read feedback issue files"] --> c2["Status chips per batch"]
-    c2 --> c3["Issue and artifact cross-links"]
-    c3 --> c4["Resolved links re-rendered artifact"]
+    P3["Make time visible and physical"]
+    P3a["Have: loop + schedule skills"]
+    P3b["Idea: weekly scheduled /lint pass"]
+    P3c["Idea: surface stale dates in index"]
+    P3 --> P3a
+    P3a --> P3b
+    P3a --> P3c
   end
-  subgraph s4["4 · Question on the page — S"]
+
+  subgraph S4["Externalized motivation"]
     direction TB
-    d1["Decision-needed banner up top"] --> d2["One-click answers file feedback"]
+    P4["Immediate feedback, small chunks"]
+    P4a["Have: artifacts open instantly"]
+    P4b["Have: small queued feedback batches"]
+    P4c["Idea: progress dashboard artifact"]
+    P4 --> P4a
+    P4 --> P4b
+    P4b --> P4c
   end
-  subgraph s5["5 · Now strip on home — S"]
+
+  subgraph S5["Stop the action"]
     direction TB
-    e1["Queued batches, TODO plans"] --> e2["One next action first"]
+    P5["Buy time before responding"]
+    P5a["Have: review tray gates execution"]
+    P5b["Idea: plan-mode default for big edits"]
+    P5 --> P5a
+    P5a --> P5b
   end
-  b4 -.-> c1
-  e1 -.-> c1
-  e1 -.-> b2
-  q(["? open: which become plans"])
-  s4 ~~~ q
+
+  subgraph S6["Sustained prosthetics"]
+    direction TB
+    P6["Chronic condition: maintain forever"]
+    P6a["Have: append-only log, /lint op"]
+    P6b["⚠ Risk: every tool adds upkeep"]
+    P6c["Idea: prune a tool per tool added"]
+    P6 --> P6a
+    P6a --> P6b
+    P6b --> P6c
+  end
+
+  M --> P1
+  M --> P2
+  M --> P3
+  M --> P4
+  M --> P5
+  M --> P6
+
+  classDef idea stroke-dasharray: 4 3;
+  class P1b,P1c,P2b,P2c,P3b,P3c,P4c,P5b,P6c idea;
         </pre>
       </div>
     </div>
-    <figcaption>Inside an option, arrows order the work. Dotted arrows say which options share data: status chips and the now strip read the same queue the inbox reads.</figcaption>
+    <figcaption>Solid boxes exist today; dashed boxes are candidate improvements. Read each branch top-down: principle → current state → ideas.</figcaption>
   </figure>
 
   <section class="notes" id="notes">
     <div class="railtitle" id="railtitle"><span>Notes</span><span class="chev">–</span></div>
-    <div class="note"><span class="tag">1 · Geist chrome — M</span>The review tray runs on Tailwind indigo (<code>artifact-reviewer.tsx:92</code> <code>REVIEW_ACCENT</code>, indigo buttons/pills/focus rings) and Fumadocs <code>fd-*</code> tokens, plus <code>shadow-sm</code> on flat cards — while DESIGN.md §2/§4 mandates the neutral scale, two AA semantic tones, and shadows only on floating layers. Restyle tray + <code>/artifacts</code> index onto the contract so the wrapper matches the pages it hosts.</div>
-    <div class="note"><span class="tag">2 · Dashboard index — M</span>ADHD re-entry surface. <code>artifacts/page.tsx:29-38</code> renders a bare underlined link list; <code>lib/artifacts.ts:30-35</code> strips the date and guesses the title from the filename. Add a small machine-readable meta block to the templates (DESIGN.md first, then re-sync per §8), parse it server-side, and render kicker + date + type cards, newest first across types.</div>
-    <div class="note"><span class="tag">3 · Review inbox — M</span>ADHD: out of sight is out of mind. The queue is visible only to the agent (<code>ready-feedback-nudge.sh</code>); the site writes <code>.scratch/artifact-feedback/issues/</code> but never reads it. A read-only inbox page with per-batch status (needs-triage/queued/claimed/resolved/blocked) and artifact↔issue links shows outcomes and closes the loop. Keeps plan 015's boundary: no new autonomous authorization paths.</div>
-    <div class="note"><span class="tag">4 · Question on page — S</span>The "one open question" lives only in the chat reply (DESIGN.md §7) while the reader's attention is in the browser. Make it a first-class decision-needed banner on the page, with one-click answer buttons that file through the existing feedback API — the action lands where the attention already is.</div>
-    <div class="note"><span class="tag">5 · Now strip — S</span>One glanceable "next action" strip on the site home: queued feedback batches, TODO plans (002, 007, 014), newest artifact. Cheap once 3 exists; build last.</div>
-    <div class="note risk"><span class="tag">Risk</span>Token split: decide once whether site review chrome adopts Geist tokens outright or maps the values into Fumadocs variables — half-and-half reads as broken. And plan 014 adds four templates soon: land the meta block + banner in DESIGN.md before 014 executes, or four more templates need re-syncing.</div>
-    <div class="note open"><span class="tag">Open</span>Which options become plans? Recommended: 1 + 2 + 4 first (largest look-and-feel and ADHD win per effort), then 3, then 5.</div>
+    <div class="note"><span class="tag">Note</span>Sharpest transfer: Barkley predicts docs ("knowledge") don't change behavior — help at the point of performance does. Hooks fire mid-action; CLAUDE.md prose relies on recall. Audit each "always do X" rule for hook-ability.</div>
+    <div class="note"><span class="tag">Note</span>"Shepherd, not engineer" is already this repo's Karpathy pattern: the human designs the pasture (skills, hooks, conventions) and curates; the agent does the bookkeeping. Improvements should strengthen the pasture, not micromanage runs.</div>
+    <div class="note"><span class="tag">Note</span>"Externalize motivation" maps to making finished work visible immediately — browser-opened artifacts and small resolvable batches are the reward loop; a periodic "what compounded this month" dashboard would close it.</div>
+    <div class="note risk"><span class="tag">Risk</span>Barkley: prosthetics only work if sustained. Every new tool here is a chronic maintenance commitment — prefer wiring existing skills (loop, schedule, lint) over building new ones.</div>
+    <div class="note open"><span class="tag">Open</span>Which idea to build first. Cheapest compounding pick: scheduled weekly /lint plus a session-start re-entry recap — both reuse existing machinery.</div>
   </section>
 
   <!-- feedback-widget:start -->
-  <section class="feedback" id="feedback" data-artifact="artifacts/diagrams/2026-08-27-artifacts-workflow-direction.html">
+  <section class="feedback" id="feedback" data-artifact="artifacts/diagrams/2026-08-27-barkley-principles-ai-setup.html">
     <div class="fbhead">
       <span class="tag">Feedback</span>
       <span class="fbstatus" id="fbstatus"></span>

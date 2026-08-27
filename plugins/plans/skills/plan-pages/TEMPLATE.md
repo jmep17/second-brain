@@ -47,6 +47,8 @@ Copy this complete document. Replace `TOPIC`, dates, paths, and example content;
       }
       * {
         box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accents-2) transparent;
       }
       body {
         margin: 0;

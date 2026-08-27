@@ -50,7 +50,10 @@ Geist's four categories map onto artifact pages as:
 1px borders in the border-role gray. Radii from Geist materials: 6px for
 small controls/chips, 10–12px for cards and other page surfaces, 16px for
 full-screen surfaces. Shadows only on floating layers (rails, menus),
-subtle — `0 4px 16px rgb(0 0 0 / .06)`.
+subtle — `0 4px 16px rgb(0 0 0 / .06)`. Scrollbars are thin and subtle:
+`scrollbar-width: thin; scrollbar-color: var(--accents-2) transparent` on
+every scroll container (standard properties only — no `::-webkit-scrollbar`
+blocks).
 
 ## 5. Grid (optional flourish)
 
