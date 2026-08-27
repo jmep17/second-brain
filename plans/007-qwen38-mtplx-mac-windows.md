@@ -13,6 +13,12 @@
 > If an in-scope path changed, compare the live state with “Current state”
 > before proceeding. Treat an overlapping semantic change as a STOP condition.
 
+## At a glance
+
+- **What**: Give the Windows workstation and the Mac each an independent local Qwen3.8-27B backend behind an identical checked-in interface.
+- **Why**: MTPLX is Apple-Silicon-only, so routing both machines through it would make Windows depend on the Mac being reachable.
+- **Next action**: Step 1 — Correct the repository's machine vocabulary
+
 ## Status
 
 - **Priority**: P1

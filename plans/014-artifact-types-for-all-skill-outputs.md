@@ -14,6 +14,12 @@
 > 004–008). Unattributable drift: compare against Current state; mismatch =
 > STOP.
 
+## At a glance
+
+- **What**: Ship four new artifact-type plugins (boards, reviews, questionnaires, reports) and extend the enforcement hook to route file-shaped skill outputs to the right type.
+- **Why**: Four response shapes the installed skills already produce have no artifact type, so those outputs never get an artifact.
+- **Next action**: Step 1 — Scaffold four plugins
+
 ## Status
 
 - **Priority**: P2

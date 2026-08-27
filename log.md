@@ -237,3 +237,33 @@ Append-only record of wiki operations. Newest entries at the bottom.
   section now carries the normative widget contract + snippet, embedded in
   the diagram template between `feedback-widget` delimiters. Review pages
   now carry the widget too. Both agents at v0.6.0. Plan 013 next.
+
+## [2026-08-27] maintenance | improve: filed plans 044–045 — ADHD-friendly authoring standard + artifact templates
+
+- Research prerequisite done in-session (adhd-summarize research file, Barkley
+  artifact, web sources on neurodivergent UX and ADHD task design); distilled
+  findings inlined into plans/044-adhd-friendly-authoring-standard.md.
+- Filed plans/044-adhd-friendly-authoring-standard.md and
+  plans/045-adhd-friendly-artifact-templates.md; updated plans/README.md
+  (rows, phase placement, shared-file coordination); rendered
+  artifacts/plans/2026-08-27-adhd-friendly-artifacts-and-plans.html.
+
+## [2026-08-27] maintenance | Plans 044–045 executed — ADHD standard + artifact-template contract
+
+- Executor worktree branch `worktree-agent-ac3aec6ac7bb657ca`: commits
+  `b02087c` (044: docs/agents/adhd-writing.md, CLAUDE/AGENTS wiring,
+  issue-tracker convention, hook nudges, diagrams 0.13.1) and `59a6cd9`
+  (045: DESIGN.md §10, TL;DR/next-action/progress/folded-depth in the three
+  templates, plugins 0.4.1/0.6.1/0.13.2). Reviewed and approved; awaiting
+  merge to main. Improve plan template (~/.agents) gained the At-a-glance
+  block in place. 29 open plans retrofitted with At-a-glance blocks in the
+  main tree; plans/README.md gained a re-entry header.
+
+## [2026-08-27] maintenance | Plan 046 executed — artifact-template rendering fixes
+
+- Found via Playwright screenshots: dark-mode native controls unthemed, long
+  code chips shattering on wrap, status chips reflowed below step text at
+  review-pane width. Fixed in all three templates + DESIGN.md §6 (commit
+  `a4a3e38` on `worktree-agent-ac3aec6ac7bb657ca`; plugins 0.4.2/0.6.2/0.13.3);
+  reviewed and approved. Live pages patched in place; brainstorm page also
+  repaired (advisor build script had corrupted its railtitle/canvas rules).

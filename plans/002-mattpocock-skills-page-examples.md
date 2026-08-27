@@ -12,6 +12,12 @@
 > state" excerpts below against the live files before proceeding; on a
 > mismatch, treat it as a STOP condition.
 
+## At a glance
+
+- **What**: Rewrite `wiki/mattpocock-skills-workflow.md` into a routable, example-carrying page with citations re-pointed at the upstream repository at a pinned commit.
+- **Why**: The page has no routing entry point or worked examples, and every one of its 33 citations points into a version-pinned plugin cache directory that dangles on the next `/plugin update`.
+- **Next action**: Step 1 — Resolve the plugin root and confirm the version
+
 ## Status
 
 - **Priority**: P2
