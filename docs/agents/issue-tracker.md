@@ -23,6 +23,16 @@ files and verification results under `## Comments`. On a blocker, change it to
 `blocked` and append the reason. If abandoning a claim without completing the
 work, restore `queued`. Never execute `needs-triage` feedback autonomously.
 
+The site's **Approve · run now** action dispatches a two-stage headless
+run immediately after filing the batch: a low-cost executor model claims
+and resolves the batch under these same rules, then a stronger reviewer
+model verifies the work against the requested changes, amends it if
+necessary, and appends a "review: approved/amended" note under
+`## Comments`. Both stages log to
+`.scratch/artifact-feedback/runs/<NN-slug>.log` (gitignored); the review
+tray polls the issue's `Execution:` line plus the run lock, so it keeps
+watching until the reviewer finishes.
+
 ## When a skill says "publish to the issue tracker"
 
 Create a new file under `.scratch/<feature-slug>/` (creating the directory if needed).

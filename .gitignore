@@ -8,3 +8,5 @@ site/out/
 site/public/vault/
 site/next-env.d.ts
 site/tsconfig.tsbuildinfo
+.scratch/artifact-feedback/runs/
+.scratch/artifact-feedback/.run-lock

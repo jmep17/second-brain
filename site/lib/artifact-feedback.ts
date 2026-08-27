@@ -28,6 +28,8 @@ export interface BatchFeedbackPayload {
   body: string;
   targets: ReviewTarget[];
   readyForAgent: boolean;
+  /** Dispatch a headless run immediately after filing (approve action). */
+  run: boolean;
 }
 
 export type FeedbackPayload = LegacyFeedbackPayload | BatchFeedbackPayload;
@@ -124,6 +126,13 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
   if (typeof value.readyForAgent !== "boolean") {
     return { ok: false, error: "readyForAgent must be a boolean" };
   }
+  const run = value.run === undefined ? false : value.run;
+  if (typeof run !== "boolean") {
+    return { ok: false, error: "run must be a boolean" };
+  }
+  if (run && !value.readyForAgent) {
+    return { ok: false, error: "run requires readyForAgent" };
+  }
 
   const targets: ReviewTarget[] = [];
   for (let index = 0; index < value.targets.length; index += 1) {
@@ -141,6 +150,7 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
       body,
       targets,
       readyForAgent: value.readyForAgent,
+      run,
     },
   };
 }

@@ -161,4 +161,19 @@ Legacy body
     expect(payload.targets[0]).toEqual(target);
     expect(payload.readyForAgent).toBe(true);
   });
+
+  test("run flag defaults false, must be boolean, requires readyForAgent", () => {
+    const parsed = parseBatch();
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect((parsed.value as BatchFeedbackPayload).run).toBe(false);
+
+    const withRun = parseBatch({ run: true });
+    expect(withRun.ok).toBe(true);
+    if (!withRun.ok) return;
+    expect((withRun.value as BatchFeedbackPayload).run).toBe(true);
+
+    expect(parseBatch({ run: "yes" }).ok).toBe(false);
+    expect(parseBatch({ run: true, readyForAgent: false }).ok).toBe(false);
+  });
 });

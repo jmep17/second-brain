@@ -333,10 +333,53 @@ export function ArtifactReviewer({
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [watchIssue, setWatchIssue] = useState<string | null>(null);
 
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
+
+  // While a dispatched run is active, poll the batch's Execution state so
+  // the tray shows claimed/resolved/blocked without a manual refresh.
+  useEffect(() => {
+    if (!watchIssue) return;
+    let cancelled = false;
+    const timer = setInterval(() => {
+      void (async () => {
+        try {
+          const res = await fetch(
+            `/api/artifacts/feedback/status?issue=${encodeURIComponent(watchIssue)}`
+          );
+          if (!res.ok || cancelled) return;
+          const data = (await res.json()) as {
+            execution?: string;
+            running?: boolean;
+          };
+          if (cancelled || !data.execution) return;
+          const terminal =
+            data.execution === "resolved" || data.execution === "blocked";
+          if (terminal && !data.running) {
+            setStatus(
+              `Run ${data.execution}: ${watchIssue} — reload the artifact to see the result.`
+            );
+            setWatchIssue(null);
+          } else if (terminal) {
+            setStatus(
+              `Executor ${data.execution}: ${watchIssue} — reviewer checking…`
+            );
+          } else {
+            setStatus(`Agent ${data.execution}: ${watchIssue}…`);
+          }
+        } catch {
+          // transient poll failures are fine; keep watching
+        }
+      })();
+    }, 3_000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [watchIssue]);
 
   const toggleTarget = useCallback((target: ArtifactReviewSelection) => {
     setSelected((current) => {
@@ -746,7 +789,7 @@ export function ArtifactReviewer({
     body.trim() !== "" &&
     targets.every((target) => comments[target.id]?.trim());
 
-  async function submit(readyForAgent: boolean) {
+  async function submit(mode: "triage" | "queue" | "run") {
     if (!valid) return;
     setBusy(true);
     setError(null);
@@ -760,7 +803,8 @@ export function ArtifactReviewer({
           kind,
           title,
           body,
-          readyForAgent,
+          readyForAgent: mode !== "triage",
+          run: mode === "run",
           targets: targets.map((target) => ({
             ...target,
             comment: comments[target.id],
@@ -772,7 +816,21 @@ export function ArtifactReviewer({
         setError(`Could not file feedback: ${String(data.error)}`);
         return;
       }
-      setStatus(`Filed ${String(data.filed)}`);
+      const run = (data.run ?? null) as {
+        started?: boolean;
+        error?: string;
+      } | null;
+      const issueName = typeof data.issue === "string" ? data.issue : null;
+      if (mode === "run" && run?.started && issueName) {
+        setStatus(`Filed ${String(data.filed)} — agent starting…`);
+        setWatchIssue(issueName);
+      } else if (mode === "run") {
+        setStatus(
+          `Filed ${String(data.filed)} — run not started: ${String(run?.error ?? "unknown")}`
+        );
+      } else {
+        setStatus(`Filed ${String(data.filed)}`);
+      }
       textRangesRef.current.clear();
       setSelected({});
       setComments({});
@@ -1048,19 +1106,27 @@ export function ArtifactReviewer({
               </div>
             </fieldset>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-3">
               <button
                 type="button"
                 disabled={!valid || busy}
-                onClick={() => void submit(true)}
+                onClick={() => void submit("run")}
                 className="rounded-lg bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Approve · run now
+              </button>
+              <button
+                type="button"
+                disabled={!valid || busy}
+                onClick={() => void submit("queue")}
+                className="bg-fd-background rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Queue for agent
               </button>
               <button
                 type="button"
                 disabled={!valid || busy}
-                onClick={() => void submit(false)}
+                onClick={() => void submit("triage")}
                 className="bg-fd-background rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-fd-accent focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Save for triage
