@@ -25,7 +25,7 @@
       "name": "decisions",
       "source": "./plugins/decisions",
       "description": "Decision and RFC artifacts rendered as standalone Geist-styled HTML pages.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "productivity"
     }
   ]

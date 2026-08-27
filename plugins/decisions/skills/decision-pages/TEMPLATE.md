@@ -181,6 +181,7 @@ Copy this complete document. Replace `TOPIC`, dates, status, paths, and example 
         display: grid;
         grid-template-columns: 22px minmax(0, 1fr);
         gap: 8px;
+        align-items: baseline;
       }
       .sign {
         font-family: var(--font-mono);
