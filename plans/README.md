@@ -37,7 +37,7 @@ conditions, and update your row when done.
 | 021  | A new machine installs the Claude Code layer from a runbook, proven by `tools/verify-install.sh`               | P1       | M      | —                       | TODO   |
 | 022  | Vercel-identity lint for artifact pages and templates; re-format `plugins/DESIGN.md`                           | P2       | S      | —                       | TODO   |
 | 023  | Rename `--accents-*` tokens onto published Geist `--ds-gray-*` scale names                                     | P3       | S      | 022; after 017–018, 020 | TODO   |
-| 024  | Verification baseline: root `bun run verify`, wire `bun test`, guard-fn tests                                  | P1       | S      | —                       | TODO   |
+| 024  | Verification baseline: root `bun run verify`, wire `bun test`, guard-fn tests                                  | P1       | S      | —                       | DONE   |
 | 025  | Cross-origin/Host guard on all mutating localhost routes                                                       | P1       | S      | 024                     | TODO   |
 | 026  | Split filing from dispatch; token-gate autonomous agent runs                                                   | P1       | M      | 025                     | TODO   |
 | 027  | Sandbox artifacts: CSP on view route + vendor pinned Mermaid/ELK                                               | P1       | M      | 024                     | TODO   |
