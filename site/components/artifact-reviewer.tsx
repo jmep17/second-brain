@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ArtifactReviewSelection } from "@/lib/artifact-feedback";
+import {
+  RUN_MODELS,
+  type ArtifactReviewSelection,
+  type RunModel,
+} from "@/lib/artifact-feedback";
 
 interface DecoratedState {
   tabIndex: string | null;
@@ -330,6 +334,8 @@ export function ArtifactReviewer({
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [kind, setKind] = useState<"feedback" | "rfc">("feedback");
+  const [executorModel, setExecutorModel] = useState<RunModel>("sonnet");
+  const [reviewerModel, setReviewerModel] = useState<RunModel>("opus");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -805,6 +811,8 @@ export function ArtifactReviewer({
           body,
           readyForAgent: mode !== "triage",
           run: mode === "run",
+          executorModel,
+          reviewerModel,
           targets: targets.map((target) => ({
             ...target,
             comment: comments[target.id],
@@ -1105,6 +1113,45 @@ export function ArtifactReviewer({
                 ))}
               </div>
             </fieldset>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className="block text-xs font-medium">
+                Executor model
+                <select
+                  value={executorModel}
+                  onChange={(event) =>
+                    setExecutorModel(event.target.value as RunModel)
+                  }
+                  className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                >
+                  {RUN_MODELS.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-xs font-medium">
+                Reviewer model
+                <select
+                  value={reviewerModel}
+                  onChange={(event) =>
+                    setReviewerModel(event.target.value as RunModel)
+                  }
+                  className="bg-fd-background mt-1.5 w-full rounded-lg border px-2.5 py-2 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:outline-none"
+                >
+                  {RUN_MODELS.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="text-fd-muted-foreground text-xs sm:col-span-2">
+                Used by "Approve · run now": the executor does the work, the
+                reviewer verifies and may amend.
+              </p>
+            </div>
 
             <div className="grid gap-2 sm:grid-cols-3">
               <button

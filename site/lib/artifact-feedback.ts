@@ -2,6 +2,11 @@ export const FEEDBACK_KINDS = ["feedback", "rfc"] as const;
 
 export type FeedbackKind = (typeof FEEDBACK_KINDS)[number];
 
+/** Models a dispatched run may use (claude CLI aliases). */
+export const RUN_MODELS = ["haiku", "sonnet", "opus"] as const;
+
+export type RunModel = (typeof RUN_MODELS)[number];
+
 export interface ArtifactReviewSelection {
   id: string;
   kind: string;
@@ -30,6 +35,9 @@ export interface BatchFeedbackPayload {
   readyForAgent: boolean;
   /** Dispatch a headless run immediately after filing (approve action). */
   run: boolean;
+  /** Optional model overrides for the dispatched run's two stages. */
+  executorModel?: RunModel;
+  reviewerModel?: RunModel;
 }
 
 export type FeedbackPayload = LegacyFeedbackPayload | BatchFeedbackPayload;
@@ -93,6 +101,20 @@ function parseTarget(
   return target as ReviewTarget;
 }
 
+function parseRunModel(
+  value: unknown,
+  field: string
+): RunModel | undefined | { error: string } {
+  if (value === undefined) return undefined;
+  if (
+    typeof value === "string" &&
+    (RUN_MODELS as readonly string[]).includes(value)
+  ) {
+    return value as RunModel;
+  }
+  return { error: `${field} must be one of: ${RUN_MODELS.join(", ")}` };
+}
+
 /** Parse the legacy widget payload or the explicit artifact-review batch. */
 export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
   if (!isRecord(value)) return { ok: false, error: "bad body" };
@@ -133,6 +155,14 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
   if (run && !value.readyForAgent) {
     return { ok: false, error: "run requires readyForAgent" };
   }
+  const executorModel = parseRunModel(value.executorModel, "executorModel");
+  if (typeof executorModel === "object") {
+    return { ok: false, error: executorModel.error };
+  }
+  const reviewerModel = parseRunModel(value.reviewerModel, "reviewerModel");
+  if (typeof reviewerModel === "object") {
+    return { ok: false, error: reviewerModel.error };
+  }
 
   const targets: ReviewTarget[] = [];
   for (let index = 0; index < value.targets.length; index += 1) {
@@ -151,6 +181,8 @@ export function parseFeedbackPayload(value: unknown): FeedbackValidationResult {
       targets,
       readyForAgent: value.readyForAgent,
       run,
+      executorModel,
+      reviewerModel,
     },
   };
 }

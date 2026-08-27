@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       filed: relOut,
       issue: filename,
-      run: dispatchRun(filename),
+      run: dispatchRun(filename, {
+        executor: payload.executorModel,
+        reviewer: payload.reviewerModel,
+      }),
     });
   }
   return NextResponse.json({ filed: relOut, issue: filename });

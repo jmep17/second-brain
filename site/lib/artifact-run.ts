@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { RUN_MODELS, type RunModel } from "@/lib/artifact-feedback";
 import { feedbackDir } from "@/lib/artifacts";
 import { repoRoot } from "@/lib/config-files";
 
@@ -10,9 +11,9 @@ const lockFile = path.join(path.dirname(feedbackDir), ".run-lock");
 
 const ISSUE_FILENAME = /^\d+-[A-Za-z0-9][A-Za-z0-9._-]*\.md$/;
 
-/** Two-stage pipeline: a low-cost executor, then a stronger reviewer. */
-const EXECUTOR_MODEL = "sonnet";
-const REVIEWER_MODEL = "opus";
+/** Two-stage pipeline defaults: low-cost executor, stronger reviewer. */
+const DEFAULT_EXECUTOR_MODEL: RunModel = "sonnet";
+const DEFAULT_REVIEWER_MODEL: RunModel = "opus";
 
 export function validIssueFilename(name: string): boolean {
   return ISSUE_FILENAME.test(name);
@@ -47,9 +48,17 @@ export type DispatchResult =
  * owner, localhost, same as issue numbering). The wrapper shell owns the
  * lock across both stages and removes it when the run exits.
  */
-export function dispatchRun(issueFilename: string): DispatchResult {
+export function dispatchRun(
+  issueFilename: string,
+  models?: { executor?: RunModel; reviewer?: RunModel }
+): DispatchResult {
   if (!validIssueFilename(issueFilename)) {
     return { started: false, error: "invalid issue filename" };
+  }
+  const executor = models?.executor ?? DEFAULT_EXECUTOR_MODEL;
+  const reviewer = models?.reviewer ?? DEFAULT_REVIEWER_MODEL;
+  if (!RUN_MODELS.includes(executor) || !RUN_MODELS.includes(reviewer)) {
+    return { started: false, error: "invalid run model" };
   }
   if (lockedPid() !== null) {
     return { started: false, error: "a run is already active" };
@@ -98,8 +107,8 @@ export function dispatchRun(issueFilename: string): DispatchResult {
           LOG: log,
           RUN_PROMPT: prompt,
           REVIEW_PROMPT: reviewPrompt,
-          EXECUTOR_MODEL,
-          REVIEWER_MODEL,
+          EXECUTOR_MODEL: executor,
+          REVIEWER_MODEL: reviewer,
         },
       }
     );

@@ -176,4 +176,27 @@ Legacy body
     expect(parseBatch({ run: "yes" }).ok).toBe(false);
     expect(parseBatch({ run: true, readyForAgent: false }).ok).toBe(false);
   });
+
+  test("run model overrides validate against the allowlist", () => {
+    const parsed = parseBatch({
+      run: true,
+      executorModel: "haiku",
+      reviewerModel: "opus",
+    });
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const value = parsed.value as BatchFeedbackPayload;
+    expect(value.executorModel).toBe("haiku");
+    expect(value.reviewerModel).toBe("opus");
+
+    const absent = parseBatch();
+    expect(absent.ok).toBe(true);
+    if (!absent.ok) return;
+    expect((absent.value as BatchFeedbackPayload).executorModel).toBe(
+      undefined
+    );
+
+    expect(parseBatch({ executorModel: "gpt-4" }).ok).toBe(false);
+    expect(parseBatch({ reviewerModel: 5 }).ok).toBe(false);
+  });
 });
