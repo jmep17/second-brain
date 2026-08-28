@@ -27,6 +27,15 @@
   relies on 025's origin guard); plans/024-verification-baseline.md (test runner)
 - **Category**: security
 - **Planned at**: commit `c0ee11c`, 2026-08-27
+- **Amended**: 2026-08-28, against `2905c9c`. The first draft specified only two
+  authorization paths (public POST → `needs-triage`; dispatch → promote **and**
+  run), which left the tray's third mode — **Queue for agent**, i.e. promote to
+  `ready-for-agent` + `Execution: queued` *without* starting a run — with no
+  server-side path. That workflow is documented in `docs/agents/issue-tracker.md`
+  and asserted by `site/scripts/test-artifact-review.mjs:477-497`. An executor
+  correctly stopped at Step 4 on this. Fix (owner-approved): the dispatch
+  endpoint takes a `run: boolean`; it always promotes under the token gate and
+  dispatches only when `run` is true. Steps 3 and 4 are rewritten accordingly.
 
 ## Why this matters
 
@@ -172,7 +181,8 @@ Conventions / constraints:
 - `site/app/api/artifacts/feedback/route.ts` — file `needs-triage` only; drop
   inline dispatch.
 - `site/app/api/artifacts/feedback/dispatch/route.ts` (create) — token-gated
-  promotion + dispatch.
+  promotion, plus dispatch when `run: true`. Serves both "Queue for agent"
+  (`run: false`) and "Approve · run now" (`run: true`).
 - `site/lib/dispatch-token.ts` (create) — issue/verify single-use tokens.
 - `site/app/api/artifacts/feedback/dispatch-token/route.ts` (create) — `GET`
   that issues a token (guarded by plan 025's `isLocalRequest`).
@@ -289,12 +299,24 @@ export function GET(req: NextRequest) {
 
 ### Step 3: The token-gated dispatch endpoint
 
+> **AMENDED 2026-08-28** — this step now carries a `run` flag. See the
+> "Amendment" note in Status. If you already created this route without the
+> flag, add it; everything else in the route stays as-is.
+
 Create `site/app/api/artifacts/feedback/dispatch/route.ts`. It: guards with
-`isLocalRequest`; reads `{issue, token, executorModel?, reviewerModel?}`;
+`isLocalRequest`; reads `{issue, token, run, executorModel?, reviewerModel?}`;
 `consumeDispatchToken(token, issue)` or 403; **stamps the authorizing markers
 itself** — rewrite the issue file's `Status: needs-triage` → `Status:
-ready-for-agent` and insert `Execution: queued` (only if not already present),
-then call `dispatchRun(issue, {executor, reviewer})` and return its result.
+ready-for-agent` and insert `Execution: queued` (only if not already present);
+then, **only when `run === true`**, call `dispatchRun(issue, {executor,
+reviewer})`.
+
+Why one endpoint and not two: a batch sitting on disk as `ready-for-agent` +
+`Execution: queued` *is* autonomous execution, just deferred — a later agent
+session picks it up via `plugins/diagrams/hooks/ready-feedback-nudge.sh`. So
+promoting-without-running crosses the same authority boundary as promoting-and-
+running and needs the same origin + single-use-token gate. One endpoint, one
+gate, one flag; no duplicated gating logic to keep in sync.
 
 Target shape:
 
@@ -308,16 +330,23 @@ import { dispatchRun, validIssueFilename } from "@/lib/artifact-run";
 import { consumeDispatchToken } from "@/lib/dispatch-token";
 import { RUN_MODELS, type RunModel } from "@/lib/artifact-feedback";
 
+function isRunModel(value: unknown): value is RunModel {
+  return (
+    typeof value === "string" && (RUN_MODELS as readonly string[]).includes(value)
+  );
+}
+
 export async function POST(req: NextRequest) {
   if (!isLocalRequest(req)) {
     return NextResponse.json({ error: "forbidden origin" }, { status: 403 });
   }
-  let body: any;
+  let body: Record<string, unknown>;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "malformed JSON body" }, { status: 400 });
   }
   const issue = String(body.issue ?? "");
   const token = String(body.token ?? "");
+  const run = body.run === true;   // default false: promote only
   if (!validIssueFilename(issue)) {
     return NextResponse.json({ error: "invalid issue" }, { status: 400 });
   }
@@ -336,38 +365,63 @@ export async function POST(req: NextRequest) {
   }
   await fs.writeFile(file, next, "utf8");
 
-  const executor = RUN_MODELS.includes(body.executorModel) ? (body.executorModel as RunModel) : undefined;
-  const reviewer = RUN_MODELS.includes(body.reviewerModel) ? (body.reviewerModel as RunModel) : undefined;
+  if (!run) {
+    return NextResponse.json({ queued: true });
+  }
+  const executor = isRunModel(body.executorModel) ? body.executorModel : undefined;
+  const reviewer = isRunModel(body.reviewerModel) ? body.reviewerModel : undefined;
   return NextResponse.json({ run: dispatchRun(issue, { executor, reviewer }) });
 }
 ```
 
-(If typecheck objects to `any`, type `body` as `Record<string, unknown>` and
-narrow. Match the repo's existing route style.)
+Note `run` defaults to **false** (`body.run === true`): a body that omits or
+mistypes the field promotes but does not start a run — the safe default.
 
 **Verify**: `cd site && bun run typecheck` → exit 0.
-`grep -rn "consumeDispatchToken" site/app/api/artifacts/feedback/dispatch/route.ts`
-→ 1 match (dispatch is the only writer of the authorizing markers).
+`grep -rn "dispatchRun" site/app/api` → matches only in
+`feedback/dispatch/route.ts` (import + the single guarded call site).
 
-### Step 4: Reviewer two-call flow
+### Step 4: Reviewer flow — file, then promote
 
-In `site/components/artifact-reviewer.tsx` submit path (~:806-844):
+> **AMENDED 2026-08-28** — covers all three tray modes, not just run mode.
+
+The tray has **three** submit modes (`site/components/artifact-reviewer.tsx:799`,
+`submit(mode: "triage" | "queue" | "run")`), wired to three buttons
+(~:1139-1164). All three now file first; two of them then promote:
+
+| Tray mode | Button | After filing |
+|---|---|---|
+| `triage` | Save for triage | nothing — the filed issue stays `needs-triage` |
+| `queue`  | Queue for agent | GET a token, POST dispatch with `run: false` |
+| `run`    | Approve · run now | GET a token, POST dispatch with `run: true` |
+
+Changes to the submit path (~:799-857):
 
 - Always POST `/api/artifacts/feedback` **without** `run`/`readyForAgent`
   authority (send `readyForAgent: false` or drop the fields — the server
   ignores them now). Capture the returned `issue` filename.
-- If `mode === "run"`: after a successful file,
+- If `mode !== "triage"`: after a successful file,
   `GET /api/artifacts/feedback/dispatch-token?issue=<issue>` (same-origin, so
-  it passes plan 025's guard), then
-  `POST /api/artifacts/feedback/dispatch` with `{issue, token, executorModel,
-  reviewerModel}`. Use the returned `run` result exactly as today to set
+  it passes plan 025's guard), then `POST /api/artifacts/feedback/dispatch`
+  with `{issue, token, run: mode === "run", executorModel, reviewerModel}`.
+- For `mode === "run"`: use the returned `run` result exactly as today to set
   `watchIssue` and status text. Keep the existing `responseJson` helper and
   status-poll effect unchanged.
+- For `mode === "queue"`: the response is `{queued: true}` — keep today's
+  "Filed <path>" status text; do **not** set `watchIssue` (there is no run to
+  poll).
 
-**Verify**: `cd site && bun run typecheck` → exit 0. Manual: with a server up,
-approve-and-run from the tray still dispatches (watch `.scratch/artifact-feedback/runs/`
-for a new log); filing without run writes a `needs-triage` issue (grep the new
-file for `Status: needs-triage`).
+If a token GET or the dispatch POST fails, surface the error in the tray's
+existing status area — the issue *was* filed, so say so rather than implying
+nothing happened.
+
+**Verify**: `cd site && bun run typecheck` → exit 0. Manual (server up):
+"Save for triage" writes an issue whose `Status:` is `needs-triage` with no
+`Execution:` line; "Queue for agent" writes one that ends up
+`Status: ready-for-agent` + `Execution: queued` with **no** new log in
+`.scratch/artifact-feedback/runs/`; "Approve · run now" produces both the
+markers and a new run log.
+
 
 ### Step 5: Full gate
 
@@ -385,7 +439,12 @@ dispatched).
   `needs-triage` with no `Execution:` line — the byte-exact expectation
   changes.
 - Manual E2E via `test:artifact-review` covers the file→token→dispatch chain
-  end to end.
+  end to end. Its "Queue for agent" assertions (`test-artifact-review.mjs:477-497`)
+  expect the filed issue to reach `Status: ready-for-agent` + `Execution: queued`
+  — under the amended design that still holds, reached via the `run: false`
+  dispatch call rather than from the POST body. If the assertion races the
+  second call, await the promote before reading the file; do **not** weaken the
+  assertion.
 - Verification: `cd site && bun test` → all pass, including the new token
   tests.
 
@@ -395,6 +454,11 @@ dispatched).
 - [ ] `cd site && bun test` passes; new `dispatch-token` tests exist and pass
 - [ ] `grep -rn "dispatchRun" site/app/api` shows dispatch **only** from
       `feedback/dispatch/route.ts` (not from `feedback/route.ts`)
+- [ ] A dispatch POST with `run: false` (or with `run` omitted) promotes the
+      issue markers and starts **no** run — no new log appears in
+      `.scratch/artifact-feedback/runs/`
+- [ ] All three tray modes work: triage files `needs-triage`; queue reaches
+      `ready-for-agent` + `queued` with no run; approve-run-now does both
 - [ ] `grep -n "ready-for-agent" site/lib/artifact-feedback.ts` → no matches
       (the render path can no longer emit the authorizing status)
 - [ ] A feedback POST with `readyForAgent:true, run:true` produces an on-disk
@@ -414,9 +478,12 @@ Stop and report back (do not improvise) if:
   session store (e.g. because the reviewer runs on a different origin than the
   API) — report the options (in-memory Map vs. signed cookie vs. deferring)
   rather than inventing an insecure token scheme.
-- Making the filed issue `needs-triage` breaks a consumer you did not expect
-  (e.g. `ready-feedback-nudge.sh` logic, or `test:artifact-review` assertions
-  you cannot cleanly update) — report the coupling.
+- Making the filed issue `needs-triage` breaks a consumer **beyond** the
+  "Queue for agent" coupling already handled by the 2026-08-28 amendment —
+  report the coupling rather than working around it. (The known consumers are
+  `plugins/diagrams/hooks/ready-feedback-nudge.sh`, which counts ready+queued
+  batches, and `test-artifact-review.mjs`; both are satisfied by the `run:
+  false` promote path.)
 
 ## Maintenance notes
 

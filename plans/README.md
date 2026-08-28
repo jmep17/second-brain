@@ -39,7 +39,7 @@ conditions, and update your row when done.
 | 023  | Rename `--accents-*` tokens onto published Geist `--ds-gray-*` scale names                                     | P3       | S      | 022; after 017–018, 020 | TODO   |
 | 024  | Verification baseline: root `bun run verify`, wire `bun test`, guard-fn tests                                  | P1       | S      | —                       | DONE   |
 | 025  | Cross-origin/Host guard on all mutating localhost routes                                                       | P1       | S      | 024                     | DONE   |
-| 026  | Split filing from dispatch; token-gate autonomous agent runs                                                   | P1       | M      | 025                     | TODO   |
+| 026  | Split filing from dispatch; token-gate autonomous agent runs                                                   | P1       | M      | 025                     | IN PROGRESS |
 | 027  | Sandbox artifacts: CSP on view route + vendor pinned Mermaid/ELK                                               | P1       | M      | 024                     | TODO   |
 | 028  | Harden the issue-file trust boundary (number collision + marker forgery)                                       | P2       | S      | 024                     | TODO   |
 | 029  | Containment hardening: dotfiles write allow-list + symlink-safe resolvers                                      | P2       | S      | 024                     | TODO   |
@@ -984,3 +984,35 @@ these as by-design so they are not re-audited next run:
 - **Two-Mac deployment described but unbuilt** — this is _stated-but-undelivered
   direction_ (plans 039/040), not a bug; the docs fix is the status marker in
   plan 038, not deleting the decision.
+
+### Plan 026 — BLOCKED on a plan defect (2026-08-28)
+
+Plan 026 was dispatched to an executor on 2026-08-28 against `2905c9c`. Steps
+1–3 landed cleanly on branch `advisor/026-separate-filing-from-dispatch` in
+worktree `.claude/worktrees/agent-a906f6ac66a8575d1` (commits `356e06f`,
+`0fac621`, `94ee2ea`): the public feedback POST can no longer emit
+`ready-for-agent`/`Execution: queued`, and a token-gated
+`feedback/dispatch/route.ts` is now the only writer of those markers.
+Verified by the reviewer in the worktree: `bun run typecheck` exit 0,
+`bun test` 65 pass / 0 fail, `dispatchRun` reachable only from the dispatch
+route, scope clean (7 in-scope files, nothing else).
+
+The executor correctly hit plan 026's own STOP condition at Step 4. The plan
+missed a third workflow: the reviewer tray's **Queue for agent** mode
+(`artifact-reviewer.tsx:799` `submit("triage" | "queue" | "run")`) files a
+batch as `ready-for-agent` + `Execution: queued` **without** dispatching a
+run, so a later agent session claims it via
+`plugins/diagrams/hooks/ready-feedback-nudge.sh`. That deferred-queue
+workflow is documented in `docs/agents/issue-tracker.md` and asserted by
+`site/scripts/test-artifact-review.mjs:477-497`. Plan 026 left it with no
+server-side path: the public POST now files `needs-triage`, and the dispatch
+endpoint always calls `dispatchRun`.
+
+**Resolved 2026-08-28 (owner decision)**: the dispatch endpoint takes a
+`run: boolean` — it always promotes the markers under the origin + single-use-
+token gate, and calls `dispatchRun` only when `run` is true. "Queue for agent"
+sends `run: false`; "Approve · run now" sends `run: true`. A queued batch is
+deferred autonomous execution, so it crosses the same authority boundary and
+needs the same gate — one endpoint, one gate, one flag, no duplicated gating
+logic. Plan 026 Steps 3 and 4 were rewritten accordingly and the executor
+re-dispatched to finish Steps 3–5.
