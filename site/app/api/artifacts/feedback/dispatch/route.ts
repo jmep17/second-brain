@@ -15,9 +15,13 @@ function isRunModel(value: unknown): value is RunModel {
 
 /**
  * POST /api/artifacts/feedback/dispatch — the only path that may promote a
- * filed issue to ready-for-agent/Execution: queued and start an autonomous
- * run. Requires a same-origin request and a single-use token minted by
- * GET /api/artifacts/feedback/dispatch-token for this exact issue.
+ * filed issue to ready-for-agent/Execution: queued. Requires a same-origin
+ * request and a single-use token minted by GET
+ * /api/artifacts/feedback/dispatch-token for this exact issue. Promoting to
+ * ready-for-agent + queued is itself an authorization boundary (a queued
+ * batch is fed to later autonomous sessions by the nudge hook), so it always
+ * goes through this gate — `run: true` additionally starts a run right now;
+ * `run` defaulting to false (omitted or not exactly `true`) promotes only.
  */
 export async function POST(req: NextRequest) {
   if (!isLocalRequest(req)) {
@@ -33,6 +37,7 @@ export async function POST(req: NextRequest) {
 
   const issue = String(body.issue ?? "");
   const token = String(body.token ?? "");
+  const run = body.run === true; // default false: promote only
   if (!validIssueFilename(issue)) {
     return NextResponse.json({ error: "invalid issue" }, { status: 400 });
   }
@@ -57,6 +62,9 @@ export async function POST(req: NextRequest) {
   }
   await fs.writeFile(file, next, "utf8");
 
+  if (!run) {
+    return NextResponse.json({ queued: true });
+  }
   const executor = isRunModel(body.executorModel) ? body.executorModel : undefined;
   const reviewer = isRunModel(body.reviewerModel) ? body.reviewerModel : undefined;
   return NextResponse.json({ run: dispatchRun(issue, { executor, reviewer }) });
