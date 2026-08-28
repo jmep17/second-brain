@@ -865,7 +865,7 @@ export function ArtifactReviewer({
                 `Filed ${String(filed)} — could not queue: ${String(dispatchData.error ?? "unknown")}`
               );
             } else if (mode === "queue") {
-              setStatus(`Filed ${String(filed)} — queued for agent.`);
+              setStatus(`Filed ${String(filed)}`);
             } else {
               const run = (dispatchData.run ?? null) as {
                 started?: boolean;
