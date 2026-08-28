@@ -811,10 +811,11 @@ export function ArtifactReviewer({
           kind,
           title,
           body,
-          readyForAgent: mode !== "triage",
-          run: mode === "run",
-          executorModel,
-          reviewerModel,
+          // The public POST body can no longer authorize anything — the
+          // server always files needs-triage. "queue" and "run" promote
+          // via a separate token-gated dispatch call below.
+          readyForAgent: false,
+          run: false,
           targets: targets.map((target) => ({
             ...target,
             comment: comments[target.id],
@@ -826,22 +827,65 @@ export function ArtifactReviewer({
         setError(`Could not file feedback: ${String(data.error)}`);
         return;
       }
-      const run = (data.run ?? null) as {
-        started?: boolean;
-        error?: string;
-      } | null;
+      const filed = typeof data.filed === "string" ? data.filed : null;
       const issueName = typeof data.issue === "string" ? data.issue : null;
-      if (mode === "run" && run?.started && issueName) {
-        setStatus(`Filed ${String(data.filed)} — agent starting…`);
-        setWatchIssue(issueName);
-      } else if (mode === "run") {
-        setStatus(
-          `Filed ${String(data.filed)} — run not started: ${String(run?.error ?? "unknown")}`
-        );
+      if (filed) setFiledPath(filed);
+
+      if (mode === "triage" || !issueName) {
+        setStatus(`Filed ${String(filed)}`);
       } else {
-        setStatus(`Filed ${String(data.filed)}`);
+        // "queue" and "run" both cross the authorization boundary (a
+        // queued batch is fed to later autonomous sessions by the nudge
+        // hook), so both go through the same same-origin token + dispatch
+        // gate. Only "run" also starts a run right now.
+        try {
+          const tokenRes = await fetch(
+            `/api/artifacts/feedback/dispatch-token?issue=${encodeURIComponent(issueName)}`
+          );
+          const tokenData = await responseJson(tokenRes);
+          if (!tokenRes.ok || typeof tokenData.token !== "string") {
+            setStatus(
+              `Filed ${String(filed)} — could not authorize: ${String(tokenData.error ?? "unknown")}`
+            );
+          } else {
+            const dispatchRes = await fetch("/api/artifacts/feedback/dispatch", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                issue: issueName,
+                token: tokenData.token,
+                run: mode === "run",
+                executorModel,
+                reviewerModel,
+              }),
+            });
+            const dispatchData = await responseJson(dispatchRes);
+            if (!dispatchRes.ok) {
+              setStatus(
+                `Filed ${String(filed)} — could not queue: ${String(dispatchData.error ?? "unknown")}`
+              );
+            } else if (mode === "queue") {
+              setStatus(`Filed ${String(filed)} — queued for agent.`);
+            } else {
+              const run = (dispatchData.run ?? null) as {
+                started?: boolean;
+                error?: string;
+              } | null;
+              if (run?.started) {
+                setStatus(`Filed ${String(filed)} — agent starting…`);
+                setWatchIssue(issueName);
+              } else {
+                setStatus(
+                  `Filed ${String(filed)} — run not started: ${String(run?.error ?? "unknown")}`
+                );
+              }
+            }
+          }
+        } catch (cause) {
+          setStatus(`Filed ${String(filed)} — could not queue: ${String(cause)}`);
+        }
       }
-      if (typeof data.filed === "string") setFiledPath(data.filed);
+
       textRangesRef.current.clear();
       setSelected({});
       setComments({});
