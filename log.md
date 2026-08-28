@@ -267,3 +267,19 @@ Append-only record of wiki operations. Newest entries at the bottom.
   `a4a3e38` on `worktree-agent-ac3aec6ac7bb657ca`; plugins 0.4.2/0.6.2/0.13.3);
   reviewed and approved. Live pages patched in place; brainstorm page also
   repaired (advisor build script had corrupted its railtitle/canvas rules).
+
+## [2026-08-27] maintenance | improve: filed plan 047 — ADHD-friendly chat responses (output style + standard)
+
+- Filed plans/047-adhd-friendly-chat-responses.md (rev 2: repo-versioned `ADHD Brief` output style after research reversed rev 1's CLAUDE.md-only mechanism); updated plans/README.md (row 047, Phase E note, 30/46 counts); artifact at artifacts/plans/2026-08-27-adhd-friendly-chat-responses.html. Flagged contradiction: wiki/claude-diagrams-plugin.md's "output styles deprecated (v2.1.246)" is stale — verified supported at v2.1.247 (un-deprecated v2.0.32; only the /output-style command was removed). Plan 047 Step 4 files the note on the page.
+
+## [2026-08-28] maintenance | Plan 025 merged — cross-origin guard on mutating localhost routes
+
+- Fast-forwarded `advisor/025-cross-origin-request-guard` onto `main`:
+  `ef2500b` (site/lib/request-origin.ts + 6-case test) and `bf58396`
+  (`isLocalRequest` guard wired into the four mutating handlers —
+  artifacts/feedback, config/drift, config/file, config/git; GET handlers
+  left unguarded by design). Reviewed 2026-08-28: every done criterion
+  re-run independently (`bun run typecheck`, `bun test lib/request-origin`
+  6/6, grep gate 4 imports + 4 call sites, `bun run verify`,
+  `tools/check-plugins.sh`), all clean. Branch and worktree removed.
+  Secure-baseline critical path now stands at `024 ✓ → 025 ✓ → 026` (+ `027`).

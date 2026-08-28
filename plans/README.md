@@ -2,7 +2,7 @@
 
 ## At a glance
 
-- **Where you are**: 29 of 45 plans open; secure-baseline critical path `024 → 025 → 026` (+ `027`) is the front of the queue.
+- **Where you are**: 30 of 46 plans open; secure-baseline critical path `024 → 025 → 026` (+ `027`) is the front of the queue.
 - **Next action**: execute the first TODO plan in Phase A below.
 - **Re-entry**: each phase heading states what it achieves; read only the phase you're in.
 
@@ -38,7 +38,7 @@ conditions, and update your row when done.
 | 022  | Vercel-identity lint for artifact pages and templates; re-format `plugins/DESIGN.md`                           | P2       | S      | —                       | TODO   |
 | 023  | Rename `--accents-*` tokens onto published Geist `--ds-gray-*` scale names                                     | P3       | S      | 022; after 017–018, 020 | TODO   |
 | 024  | Verification baseline: root `bun run verify`, wire `bun test`, guard-fn tests                                  | P1       | S      | —                       | DONE   |
-| 025  | Cross-origin/Host guard on all mutating localhost routes                                                       | P1       | S      | 024                     | TODO   |
+| 025  | Cross-origin/Host guard on all mutating localhost routes                                                       | P1       | S      | 024                     | DONE   |
 | 026  | Split filing from dispatch; token-gate autonomous agent runs                                                   | P1       | M      | 025                     | TODO   |
 | 027  | Sandbox artifacts: CSP on view route + vendor pinned Mermaid/ELK                                               | P1       | M      | 024                     | TODO   |
 | 028  | Harden the issue-file trust boundary (number collision + marker forgery)                                       | P2       | S      | 024                     | TODO   |
@@ -60,6 +60,7 @@ conditions, and update your row when done.
 | 044  | ADHD-friendly authoring standard: `docs/agents/adhd-writing.md` + template/hook wiring                        | P2       | M      | —                       | DONE   |
 | 045  | ADHD reading contract in artifact templates: TL;DR card, next action, progress, folded depth                   | P2       | M      | 044; after 022, 027     | DONE   |
 | 046  | Artifact-template rendering fixes: dark-mode controls, code-chip wrap, status-chip placement               | P2       | S      | 045                     | DONE   |
+| 047  | ADHD-friendly chat responses: repo output style `ADHD Brief` + `adhd-writing.md` chat section + AGENTS.md rule | P2       | S      | 044 (DONE)              | TODO   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -141,6 +142,10 @@ nothing else this cycle, do these four.
   it lands, the more documents inherit it. Unblocks 045 (Phase D). Its
   Step 7 inserts an "At a glance" block into every open plan file — don't
   run it while other executors hold plans mid-flight.
+- **047** ADHD-friendly chat responses — repo-versioned output style
+  (`.claude/output-styles/adhd-brief.md` + project settings) plus the
+  standard's chat section and an AGENTS.md rule; no deps (044 is DONE);
+  any time, the earlier the quieter every session's replies get.
 - Direction spikes (design/investigation, optional, anytime): **039** config
   spec → **040** adopt + toggle; **041** surface needs-triage; **042** KB
   revival. 002/038/042 all touch wiki docs — coordinate.
@@ -542,6 +547,30 @@ and its one unit test is unreachable, so the security and correctness fixes
 have nothing to verify against until 024 lands. Direction plans 039–042 are
 design/spike plans (investigate, decide, prototype), not build-everything
 plans.
+
+Plan 025 was executed by a dispatched executor in isolated worktree
+`.claude/worktrees/agent-aaa50a8e769ee75ff` on branch
+`advisor/025-cross-origin-request-guard` (two commits, `ef2500b` helper+test,
+`bf58396` route wirings; based on `main`@`5285c91`, cleanly two commits ahead
+— merge-base equals current `main` HEAD). Reviewed on 2026-08-28. The status
+row was set to DONE prematurely before this review — the work had never been
+merged and `log.md` had no entry — so the DONE was corrected to reflect an
+actual review this pass. Drift check clean: none of the four in-scope route
+handlers changed on `main` since the plan's `c0ee11c` base (only unrelated
+plan-024 test files did), and `main..HEAD` is a clean +117-line, six-file
+addition with no deletions. The reviewer re-ran every done criterion
+independently in the worktree: `bun run typecheck` (exit 0),
+`bun test lib/request-origin` (6/6 pass, all six required cases with real
+assertions — foreign Origin/Host/Referer rejected, loopback and null-Origin
+accepted), the grep gate (exactly 4 imports + 4 `if (!isLocalRequest)` call
+sites, GET handlers correctly left unguarded), `bun run verify` (exit 0), and
+`bash tools/check-plugins.sh` (`all checks passed`). Scope is exactly the six
+in-scope files, nothing outside. One benign deviation: the test file uses
+`/// <reference types="bun-types" />` rather than the plan's `@types/bun`
+note — same intent (typed bun globals without `@ts-nocheck`), typecheck
+passes. **APPROVED and merged** — fast-forwarded onto `main` on 2026-08-28
+(`ef2500b`, `bf58396`); the advisor branch and its worktree have been removed.
+Logged in `log.md`.
 
 ## Dependency notes
 
