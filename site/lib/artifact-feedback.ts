@@ -222,8 +222,12 @@ ${payload.body}
 `;
   }
 
-  const status = payload.readyForAgent ? "ready-for-agent" : "needs-triage";
-  const execution = payload.readyForAgent ? "Execution: queued\n" : "";
+  // The public POST body can never authorize an autonomous run: the filed
+  // issue always stays in triage. Promotion to the authorizing markers
+  // happens only in the token-gated dispatch endpoint (site/app/api/
+  // artifacts/feedback/dispatch/route.ts).
+  const status = "needs-triage";
+  const execution = "";
   const requested = payload.targets
     .map(
       (target, index) => `### ${index + 1}. ${inlineEvidence(target.label)}

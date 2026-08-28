@@ -7,7 +7,6 @@ import {
   parseFeedbackPayload,
   renderFeedbackIssue,
 } from "@/lib/artifact-feedback";
-import { dispatchRun } from "@/lib/artifact-run";
 import { isLocalRequest } from "@/lib/request-origin";
 
 /**
@@ -66,15 +65,5 @@ export async function POST(req: NextRequest) {
 
   await fs.writeFile(path.join(feedbackDir, filename), content, "utf8");
 
-  if ("run" in payload && payload.run) {
-    return NextResponse.json({
-      filed: relOut,
-      issue: filename,
-      run: dispatchRun(filename, {
-        executor: payload.executorModel,
-        reviewer: payload.reviewerModel,
-      }),
-    });
-  }
   return NextResponse.json({ filed: relOut, issue: filename });
 }

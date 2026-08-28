@@ -52,7 +52,7 @@ Legacy body
 `);
   });
 
-  test("renders two ready targets with quoted evidence", () => {
+  test("renders two targets with quoted evidence, always needs-triage", () => {
     const parsed = parseBatch({
       targets: [
         target,
@@ -74,7 +74,11 @@ Legacy body
       "plans/example.html",
       "2026-08-26"
     );
-    expect(markdown).toContain("Status: ready-for-agent\nExecution: queued");
+    // The public POST body can never authorize an autonomous run: the
+    // filed issue is always needs-triage, even when readyForAgent: true
+    // was sent. Promotion happens only in the token-gated dispatch route.
+    expect(markdown).toContain("Status: needs-triage");
+    expect(markdown).not.toContain("Execution:");
     expect(markdown).toContain("### 1. First step");
     expect(markdown).toContain("### 2. Second passage");
     expect(markdown).toContain("Requested change:\n\nRewrite this passage.");
